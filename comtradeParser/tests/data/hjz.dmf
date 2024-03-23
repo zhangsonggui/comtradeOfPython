@@ -1,0 +1,407 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<scl:ComtradeModel xmlns:scl="http://www.iec.ch/61850/2003/SCL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" station_name="国华勃中" version="1.0" reference="0" rec_dev_name="220kV线路故障" xsi:schemaLocation="http://www.iec.ch/61850/2003/SCLcomtrade_mdl_v1.1.xsd">
+    <scl:AnalogChannel idx_cfg="1" idx_org="1" type="A" flag="ACV" freq="50" au="0.0079" bu="0" sIUnit="V" multiplier="" primary="127017" secondary="57.735" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="2" idx_org="2" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="127017" secondary="57.735" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="3" idx_org="3" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="127017" secondary="57.735" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="4" idx_org="4" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="73323.4531" secondary="57.735" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="5" idx_org="5" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="20207.25" secondary="57.735" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="6" idx_org="6" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="20207.25" secondary="57.735" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="7" idx_org="7" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="20207.25" secondary="57.735" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="8" idx_org="8" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="11662.4697" secondary="57.735" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="9" idx_org="9" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="10" idx_org="10" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="11" idx_org="11" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="12" idx_org="12" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="13" idx_org="13" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="14" idx_org="14" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="15" idx_org="15" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="16" idx_org="16" type="A" flag="ACV" freq="50" au="0.0078" bu="0" sIUnit="V" multiplier="" primary="57735" secondary="57.735" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="17" idx_org="17" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="18" idx_org="18" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="19" idx_org="19" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="20" idx_org="20" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="21" idx_org="21" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="22" idx_org="22" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="23" idx_org="23" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="24" idx_org="24" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="25" idx_org="25" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="2000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="26" idx_org="26" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="2000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="27" idx_org="27" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="2000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="28" idx_org="28" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="2000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="29" idx_org="29" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="30" idx_org="30" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="31" idx_org="31" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="32" idx_org="32" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="33" idx_org="33" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="34" idx_org="34" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="35" idx_org="35" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="36" idx_org="36" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="100" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="37" idx_org="37" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="38" idx_org="38" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="39" idx_org="39" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="40" idx_org="40" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="300" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="41" idx_org="41" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="42" idx_org="42" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="43" idx_org="43" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="44" idx_org="44" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="45" idx_org="45" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="46" idx_org="46" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="47" idx_org="47" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="48" idx_org="48" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1250" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="49" idx_org="49" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="4000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="50" idx_org="50" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="4000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="51" idx_org="51" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="4000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="52" idx_org="52" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="4000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="53" idx_org="53" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="54" idx_org="54" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="55" idx_org="55" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="56" idx_org="56" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="57" idx_org="57" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="58" idx_org="58" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="59" idx_org="59" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="60" idx_org="60" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="61" idx_org="61" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="62" idx_org="62" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="63" idx_org="63" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="64" idx_org="64" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="65" idx_org="65" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="66" idx_org="66" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="67" idx_org="67" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="68" idx_org="68" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="69" idx_org="69" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="70" idx_org="70" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="71" idx_org="71" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="72" idx_org="72" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="73" idx_org="73" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="74" idx_org="74" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="75" idx_org="75" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="76" idx_org="76" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="77" idx_org="77" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="78" idx_org="78" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="79" idx_org="79" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="80" idx_org="80" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="81" idx_org="81" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="82" idx_org="82" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="83" idx_org="83" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="84" idx_org="84" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="85" idx_org="85" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="86" idx_org="86" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="87" idx_org="87" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="88" idx_org="88" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="89" idx_org="89" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="90" idx_org="90" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="91" idx_org="91" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="92" idx_org="92" type="A" flag="ACC" freq="50" au="0.0021" bu="0" sIUnit="A" multiplier="" primary="1000" secondary="1" ps="S" idx_rlt="0" ph="N"/>
+    <scl:AnalogChannel idx_cfg="93" idx_org="93" type="A" flag="ACV" freq="50" au="0.0194" bu="0" sIUnit="V" multiplier="" primary="220" secondary="220" ps="S" idx_rlt="0" ph="A"/>
+    <scl:AnalogChannel idx_cfg="94" idx_org="94" type="A" flag="ACV" freq="50" au="0.0195" bu="0" sIUnit="V" multiplier="" primary="220" secondary="220" ps="S" idx_rlt="0" ph="B"/>
+    <scl:AnalogChannel idx_cfg="95" idx_org="95" type="A" flag="ACV" freq="50" au="0.0194" bu="0" sIUnit="V" multiplier="" primary="220" secondary="220" ps="S" idx_rlt="0" ph="C"/>
+    <scl:AnalogChannel idx_cfg="96" idx_org="96" type="A" flag="ACV" freq="50" au="0.0194" bu="0" sIUnit="V" multiplier="" primary="220" secondary="220" ps="S" idx_rlt="0" ph="N"/>
+    <scl:StatusChannel idx_cfg="1" idx_org="1" type="Breaker" flag="HWJPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="2" idx_org="2" type="Breaker" flag="TWJPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="3" idx_org="3" type="Breaker" flag="HWJPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="4" idx_org="4" type="Breaker" flag="TWJPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="5" idx_org="5" type="Breaker" flag="HWJPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="6" idx_org="6" type="Breaker" flag="TWJPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="7" idx_org="7" type="Breaker" flag="HWJ" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="8" idx_org="8" type="Breaker" flag="TWJ" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="9" idx_org="9" type="Breaker" flag="HWJPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="10" idx_org="10" type="Breaker" flag="TWJPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="11" idx_org="11" type="Breaker" flag="HWJPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="12" idx_org="12" type="Breaker" flag="TWJPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="13" idx_org="13" type="Breaker" flag="HWJPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="14" idx_org="14" type="Breaker" flag="TWJPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="15" idx_org="15" type="Breaker" flag="HWJPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="16" idx_org="16" type="Breaker" flag="TWJPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="17" idx_org="17" type="Breaker" flag="HWJPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="18" idx_org="18" type="Breaker" flag="TWJPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="19" idx_org="19" type="Breaker" flag="HWJPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="20" idx_org="20" type="Breaker" flag="TWJPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="21" idx_org="21" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="22" idx_org="22" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="23" idx_org="23" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="24" idx_org="24" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="25" idx_org="25" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="26" idx_org="26" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="27" idx_org="27" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="28" idx_org="28" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="29" idx_org="29" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="30" idx_org="30" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="31" idx_org="31" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="32" idx_org="32" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="33" idx_org="33" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="34" idx_org="34" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="35" idx_org="35" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="36" idx_org="36" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="37" idx_org="37" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="38" idx_org="38" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="39" idx_org="39" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="40" idx_org="40" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="41" idx_org="41" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="42" idx_org="42" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="43" idx_org="43" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="44" idx_org="44" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="45" idx_org="45" type="Warning" flag="WarnComm" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="46" idx_org="46" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="47" idx_org="47" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="48" idx_org="48" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="49" idx_org="49" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="50" idx_org="50" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="51" idx_org="51" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="52" idx_org="52" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="53" idx_org="53" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="54" idx_org="54" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="55" idx_org="55" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="56" idx_org="56" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="57" idx_org="57" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="58" idx_org="58" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="59" idx_org="59" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="60" idx_org="60" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="61" idx_org="61" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="62" idx_org="62" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="63" idx_org="63" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="64" idx_org="64" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="65" idx_org="65" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="66" idx_org="66" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="67" idx_org="67" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="68" idx_org="68" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="69" idx_org="69" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="70" idx_org="70" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="71" idx_org="71" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="72" idx_org="72" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="73" idx_org="73" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="74" idx_org="74" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="75" idx_org="75" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="76" idx_org="76" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="77" idx_org="77" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="78" idx_org="78" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="79" idx_org="79" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="80" idx_org="80" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="81" idx_org="81" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="82" idx_org="82" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="83" idx_org="83" type="Warning" flag="WarnComm" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="84" idx_org="84" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="85" idx_org="85" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="86" idx_org="86" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="87" idx_org="87" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="88" idx_org="88" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="89" idx_org="89" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="90" idx_org="90" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="91" idx_org="91" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="92" idx_org="92" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="93" idx_org="93" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="94" idx_org="94" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="95" idx_org="95" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="96" idx_org="96" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="97" idx_org="97" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="98" idx_org="98" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="99" idx_org="99" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="100" idx_org="100" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="101" idx_org="101" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="102" idx_org="102" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="103" idx_org="103" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="104" idx_org="104" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="105" idx_org="105" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="106" idx_org="106" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="107" idx_org="107" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="108" idx_org="108" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="109" idx_org="109" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="110" idx_org="110" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="111" idx_org="111" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="112" idx_org="112" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="113" idx_org="113" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="114" idx_org="114" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="115" idx_org="115" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="116" idx_org="116" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="117" idx_org="117" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="118" idx_org="118" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="119" idx_org="119" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="120" idx_org="120" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="121" idx_org="121" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="122" idx_org="122" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="123" idx_org="123" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="124" idx_org="124" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="125" idx_org="125" type="Breaker" flag="TWJ" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="126" idx_org="126" type="Breaker" flag="HWJ" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="127" idx_org="127" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="128" idx_org="128" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="129" idx_org="129" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="130" idx_org="130" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="131" idx_org="131" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="132" idx_org="132" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="133" idx_org="133" type="Relay" flag="Tr" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="134" idx_org="134" type="Warning" flag="WarnComm" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="135" idx_org="135" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="136" idx_org="136" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="137" idx_org="137" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="138" idx_org="138" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="139" idx_org="139" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="140" idx_org="140" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="141" idx_org="141" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="142" idx_org="142" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="143" idx_org="143" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="144" idx_org="144" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="145" idx_org="145" type="Relay" flag="TrPhsA" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="146" idx_org="146" type="Relay" flag="TrPhsB" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="147" idx_org="147" type="Relay" flag="TrPhsC" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="148" idx_org="148" type="Relay" flag="RecOpCls" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="149" idx_org="149" type="Relay" flag="OpTP" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="150" idx_org="150" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="151" idx_org="151" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="152" idx_org="152" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="153" idx_org="153" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="154" idx_org="154" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="155" idx_org="155" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="156" idx_org="156" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="157" idx_org="157" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="158" idx_org="158" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="159" idx_org="159" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="160" idx_org="160" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="161" idx_org="161" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="162" idx_org="162" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="163" idx_org="163" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="164" idx_org="164" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="165" idx_org="165" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="166" idx_org="166" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="167" idx_org="167" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="168" idx_org="168" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="169" idx_org="169" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="170" idx_org="170" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="171" idx_org="171" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="172" idx_org="172" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="173" idx_org="173" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="174" idx_org="174" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="175" idx_org="175" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="176" idx_org="176" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="177" idx_org="177" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="178" idx_org="178" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="179" idx_org="179" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="180" idx_org="180" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="181" idx_org="181" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="182" idx_org="182" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="183" idx_org="183" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="184" idx_org="184" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="185" idx_org="185" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="186" idx_org="186" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="187" idx_org="187" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="188" idx_org="188" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="189" idx_org="189" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="190" idx_org="190" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="191" idx_org="191" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:StatusChannel idx_cfg="192" idx_org="192" type="Other" flag="general" contact="NormallyOpen" srcRef=""/>
+    <scl:Bus idx="1" bus_name="220kV母线U" srcRef="1" VRtg="0" VRtgSnd="0" VRtgSnd_Pos="BUS" bus_uuid="">
+        <scl:ACVChn ua_idx="1" ub_idx="2" uc_idx="3" un_idx="4" ul_idx="0"/>
+        <scl:SDL_Protect/>
+        <scl:SDL_Breaker/>
+    </scl:Bus>
+    <scl:Bus idx="2" bus_name="35kV母线ⅠU" srcRef="1" VRtg="0" VRtgSnd="0" VRtgSnd_Pos="BUS" bus_uuid="">
+        <scl:ACVChn ua_idx="5" ub_idx="6" uc_idx="7" un_idx="8" ul_idx="0"/>
+        <scl:SDL_Protect/>
+        <scl:SDL_Breaker/>
+    </scl:Bus>
+    <scl:Line idx="1" line_name="hh1x" bus_ID="1" srcRef="1" VRtg="0.0" ARtg="0.0" ARtgSnd="0.0" LinLen="23.79" bran_num="1" line_uuid="" remote_ID="0" remote_Flag="0" differential_ID="0">
+        <scl:RX r1="0.0469" x1="0.1525" r0="0.1289" x0="0.2825"/>
+        <scl:CG c1="0.0" c0="0.0" g1="0.0" g0="0.0"/>
+        <scl:PX px="0.0" px0="0.0"/>
+        <scl:MR idx="0" mr0="0.0" mx0="0.0"/>
+        <scl:ACC_Bran bran_idx="1" ia_idx="17" ib_idx="18" ic_idx="19" in_idx="20" dir="POS"/>
+        <scl:AnaChn idx_cfg="17"/>
+        <scl:AnaChn idx_cfg="18"/>
+        <scl:AnaChn idx_cfg="19"/>
+        <scl:AnaChn idx_cfg="20"/>
+        <scl:StaChn idx_cfg="1"/>
+        <scl:StaChn idx_cfg="2"/>
+        <scl:StaChn idx_cfg="3"/>
+        <scl:StaChn idx_cfg="4"/>
+        <scl:StaChn idx_cfg="5"/>
+        <scl:StaChn idx_cfg="6"/>
+        <scl:StaChn idx_cfg="33"/>
+        <scl:StaChn idx_cfg="34"/>
+        <scl:StaChn idx_cfg="35"/>
+        <scl:StaChn idx_cfg="38"/>
+        <scl:StaChn idx_cfg="39"/>
+        <scl:StaChn idx_cfg="40"/>
+        <scl:StaChn idx_cfg="41"/>
+        <scl:DifferentialCurrent ua_idx="0" ub_idx="0" uc_idx="0"/>
+        <scl:SDL_Protect/>
+        <scl:SDL_Breaker/>
+    </scl:Line>
+    <scl:Line idx="3" line_name="ghx" bus_ID="1" srcRef="1" VRtg="0.0" ARtg="0.0" ARtgSnd="0.0" LinLen="9.75" bran_num="1" line_uuid="" remote_ID="0" remote_Flag="0" differential_ID="0">
+        <scl:RX r1="0.021" x1="0.276" r0="0.062" x0="0.66"/>
+        <scl:CG c1="0.0" c0="0.0" g1="0.0" g0="0.0"/>
+        <scl:PX px="0.0" px0="0.0"/>
+        <scl:MR idx="0" mr0="0.0" mx0="0.0"/>
+        <scl:ACC_Bran bran_idx="1" ia_idx="25" ib_idx="26" ic_idx="27" in_idx="28" dir="POS"/>
+        <scl:AnaChn idx_cfg="25"/>
+        <scl:AnaChn idx_cfg="26"/>
+        <scl:AnaChn idx_cfg="27"/>
+        <scl:AnaChn idx_cfg="28"/>
+        <scl:StaChn idx_cfg="9"/>
+        <scl:StaChn idx_cfg="10"/>
+        <scl:StaChn idx_cfg="11"/>
+        <scl:StaChn idx_cfg="12"/>
+        <scl:StaChn idx_cfg="13"/>
+        <scl:StaChn idx_cfg="14"/>
+        <scl:StaChn idx_cfg="129"/>
+        <scl:StaChn idx_cfg="130"/>
+        <scl:StaChn idx_cfg="131"/>
+        <scl:StaChn idx_cfg="132"/>
+        <scl:StaChn idx_cfg="135"/>
+        <scl:StaChn idx_cfg="136"/>
+        <scl:StaChn idx_cfg="137"/>
+        <scl:StaChn idx_cfg="138"/>
+        <scl:StaChn idx_cfg="140"/>
+        <scl:StaChn idx_cfg="141"/>
+        <scl:StaChn idx_cfg="142"/>
+        <scl:StaChn idx_cfg="143"/>
+        <scl:StaChn idx_cfg="145"/>
+        <scl:StaChn idx_cfg="146"/>
+        <scl:StaChn idx_cfg="147"/>
+        <scl:StaChn idx_cfg="148"/>
+        <scl:DifferentialCurrent ua_idx="0" ub_idx="0" uc_idx="0"/>
+        <scl:SDL_Protect/>
+        <scl:SDL_Breaker/>
+    </scl:Line>
+    <scl:Line idx="4" line_name="hh2x" bus_ID="1" srcRef="1" VRtg="0.0" ARtg="0.0" ARtgSnd="0.0" LinLen="23.81" bran_num="1" line_uuid="" remote_ID="0" remote_Flag="0" differential_ID="0">
+        <scl:RX r1="0.0469" x1="0.1525" r0="0.1289" x0="0.285"/>
+        <scl:CG c1="0.0" c0="0.0" g1="0.0" g0="0.0"/>
+        <scl:PX px="0.0" px0="0.0"/>
+        <scl:MR idx="0" mr0="0.0" mx0="0.0"/>
+        <scl:ACC_Bran bran_idx="1" ia_idx="29" ib_idx="30" ic_idx="31" in_idx="32" dir="POS"/>
+        <scl:AnaChn idx_cfg="29"/>
+        <scl:AnaChn idx_cfg="30"/>
+        <scl:AnaChn idx_cfg="31"/>
+        <scl:AnaChn idx_cfg="32"/>
+        <scl:StaChn idx_cfg="15"/>
+        <scl:StaChn idx_cfg="16"/>
+        <scl:StaChn idx_cfg="17"/>
+        <scl:StaChn idx_cfg="18"/>
+        <scl:StaChn idx_cfg="19"/>
+        <scl:StaChn idx_cfg="20"/>
+        <scl:StaChn idx_cfg="71"/>
+        <scl:StaChn idx_cfg="72"/>
+        <scl:StaChn idx_cfg="73"/>
+        <scl:StaChn idx_cfg="75"/>
+        <scl:StaChn idx_cfg="76"/>
+        <scl:StaChn idx_cfg="77"/>
+        <scl:StaChn idx_cfg="78"/>
+        <scl:StaChn idx_cfg="79"/>
+        <scl:DifferentialCurrent ua_idx="0" ub_idx="0" uc_idx="0"/>
+        <scl:SDL_Protect/>
+        <scl:SDL_Breaker/>
+    </scl:Line>
+    <scl:Transformer idx="1" trm_name="1号主变" srcRef="1" pwrRtg="0.0" transformer_uuid="">
+        <scl:TransformerWinding location="High" srcRef="" VRtg="0.0" ARtg="0.0" bran_num="1" bus_ID="0" wG="">
+            <scl:ACVChn ua_idx="1" ub_idx="2" uc_idx="3" un_idx="4" ul_idx="0"/>
+            <scl:ACC_Bran bran_idx="1" ia_idx="21" ib_idx="22" ic_idx="23" in_idx="24" dir="POS"/>
+            <scl:Igap zgap_idx="0" zsgap_idx="0"/>
+        </scl:TransformerWinding>
+        <scl:TransformerWinding location="Low" srcRef="" VRtg="0.0" ARtg="0.0" bran_num="1" bus_ID="0" wG="">
+            <scl:ACVChn ua_idx="5" ub_idx="6" uc_idx="7" un_idx="8" ul_idx="0"/>
+            <scl:ACC_Bran bran_idx="1" ia_idx="49" ib_idx="50" ic_idx="51" in_idx="52" dir="POS"/>
+            <scl:Igap zgap_idx="0" zsgap_idx="0"/>
+        </scl:TransformerWinding>
+        <scl:SDL_Protect/>
+        <scl:SDL_Breaker/>
+    </scl:Transformer>
+</scl:ComtradeModel>

@@ -1,0 +1,584 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecorderReport version="1.1" Desc="录波简报">
+    <Fault desc="故障描述">
+        <SubStation value="ymz"/>
+        <Recorder value="220kV线路故障录波B套"/>
+        <Bay type="Line" value="xyx" no="5" TransientImpedance="0.000 Ω" TARatio="1600/5" TVRatio="220000/100"
+             desc="故障间隔"/>
+        <FaultINo value="17,18,19,20" desc="故障电流通道号"/>
+        <FaultUNo value="49,50,51,52" desc="故障电压通道号"/>
+        <FaultDNo value="" desc="开关量变位通道号"/>
+        <StartTime value="2023-05-12 19:45:26.539" desc="录波起始时间"/>
+        <EndTime value="2023-05-12 19:45:30.945" desc="录波结束时间"/>
+        <RET value="80" desc="相对时间"/>
+        <FPT value="137" desc="故障类型">
+            <Phase value="A" desc="相别"/>
+            <Grounded value="TRUE" desc="是否接地"/>
+        </FPT>
+        <JPT value="0" desc="跳闸相别">
+            <Phase value="    "/>
+        </JPT>
+        <Position value="" abnormal="1" desc="故障位置(测距)"/>
+        <Range value="FALSE" desc="故障范围(是否区内)"/>
+        <Percentage value="" desc="故障位置占线路全长百分比"/>
+        <TriggerTime value="2023-05-12 19:45:26.619" desc="录波起动时刻"/>
+        <FaultTime value="2023-05-12 19:45:26.619" desc="故障零时刻">
+            <SampleNo value="320" desc="从0开始的采样点编号"/>
+        </FaultTime>
+        <RelayActTime value="" desc="保护动作时刻(毫秒)"/>
+        <BreakerJumpTime value="" desc="断路器分时刻(毫秒)">
+            <Phase value="    " desc="相别"/>
+        </BreakerJumpTime>
+        <FaultClearTime value="" desc="故障切除时间(毫秒)">
+            <Phase value="    " desc="相别"/>
+        </FaultClearTime>
+        <CHZTime value="" desc="重合闸时间(毫秒)"/>
+        <BreakerShutTime value="" desc="断路器合时刻(毫秒)">
+            <Phase value="    " desc="相别"/>
+        </BreakerShutTime>
+        <WaveClosetTime value="" desc="波形合时刻(毫秒)">
+            <Phase value="    " desc="相别"/>
+        </WaveClosetTime>
+        <RelayActAgainTime value="" desc="保护再次动作时刻(毫秒)">
+            <Phase value="    " desc="相别"/>
+        </RelayActAgainTime>
+        <BreakerJumpAgainTime value="" desc="断路器再次分时刻(毫秒)">
+            <Phase value="    " desc="相别"/>
+        </BreakerJumpAgainTime>
+        <FaultClearAgainTime value="" desc="故障再次切除时间(毫秒)">
+            <Phase value="    " desc="相别"/>
+        </FaultClearAgainTime>
+        <Duration value="" desc="故障持续时间(毫秒)"/>
+        <Result value="UNRECLOSED" desc="重合是否成功"/>
+        <FaultValue desc="故障值">
+            <Primary desc="一次">
+                <I value="1.664 kA" Ia="1.664 kA" Ib="0.649 kA" Ic="0.513 kA" I0="2.772 kA" desc="故障相电流"/>
+                <U value="96.679 kV" Ua="96.679 kV" Ub="130.031 kV" Uc="127.697 kV" U0="24.921 kV" desc="故障相电压"/>
+            </Primary>
+            <Secondary desc="二次">
+                <I value="5.201 A" Ia="5.201 A" Ib="2.028 A" Ic="1.602 A" I0="8.663 A" desc="故障相电流"/>
+                <U value="43.945 V" Ua="43.945 V" Ub="59.105 V" Uc="58.044 V" U0="11.328 V" desc="故障相电压"/>
+                <UPercentage value="76.11 %" desc="最低故障电压占额定值的百分比（二次）"/>
+            </Secondary>
+        </FaultValue>
+        <Cyc3Befort desc="故障前3周波">
+            <Ia value="0.533" angle="90.38"/>
+            <Ib value="0.532" angle="-29.34"/>
+            <Ic value="0.553" angle="-150.79"/>
+            <I0 value="0.024" angle="172.03"/>
+            <Ua value="60.307" angle="86.18"/>
+            <Ub value="60.393" angle="-33.77"/>
+            <Uc value="60.418" angle="-153.85"/>
+            <U0 value="0.096" angle="-113.40"/>
+        </Cyc3Befort>
+        <Cyc2Befort desc="故障前2周波">
+            <Ia value="0.536" angle="89.96"/>
+            <Ib value="0.528" angle="-29.35"/>
+            <Ic value="0.551" angle="-150.52"/>
+            <I0 value="0.023" angle="161.73"/>
+            <Ua value="60.302" angle="86.09"/>
+            <Ub value="60.388" angle="-33.86"/>
+            <Uc value="60.415" angle="-153.94"/>
+            <U0 value="0.098" angle="-118.90"/>
+        </Cyc2Befort>
+        <Cyc1Befort desc="故障前1周波">
+            <Ia value="0.537" angle="89.74"/>
+            <Ib value="0.531" angle="-29.56"/>
+            <Ic value="0.551" angle="-150.87"/>
+            <I0 value="0.023" angle="157.15"/>
+            <Ua value="60.301" angle="86.01"/>
+            <Ub value="60.379" angle="-33.94"/>
+            <Uc value="60.418" angle="-154.01"/>
+            <U0 value="0.099" angle="-119.71"/>
+        </Cyc1Befort>
+        <Cyc1After desc="故障后1周波">
+            <Ia value="5.201" angle="13.95"/>
+            <Ib value="2.028" angle="-0.67"/>
+            <Ic value="1.602" angle="-10.62"/>
+            <I0 value="8.663" angle="6.19"/>
+            <Ua value="43.945" angle="86.13"/>
+            <Ub value="59.105" angle="-31.60"/>
+            <Uc value="58.044" angle="-155.81"/>
+            <U0 value="11.328" angle="-88.21"/>
+        </Cyc1After>
+        <Cyc2After desc="故障后2周波">
+            <Ia value="5.055" angle="7.93"/>
+            <Ib value="1.879" angle="2.48"/>
+            <Ic value="1.888" angle="-1.08"/>
+            <I0 value="8.794" angle="4.85"/>
+            <Ua value="42.145" angle="84.72"/>
+            <Ub value="58.663" angle="-32.26"/>
+            <Uc value="57.744" angle="-157.73"/>
+            <U0 value="11.235" angle="-89.73"/>
+        </Cyc2After>
+        <Cyc3After desc="故障后3周波">
+            <Ia value="0.557" angle="165.09"/>
+            <Ib value="0.448" angle="-13.60"/>
+            <Ic value="0.339" angle="-177.96"/>
+            <I0 value="0.179" angle="-161.72"/>
+            <Ua value="59.355" angle="84.86"/>
+            <Ub value="59.775" angle="-34.24"/>
+            <Uc value="60.446" angle="-155.10"/>
+            <U0 value="0.944" angle="-174.23"/>
+        </Cyc3After>
+        <Cyc4After desc="故障后4周波">
+            <Ia value="0.327" angle="114.16"/>
+            <Ib value="0.402" angle="-18.73"/>
+            <Ic value="0.331" angle="-155.21"/>
+            <I0 value="0.062" angle="151.60"/>
+            <Ua value="59.986" angle="85.54"/>
+            <Ub value="59.996" angle="-34.05"/>
+            <Uc value="60.365" angle="-154.22"/>
+            <U0 value="0.256" angle="-71.50"/>
+        </Cyc4After>
+        <Cyc5After desc="故障后5周波">
+            <Ia value="0.345" angle="93.30"/>
+            <Ib value="0.319" angle="-31.30"/>
+            <Ic value="0.323" angle="-154.63"/>
+            <I0 value="0.057" angle="135.46"/>
+            <Ua value="60.243" angle="85.73"/>
+            <Ub value="60.207" angle="-34.14"/>
+            <Uc value="60.332" angle="-154.15"/>
+            <U0 value="0.109" angle="-31.37"/>
+        </Cyc5After>
+        <Cyc6After desc="故障后6周波">
+            <Ia value="0.393" angle="90.82"/>
+            <Ib value="0.330" angle="-39.83"/>
+            <Ic value="0.316" angle="-154.49"/>
+            <I0 value="0.060" angle="128.84"/>
+            <Ua value="60.294" angle="85.93"/>
+            <Ub value="60.351" angle="-34.00"/>
+            <Uc value="60.367" angle="-154.07"/>
+            <U0 value="0.107" angle="-12.72"/>
+        </Cyc6After>
+        <Cyc7After desc="故障后7周波">
+            <Ia value="0.401" angle="90.29"/>
+            <Ib value="0.342" angle="-42.05"/>
+            <Ic value="0.312" angle="-157.10"/>
+            <I0 value="0.064" angle="124.75"/>
+            <Ua value="60.314" angle="86.05"/>
+            <Ub value="60.417" angle="-33.85"/>
+            <Uc value="60.430" angle="-153.96"/>
+            <U0 value="0.100" angle="-21.59"/>
+        </Cyc7After>
+        <Cyc8After desc="故障后8周波">
+            <Ia value="0.403" angle="89.08"/>
+            <Ib value="0.348" angle="-42.93"/>
+            <Ic value="0.323" angle="-159.54"/>
+            <I0 value="0.070" angle="127.10"/>
+            <Ua value="60.339" angle="86.13"/>
+            <Ub value="60.441" angle="-33.77"/>
+            <Uc value="60.463" angle="-153.88"/>
+            <U0 value="0.098" angle="-30.32"/>
+        </Cyc8After>
+        <AgainCyc1After desc="故障后1周波(再次故障)">
+            <Ia value="0.000" angle="0.00"/>
+            <Ib value="0.000" angle="0.00"/>
+            <Ic value="0.000" angle="0.00"/>
+            <I0 value="0.000" angle="0.00"/>
+            <Ua value="0.000" angle="0.00"/>
+            <Ub value="0.000" angle="0.00"/>
+            <Uc value="0.000" angle="0.00"/>
+            <U0 value="0.000" angle="0.00"/>
+        </AgainCyc1After>
+        <AgainCyc2After desc="故障后2周波(再次故障)">
+            <Ia value="0.000" angle="0.00"/>
+            <Ib value="0.000" angle="0.00"/>
+            <Ic value="0.000" angle="0.00"/>
+            <I0 value="0.000" angle="0.00"/>
+            <Ua value="0.000" angle="0.00"/>
+            <Ub value="0.000" angle="0.00"/>
+            <Uc value="0.000" angle="0.00"/>
+            <U0 value="0.000" angle="0.00"/>
+        </AgainCyc2After>
+        <AgainCyc3After desc="故障后3周波(再次故障)">
+            <Ia value="0.000" angle="0.00"/>
+            <Ib value="0.000" angle="0.00"/>
+            <Ic value="0.000" angle="0.00"/>
+            <I0 value="0.000" angle="0.00"/>
+            <Ua value="0.000" angle="0.00"/>
+            <Ub value="0.000" angle="0.00"/>
+            <Uc value="0.000" angle="0.00"/>
+            <U0 value="0.000" angle="0.00"/>
+        </AgainCyc3After>
+        <AgainCyc4After desc="故障后4周波(再次故障)">
+            <Ia value="0.000" angle="0.00"/>
+            <Ib value="0.000" angle="0.00"/>
+            <Ic value="0.000" angle="0.00"/>
+            <I0 value="0.000" angle="0.00"/>
+            <Ua value="0.000" angle="0.00"/>
+            <Ub value="0.000" angle="0.00"/>
+            <Uc value="0.000" angle="0.00"/>
+            <U0 value="0.000" angle="0.00"/>
+        </AgainCyc4After>
+        <AgainCyc5After desc="故障后5周波(再次故障)">
+            <Ia value="0.000" angle="0.00"/>
+            <Ib value="0.000" angle="0.00"/>
+            <Ic value="0.000" angle="0.00"/>
+            <I0 value="0.000" angle="0.00"/>
+            <Ua value="0.000" angle="0.00"/>
+            <Ub value="0.000" angle="0.00"/>
+            <Uc value="0.000" angle="0.00"/>
+            <U0 value="0.000" angle="0.00"/>
+        </AgainCyc5After>
+        <DigitalEvent DigitalNum="0" ActNum="0"/>
+        <VoltageChannel desc="故障前后电压通道变化情况">
+            <Chn Name="220kV母线Ⅰ_Ua" BayName="220kV#1A" Ph="A" Percentage="72.86 %" idx_cfg="1">
+                <Cyc1Before Secondary="60.25 V" Primary="132.55 kV"/>
+                <Cyc1After Secondary="43.90 V" Primary="96.57 kV"/>
+            </Chn>
+            <Chn Name="220kV母线Ⅰ_Ub" BayName="220kV#1A" Ph="B" Percentage="97.90 %" idx_cfg="2">
+                <Cyc1Before Secondary="60.39 V" Primary="132.85 kV"/>
+                <Cyc1After Secondary="59.12 V" Primary="130.06 kV"/>
+            </Chn>
+            <Chn Name="220kV母线Ⅰ_Uc" BayName="220kV#1A" Ph="C" Percentage="96.08 %" idx_cfg="3">
+                <Cyc1Before Secondary="60.42 V" Primary="132.91 kV"/>
+                <Cyc1After Secondary="58.05 V" Primary="127.71 kV"/>
+            </Chn>
+            <Chn Name="220kV母线Ⅱ_Ua" BayName="220kV#2A" Ph="A" Percentage="72.88 %" idx_cfg="5">
+                <Cyc1Before Secondary="60.30 V" Primary="132.67 kV"/>
+                <Cyc1After Secondary="43.95 V" Primary="96.68 kV"/>
+            </Chn>
+            <Chn Name="220kV母线Ⅱ_Ub" BayName="220kV#2A" Ph="B" Percentage="97.89 %" idx_cfg="6">
+                <Cyc1Before Secondary="60.38 V" Primary="132.84 kV"/>
+                <Cyc1After Secondary="59.11 V" Primary="130.04 kV"/>
+            </Chn>
+            <Chn Name="220kV母线Ⅱ_Uc" BayName="220kV#2A" Ph="C" Percentage="96.07 %" idx_cfg="7">
+                <Cyc1Before Secondary="60.42 V" Primary="132.92 kV"/>
+                <Cyc1After Secondary="58.05 V" Primary="127.70 kV"/>
+            </Chn>
+            <Chn Name="220kVhyx_Ua" BayName="220kV220kVhyxU" Ph="A" Percentage="72.86 %" idx_cfg="13">
+                <Cyc1Before Secondary="60.25 V" Primary="132.55 kV"/>
+                <Cyc1After Secondary="43.89 V" Primary="96.57 kV"/>
+            </Chn>
+            <Chn Name="220kVhyx_Ub" BayName="220kV220kVhyxU" Ph="B" Percentage="97.89 %" idx_cfg="14">
+                <Cyc1Before Secondary="60.39 V" Primary="132.85 kV"/>
+                <Cyc1After Secondary="59.12 V" Primary="130.05 kV"/>
+            </Chn>
+            <Chn Name="220kVhyx_Uc" BayName="220kV220kVhyxU" Ph="C" Percentage="96.08 %" idx_cfg="15">
+                <Cyc1Before Secondary="60.42 V" Primary="132.91 kV"/>
+                <Cyc1After Secondary="58.05 V" Primary="127.71 kV"/>
+            </Chn>
+            <Chn Name="2220kVxyx_Ua" BayName="220kV2220kVxyxU" Ph="A" Percentage="72.88 %" idx_cfg="21">
+                <Cyc1Before Secondary="60.30 V" Primary="132.66 kV"/>
+                <Cyc1After Secondary="43.94 V" Primary="96.68 kV"/>
+            </Chn>
+            <Chn Name="2220kVxyx_Ub" BayName="220kV2220kVxyxU" Ph="B" Percentage="97.89 %" idx_cfg="22">
+                <Cyc1Before Secondary="60.38 V" Primary="132.83 kV"/>
+                <Cyc1After Secondary="59.10 V" Primary="130.03 kV"/>
+            </Chn>
+            <Chn Name="2220kVxyx_Uc" BayName="220kV2220kVxyxU" Ph="C" Percentage="96.07 %" idx_cfg="23">
+                <Cyc1Before Secondary="60.42 V" Primary="132.92 kV"/>
+                <Cyc1After Secondary="58.04 V" Primary="127.70 kV"/>
+            </Chn>
+            <Chn Name="220kVhy1x_Ua" BayName="220kV220kVhy1xU" Ph="A" Percentage="72.86 %" idx_cfg="29">
+                <Cyc1Before Secondary="60.25 V" Primary="132.54 kV"/>
+                <Cyc1After Secondary="43.90 V" Primary="96.57 kV"/>
+            </Chn>
+            <Chn Name="220kVhy1x_Ub" BayName="220kV220kVhy1xU" Ph="B" Percentage="97.89 %" idx_cfg="30">
+                <Cyc1Before Secondary="60.39 V" Primary="132.85 kV"/>
+                <Cyc1After Secondary="59.11 V" Primary="130.05 kV"/>
+            </Chn>
+            <Chn Name="220kVhy1x_Uc" BayName="220kV220kVhy1xU" Ph="C" Percentage="96.08 %" idx_cfg="31">
+                <Cyc1Before Secondary="60.41 V" Primary="132.91 kV"/>
+                <Cyc1After Secondary="58.05 V" Primary="127.70 kV"/>
+            </Chn>
+            <Chn Name="220kVhy2x_Ua" BayName="220kV220kVhy2xU" Ph="A" Percentage="72.88 %" idx_cfg="37">
+                <Cyc1Before Secondary="60.30 V" Primary="132.66 kV"/>
+                <Cyc1After Secondary="43.94 V" Primary="96.68 kV"/>
+            </Chn>
+            <Chn Name="220kVhy2x_Ub" BayName="220kV220kVhy2xU" Ph="B" Percentage="97.89 %" idx_cfg="38">
+                <Cyc1Before Secondary="60.38 V" Primary="132.83 kV"/>
+                <Cyc1After Secondary="59.10 V" Primary="130.03 kV"/>
+            </Chn>
+            <Chn Name="220kVhy2x_Uc" BayName="220kV220kVhy2xU" Ph="C" Percentage="96.07 %" idx_cfg="39">
+                <Cyc1Before Secondary="60.42 V" Primary="132.92 kV"/>
+                <Cyc1After Secondary="58.04 V" Primary="127.70 kV"/>
+            </Chn>
+            <Chn Name="220kVxy1x_Ua" BayName="220kV220kVxy1xU" Ph="A" Percentage="72.88 %" idx_cfg="49">
+                <Cyc1Before Secondary="60.30 V" Primary="132.66 kV"/>
+                <Cyc1After Secondary="43.94 V" Primary="96.68 kV"/>
+            </Chn>
+            <Chn Name="220kVxy1x_Ub" BayName="220kV220kVxy1xU" Ph="B" Percentage="97.89 %" idx_cfg="50">
+                <Cyc1Before Secondary="60.38 V" Primary="132.83 kV"/>
+                <Cyc1After Secondary="59.10 V" Primary="130.03 kV"/>
+            </Chn>
+            <Chn Name="220kVxy1x_Uc" BayName="220kV220kVxy1xU" Ph="C" Percentage="96.07 %" idx_cfg="51">
+                <Cyc1Before Secondary="60.42 V" Primary="132.92 kV"/>
+                <Cyc1After Secondary="58.04 V" Primary="127.70 kV"/>
+            </Chn>
+            <Chn Name="1号主变高压侧_Ua" BayName="220kV1号变高压侧U" Ph="A" Percentage="72.86 %" idx_cfg="57">
+                <Cyc1Before Secondary="60.25 V" Primary="132.55 kV"/>
+                <Cyc1After Secondary="43.90 V" Primary="96.57 kV"/>
+            </Chn>
+            <Chn Name="1号主变高压侧_Ub" BayName="220kV1号变高压侧U" Ph="B" Percentage="97.90 %" idx_cfg="58">
+                <Cyc1Before Secondary="60.39 V" Primary="132.85 kV"/>
+                <Cyc1After Secondary="59.11 V" Primary="130.05 kV"/>
+            </Chn>
+            <Chn Name="1号主变高压侧_Uc" BayName="220kV1号变高压侧U" Ph="C" Percentage="96.08 %" idx_cfg="59">
+                <Cyc1Before Secondary="60.41 V" Primary="132.91 kV"/>
+                <Cyc1After Secondary="58.05 V" Primary="127.70 kV"/>
+            </Chn>
+            <Chn Name="2号主变高压侧_Ua" BayName="220kV2号变高压侧U" Ph="A" Percentage="72.88 %" idx_cfg="65">
+                <Cyc1Before Secondary="60.30 V" Primary="132.66 kV"/>
+                <Cyc1After Secondary="43.94 V" Primary="96.68 kV"/>
+            </Chn>
+            <Chn Name="2号主变高压侧_Ub" BayName="220kV2号变高压侧U" Ph="B" Percentage="97.89 %" idx_cfg="66">
+                <Cyc1Before Secondary="60.38 V" Primary="132.83 kV"/>
+                <Cyc1After Secondary="59.10 V" Primary="130.03 kV"/>
+            </Chn>
+            <Chn Name="2号主变高压侧_Uc" BayName="220kV2号变高压侧U" Ph="C" Percentage="96.07 %" idx_cfg="67">
+                <Cyc1Before Secondary="60.42 V" Primary="132.92 kV"/>
+                <Cyc1After Secondary="58.04 V" Primary="127.70 kV"/>
+            </Chn>
+            <Chn Name="220kVxy2x_216开关_Ia" BayName="单量1U" Ph="A" Percentage="88.60 %" idx_cfg="69">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="220kVxy2x_216开关_Ib" BayName="单量2U" Ph="B" Percentage="188.59 %" idx_cfg="70">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="220kVxy2x_216开关_Ic" BayName="单量3U" Ph="C" Percentage="160.13 %" idx_cfg="71">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="220kVxy2x_Ua" BayName="单量5U" Ph="A" Percentage="0.00 %" idx_cfg="73">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="220kVxy2x_Ub" BayName="单量6U" Ph="B" Percentage="0.00 %" idx_cfg="74">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="220kVxy2x_Uc" BayName="单量7U" Ph="C" Percentage="0.00 %" idx_cfg="75">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="未知单量1" BayName="单量9U" Ph="A" Percentage="0.00 %" idx_cfg="77">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="未知单量2" BayName="单量10U" Ph="B" Percentage="0.00 %" idx_cfg="78">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+            <Chn Name="未知单量3" BayName="单量11U" Ph="C" Percentage="0.00 %" idx_cfg="79">
+                <Cyc1Before Secondary="0.00 V" Primary="0.00 kV"/>
+                <Cyc1After Secondary="0.00 V" Primary="0.00 kV"/>
+            </Chn>
+        </VoltageChannel>
+        <BusDiffValue desc="母线间隔差流值"/>
+        <FaultDirection value="2" direction="反向" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="3" name="hyx" phase_num="4" ct_ratio="320.0" ia_idx="9" ib_idx="10" ic_idx="11" in_idx="12"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.061" angle="0.891"/>
+                <Ib value="0.062" angle="-1.165"/>
+                <Ic value="0.060" angle="3.006"/>
+                <I0 value="0.004" angle="-0.347"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="0.182" angle="0.353"/>
+                <Ib value="0.131" angle="-0.266"/>
+                <Ic value="0.078" angle="0.212"/>
+                <I0 value="0.376" angle="0.120"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <FaultDirection value="1" direction="正向" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="5" name="xyx" phase_num="4" ct_ratio="320.0" ia_idx="17" ib_idx="18" ic_idx="19" in_idx="20"/>
+            <FPT value="137" desc="故障类型">
+                <Phase value="A" desc="相别"/>
+                <Grounded value="TRUE" desc="是否接地"/>
+            </FPT>
+            <Position value="" abnormal="1" desc="故障位置(测距)"/>
+            <Range value="FALSE" desc="故障范围(是否区内)"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.171" angle="-1.574"/>
+                <Ib value="0.169" angle="2.628"/>
+                <Ic value="0.176" angle="0.513"/>
+                <I0 value="0.006" angle="-0.299"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="1.674" angle="-2.966"/>
+                <Ib value="0.646" angle="-3.067"/>
+                <Ic value="0.621" angle="3.049"/>
+                <I0 value="2.925" angle="-3.045"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <FaultDirection value="2" direction="反向" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="7" name="hy1x" phase_num="4" ct_ratio="640.0" ia_idx="25" ib_idx="26" ic_idx="27" in_idx="28"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.236" angle="2.106"/>
+                <Ib value="0.231" angle="0.029"/>
+                <Ic value="0.235" angle="-2.110"/>
+                <I0 value="0.013" angle="2.455"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="0.408" angle="0.630"/>
+                <Ib value="0.294" angle="0.227"/>
+                <Ic value="0.204" angle="-1.480"/>
+                <I0 value="0.643" angle="0.160"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <FaultDirection value="2" direction="反向" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="9" name="hy2x" phase_num="4" ct_ratio="640.0" ia_idx="33" ib_idx="34" ic_idx="35" in_idx="36"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.234" angle="2.115"/>
+                <Ib value="0.232" angle="0.006"/>
+                <Ic value="0.236" angle="-2.091"/>
+                <I0 value="0.008" angle="-2.703"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="0.363" angle="0.647"/>
+                <Ib value="0.284" angle="0.209"/>
+                <Ic value="0.195" angle="-1.353"/>
+                <I0 value="0.616" angle="0.142"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <FaultDirection value="2" direction="反向" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="11" name="220kV220kV母联200A开关" phase_num="4" ct_ratio="640.0" ia_idx="41" ib_idx="42"
+                  ic_idx="43" in_idx="44"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.127" angle="2.759"/>
+                <Ib value="0.128" angle="0.685"/>
+                <Ic value="0.127" angle="-1.467"/>
+                <I0 value="0.004" angle="2.620"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="0.785" angle="0.174"/>
+                <Ib value="0.364" angle="0.464"/>
+                <Ic value="0.381" angle="-0.380"/>
+                <I0 value="1.461" angle="0.108"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <FaultDirection value="2" direction="反向" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="12" name="xy1x" phase_num="4" ct_ratio="320.0" ia_idx="45" ib_idx="46" ic_idx="47" in_idx="48"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.246" angle="-0.081"/>
+                <Ib value="0.245" angle="-2.171"/>
+                <Ic value="0.245" angle="2.006"/>
+                <I0 value="0.004" angle="-0.032"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="0.537" angle="-0.017"/>
+                <Ib value="0.231" angle="-0.990"/>
+                <Ic value="0.322" angle="0.982"/>
+                <I0 value="0.846" angle="0.079"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <FaultDirection value="2" direction="反向" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="14" name="220kV1号变高压侧" phase_num="4" ct_ratio="320.0" ia_idx="53" ib_idx="54" ic_idx="55"
+                  in_idx="56"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.202" angle="-1.764"/>
+                <Ib value="0.201" angle="2.431"/>
+                <Ic value="0.204" angle="0.324"/>
+                <I0 value="0.003" angle="-0.916"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="0.314" angle="-0.536"/>
+                <Ib value="0.158" angle="2.169"/>
+                <Ic value="0.272" angle="0.184"/>
+                <I0 value="0.450" angle="0.046"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <FaultDirection value="0" direction="不确定" desc="线路故障方向：0-不确定，1-正向，2-反向">
+            <Bus no="13" name="220kV220kVxy1xU" phase_num="4" pt_ratio="2200.0" ua_idx="49" ub_idx="50" uc_idx="51"
+                 un_idx="52"/>
+            <Line no="16" name="220kV2号变高压侧" phase_num="4" ct_ratio="320.0" ia_idx="61" ib_idx="62" ic_idx="63"
+                  in_idx="64"/>
+            <PreFault desc="故障前通道一次有效值">
+                <Ia value="0.062" angle="-1.697"/>
+                <Ib value="0.064" angle="2.524"/>
+                <Ic value="0.063" angle="0.397"/>
+                <I0 value="0.002" angle="-2.672"/>
+                <Ua value="132.669" angle="-1.640"/>
+                <Ub value="132.838" angle="2.550"/>
+                <Uc value="132.915" angle="0.454"/>
+                <U0 value="0.064" angle="1.040"/>
+            </PreFault>
+            <AfterFault desc="故障后通道一次有效值">
+                <Ia value="0.059" angle="-0.673"/>
+                <Ib value="0.091" angle="2.849"/>
+                <Ic value="0.044" angle="0.251"/>
+                <I0 value="0.001" angle="-0.103"/>
+                <Ua value="92.579" angle="-1.656"/>
+                <Ub value="128.545" angle="2.585"/>
+                <Uc value="126.438" angle="0.397"/>
+                <U0 value="24.608" angle="1.587"/>
+            </AfterFault>
+        </FaultDirection>
+        <DCChannel desc="直流通道交直流分量情况" chnNum="0"/>
+        <FaultLevel value="1" desc="故障等级，1:普通故障（扰动） 2:区外 3:区内 4:跳闸"/>
+    </Fault>
+</RecorderReport>
