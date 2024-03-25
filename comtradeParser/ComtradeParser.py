@@ -177,19 +177,26 @@ class ComtradeParser:
         phasor = _dft_rx / np.sqrt(2.0)
         return phasor
 
-    def get_channel_xfl_phasor(self, vs: np.ndarray = None, **kwargs):
+    def get_channel_xfl_phasor(self, vs: np.ndarray = None, decay_dc: bool = False, **kwargs):
         """
         计算序分量
         :param vs:瞬时值数组
+        :decay_dc :是否过滤直流分量
         :return: 返回一个数组，正序、负序、零序分量值
         """
         if vs is None:
             vs = self.get_analog_ssz(kwargs.get('ch_number'), kwargs.get('primary'), kwargs.get('start_point'),
                                      kwargs.get('end_point'), kwargs.get('cycle_num'), kwargs.get('mode'))
-        if vs.shape[0] < 3:
-            raise Exception('通道数量不足')
-        _dft_rx = self.dft_rx_channels(vs)
-        xfl = phasor_to_sequence(_dft_rx)
+        xfl = []
+        if decay_dc:
+            _dft_rx = self.eliminate_exp_decay_channels(vs)
+        else:
+            _dft_rx = self.dft_rx_channels(vs)
+        if vs.shape[0] % 3 == 0:
+            for i in range(0, vs.shape[0], 3):
+                xfl.append(phasor_to_sequence(_dft_rx[i:i + 3]))
+        else:
+            raise ValueError('通道数量必须是3的倍数')
         return np.around(xfl, 3)
 
     def get_channel_xfl_magnitude(self, vs: np.ndarray = None, **kwargs):
@@ -277,8 +284,6 @@ class ComtradeParser:
         :param sample_rate:
         :return: 返回一个二维数组，一维是通道列表，二维是实部虚部元祖
         """
-        if vs.shape[1] != sample_rate * 1.5:
-            raise Exception('输入的瞬时值数组必须为1.5个周期的采样值')
         dft = np.zeros(vs.shape[0], dtype=complex)
         # 获取一个周波的瞬时值
         for i in range(vs.shape[0]):
