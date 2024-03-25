@@ -180,8 +180,8 @@ class ComtradeParser:
     def get_channel_xfl_phasor(self, vs: np.ndarray = None, decay_dc: bool = False, **kwargs):
         """
         计算序分量
-        :param vs:瞬时值数组
-        :decay_dc :是否过滤直流分量
+        :param vs: 瞬时值数组
+        :param decay_dc: 是否过滤直流分量
         :return: 返回一个数组，正序、负序、零序分量值
         """
         if vs is None:
