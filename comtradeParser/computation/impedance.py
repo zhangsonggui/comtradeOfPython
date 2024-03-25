@@ -4,8 +4,6 @@ import numpy as np
 def compute_line_impedance(this_before_v_xfl: list, this_before_i_xfl: list,
                            this_after_v_xfl: list, this_after_i_xfl: list,
                            other_before_v_xfl: list, other_after_v_xfl: list):
-    # 正序阻抗=（本侧故障前正序电压x对侧故障后负序电压-对侧故障前正序电压x本侧故障后负序电压）/
-    #         （本侧故障前正序电流x对侧故障后负序电压-对侧故障前电压x本侧故障后负序电流）
     """
     通过本侧故障前后电压、电流通道和对侧故障前后电压，计算线路正序阻抗
     :param this_before_v_xfl: 本侧故障前电压序分量数据
@@ -16,11 +14,18 @@ def compute_line_impedance(this_before_v_xfl: list, this_before_i_xfl: list,
     :param other_after_v_xfl: 对本侧故障后电压序分量数据
     :return: 
     """
+    # 正序阻抗=（本侧故障前正序电压x对侧故障后负序电压-对侧故障前正序电压x本侧故障后负序电压）/
+    #         （本侧故障前正序电流x对侧故障后负序电压-对侧故障前电压x本侧故障后负序电流）
     order_impedance = ((this_before_v_xfl[1] * other_after_v_xfl[2] - other_before_v_xfl[1] *
                         this_after_v_xfl[2]) /
                        (this_before_i_xfl[1] * other_after_v_xfl[2] - other_before_v_xfl[1] *
                         this_after_i_xfl[2]))
-    return np.around(order_impedance, 3)
+    ##（本侧零序电压x对侧负序电压 - 本侧负序电压x对侧零序电压 + 本侧负序电流x对侧零序电压xZ1） /
+    # （本侧零序电流x对侧负序电压），其中Z1为上次运算的正序阻抗结果
+    zero_impedance = (this_after_v_xfl[0] * other_after_v_xfl[2] - this_after_v_xfl[2] * other_after_v_xfl[0] +
+                      this_after_i_xfl[2] * other_after_v_xfl[0] * order_impedance) / (
+                             this_after_i_xfl[0] * other_after_v_xfl[2])
+    return np.around((zero_impedance, order_impedance), 3)
 
 
 def compute_impedance(this_u, other_u, i):
@@ -35,4 +40,3 @@ def compute_impedance(this_u, other_u, i):
     if i != 0:
         _impedance = (this_u - other_u) / i
     return np.around(_impedance, 3)
-
