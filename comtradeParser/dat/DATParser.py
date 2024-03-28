@@ -5,7 +5,7 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : ReadFaultFile.py
+# @File    : DATParser.py
 # @IDE     : PyCharm
 import logging
 import struct

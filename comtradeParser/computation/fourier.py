@@ -1,5 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
+# _*_ coding: utf-8 _*_
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+#
+# @Time    : 2024/3/23 11:27
+# @Author  : 张松贵
+# @File    : fourier.py
+# @IDE     : PyCharm
 
 import numpy as np
 
@@ -76,20 +83,4 @@ def dft_exp_decay(vs: np.ndarray, sample_rate: int = None):
     imag = arr1_dft.imag - k2
     return complex(real, imag)
 
-
-def eliminate_exp_decay_channels(vs: np.ndarray, sample_rate: int = None):
-    """
-    消除直流分量后返回对应通道的实部和虚部，需要1.5个周波的数据。
-    1.[ (第三组点的实部+第二组点的虚部)/(第一组点的虚部+第二组点的实部) ] 的平方，把这个数记为a;
-    2.通过第一步的运算结果a，求K1和K2，k1是 (第一组点的实部+第三组点的实部)/ (1+a):k2是(第一组点的虚部+第三组点的虚部) / (1+0).
-    3.求修改后的基波分量实部和虚部，实部=第一组点的实部-k1: 虚部= 第二组点的虚部-k2
-    :param vs: 瞬时值数组
-    :param sample_rate:
-    :return: 返回一个二维数组，一维是通道列表，二维是实部虚部元祖
-    """
-    dft = np.zeros(vs.shape[0], dtype=complex)
-    # 获取一个周波的瞬时值
-    for i in range(vs.shape[0]):
-        dft[i] = dft_exp_decay(vs[i], sample_rate)
-    return dft
 
