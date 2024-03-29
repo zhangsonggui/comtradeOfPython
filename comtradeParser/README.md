@@ -12,7 +12,7 @@ COMTRADE是IEEE标准电力系统暂态数据交换通用格式，于1991年提�
 
 # 二、 ComtradeParser项目介绍
 
-本项目是采用python解析comtrade文件，可实现CFG、DAT、DMF文件的解析和数值计算功能。暂未对207版本中的CFF格式文件进行解析，后续会进行补充。
+本项目是采用python解析comtrade文件，可实现CFG、DAT、DMF文件的解析和数值计算功能。暂未对2017版本中的CFF格式文件进行解析，后续会进行补充。
 
 ## 1.ComtradeParser
 
@@ -92,21 +92,32 @@ COMTRADE是IEEE标准电力系统暂态数据交换通用格式，于1991年提�
 ## 三、安装教程
 ### 3.1 Python版本要求
 3.8以上推荐3.11
-### 3.2 源码安装
+### 3.2 whl包安装
+>本项目采用poetry管理，建议拉取项目后先生成whl二进制安装包,在安装新建项目的python环境中
 1. 克隆代码到本地
-2. 进入安装包目录找到setup.py文件
-3. 执行python setup.py install进行安装
-4. 安装依赖 pip install -r requirements.txt
+2. 进入comtradeOfPython目录
+3. 安装poetry，打包项目whl包,目录为comtradeOfPython目录下dist
+4. 新建项目并创建虚拟环境，在虚拟环境中安装comtradeParser包
+5. 在新建项目下创建数据文件和main.py文件，直接实例化ComtradeParser类
 ```shell
    git clone https://github.com/zhangyongjian/comtradeOfPython.git
-   cd comtradeOfPython/comtradeParser
-   python setup.py install
-   pip install -r requirements.txt
+   cd comtradeOfPython
+   pip install poetry  # 安装poetry
+   python -m build  # 打包为whl包
    ```
+### 3.3 源码安装
+>本项目为独立模块，如不对源代码进行修改，建议使用3.2whl包安装方式
 
-### 3.3 pip仓库安装
-
-### 3.4 whl包安装
+1. 克隆代码到本地
+2. 安装依赖
+3. 在comtradeOfPython目录下创建数据文件和main.py文件，直接实例化ComtradeParser类
+```shell
+git clone https://github.com/zhangyongjian/comtradeOfPython.git
+cd comtradeOfPython
+pip install -r requirements.txt
+```
+### 3.4 pip仓库安装
+pypi仓库暂时禁止新建包，暂时无法使用pip安装
 
 ## 四、使用说明
 
