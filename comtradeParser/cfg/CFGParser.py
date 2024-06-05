@@ -1,5 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
+# _*_ coding: utf-8 _*_
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+#
+# @Time    : 2024/3/23 11:27
+# @Author  : 张松贵
+# @File    : CFGParser.py
+# @IDE     : PyCharm
 import logging
 from datetime import datetime
 from typing import Union
@@ -211,9 +218,9 @@ class CFGParser:
         """
         解析时间
         """
-        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 1].strip('\n')
+        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 1].strip('\n').strip()
         self._start_time = datetime.strptime(strtime, '%d/%m/%Y,%H:%M:%S.%f')
-        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 2].strip('\n')
+        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 2].strip('\n').strip()
         self._trigger_time = datetime.strptime(strtime, '%d/%m/%Y,%H:%M:%S.%f')
         self._zero_time = (self._trigger_time - self._start_time).microseconds
         self._zero_point = self.get_zero_point()

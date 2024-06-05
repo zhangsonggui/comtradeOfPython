@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "comtradeparser"
+version = "1.0.0"
+description = "本项目是采用python解析comtrade文件，可实现CFG、DAT、DMF文件的解析和数值计算功能。"
+authors = ["张松贵 <82018238@qq.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11.7"
+numpy = "^1.26.4"
+xmltodict = "^0.13.0"
+pandas = "^2.2.1"
+openpyxl = "^3.0.10"
+
+[tool.poetry.package]
+include = [
+    "comtradeparser/**",
+    "comtradeparser/cfg/**",
+    "comtradeparser/dat/**",
+    "comtradeparser/dmf/**",
+    "comtradeparser/computation/**",
+    "comtradeparser/utils/**"
+]
+
+[[tool.poetry.source]]
+name = "aliyun"
+url = "https://mirrors.aliyun.com/pypi/simple"
+default = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

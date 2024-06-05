@@ -1,5 +1,12 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
+# _*_ coding: utf-8 _*_
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+#
+# @Time    : 2024/3/23 11:27
+# @Author  : 张松贵
+# @File    : DATParser.py
+# @IDE     : PyCharm
 import logging
 import struct
 
@@ -93,13 +100,18 @@ class DATParser:
         @return: 单个模拟量原始采样值数组
         """
         # 判断采样通道的合法性,获取通道对应数组的索引值
+        if not isinstance(ch_number, int):
+            try:
+                ch_number = int(ch_number)
+            except ValueError:
+                raise ValueError(f"指定的模拟量通道{ch_number}不是数字类型，无法读取该通道数据!")
         if ch_number > self._A:
             raise ValueError(f"指定的模拟量通道{ch_number}大于模拟量通道{self._A}，无法读取该通道数据!")
         ch_number = self._cfg.get_channel_info(ch_number, 'index')
 
         # 判断文件格式，进行解析
         if self._ft == 'ascii':
-            values = self._dat_file_content[ch_number:ch_number + 1, :]
+            values = self._dat_file_content[ch_number+2:ch_number + 3, :]
         else:
             # 使用struct模块格式化字节
             str_struct = f"ii{self._A + self._DB}h"
@@ -119,6 +131,11 @@ class DATParser:
         @return: 单个模拟量瞬时值数组
         """
         # 判断采样通道的合法性
+        if not isinstance(ch_number, int):
+            try:
+                ch_number = int(ch_number)
+            except ValueError:
+                raise ValueError(f"指定的模拟量通道{ch_number}不是数字类型，无法读取该通道数据!")
         if ch_number > self._A:
             raise ValueError(f"指定的模拟量通道{ch_number}大于模拟量通道{self._A}")
         # 获取指定通道的原始采样值
@@ -142,6 +159,11 @@ class DATParser:
         @return: 指定通道0和1的数组
         """
         # 判断采样通道的合法性，获取通道对应数组的索引值
+        if not isinstance(ch_number, int):
+            try:
+                ch_number = int(ch_number)
+            except ValueError:
+                raise ValueError(f"指定的模拟量通道{ch_number}不是数字类型，无法读取该通道数据!")
         if ch_number > self._D:
             raise ValueError("指定的开关量通道数大于开关量通道数")
         ch_number = self._cfg.get_channel_info(ch_number, 'index', 'dig')
@@ -171,6 +193,11 @@ class DATParser:
         @return: 返回变位的开关量列表
         """
         # 判断采样通道的合法性，获取通道对应数组的索引值
+        if not isinstance(ch_number, int):
+            try:
+                ch_number = int(ch_number)
+            except ValueError:
+                raise ValueError(f"指定的模拟量通道{ch_number}不是数字类型，无法读取该通道数据!")
         if ch_number > self._D:
             raise ValueError("指定的开关量通道数大于开关量通道数")
         result = []

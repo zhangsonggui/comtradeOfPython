@@ -1,3 +1,13 @@
+#!/usr/bin/python3
+# _*_ coding: utf-8 _*_
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+#
+# @Time    : 2024/3/23 11:27
+# @Author  : 张松贵
+# @File    : impedance.py
+# @IDE     : PyCharm
+
 import numpy as np
 
 
@@ -20,7 +30,7 @@ def compute_line_impedance(this_before_v_xfl: list, this_before_i_xfl: list,
                         this_after_v_xfl[2]) /
                        (this_before_i_xfl[1] * other_after_v_xfl[2] - other_before_v_xfl[1] *
                         this_after_i_xfl[2]))
-    ##（本侧零序电压x对侧负序电压 - 本侧负序电压x对侧零序电压 + 本侧负序电流x对侧零序电压xZ1） /
+    # （本侧零序电压x对侧负序电压 - 本侧负序电压x对侧零序电压 + 本侧负序电流x对侧零序电压xZ1） /
     # （本侧零序电流x对侧负序电压），其中Z1为上次运算的正序阻抗结果
     zero_impedance = (this_after_v_xfl[0] * other_after_v_xfl[2] - this_after_v_xfl[2] * other_after_v_xfl[0] +
                       this_after_i_xfl[2] * other_after_v_xfl[0] * order_impedance) / (
