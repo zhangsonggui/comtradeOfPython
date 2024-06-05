@@ -218,9 +218,9 @@ class CFGParser:
         """
         解析时间
         """
-        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 1].strip('\n')
+        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 1].strip('\n').strip()
         self._start_time = datetime.strptime(strtime, '%d/%m/%Y,%H:%M:%S.%f')
-        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 2].strip('\n')
+        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 2].strip('\n').strip()
         self._trigger_time = datetime.strptime(strtime, '%d/%m/%Y,%H:%M:%S.%f')
         self._zero_time = (self._trigger_time - self._start_time).microseconds
         self._zero_point = self.get_zero_point()
