@@ -111,7 +111,7 @@ class DATParser:
 
         # 判断文件格式，进行解析
         if self._ft == 'ascii':
-            values = self._dat_file_content[ch_number:ch_number + 1, :]
+            values = self._dat_file_content[ch_number+2:ch_number + 3, :]
         else:
             # 使用struct模块格式化字节
             str_struct = f"ii{self._A + self._DB}h"
