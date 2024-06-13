@@ -28,15 +28,16 @@ class ComtradeParser:
     _dmf = None
     cgp = None
 
-    def __init__(self, _file_name: str):
+    def __init__(self, _cfg_file_name: str, _dat_file_name: str = None, _dmf_file_name: str = None):
         """
         comtrade文件读取初始化
-        @param _file_name: 录波文件名
+        :param _cfg_file_name: cfg文件名带后缀名,
+        :param _dat_file_name: dat文件名带后缀名，当该文件为空时和cfg文件名相同，后缀大小写保持一致
+        :param _dmf_file_name: dmf文件名带后缀名，当该文件为空时和cfg文件名相同，后缀大小写保持一致
         """
-        _name, _suffix = _file_name.rsplit('.', 1)
         self.clear()
-        self._load_cfg_dat_file(_name)
-        self._load_dmf_file(_name)
+        self._load_cfg_dat_file(_cfg_file_name, _dat_file_name)
+        self._load_dmf_file(_dmf_file_name)
         self.cgp = ChannelGroupParser(self.cfg, self._dmf)
 
     def clear(self):
@@ -50,40 +51,52 @@ class ComtradeParser:
         self.cgp = None
 
     @staticmethod
-    def _check_file_with_suffix(file_name: str, suffix: str) -> str:
+    def verify_file_validity(file_path: str):
         """
-        检查文件是否存在
-        @param file_name: 文件名，不含后缀
-        @param suffix: 后缀名
-        @return: 存在返回文件名，不存在返回空
+        验证文件是否存在且非空。
+        :param file_path: 文件的路径
+        :return: 文件名路径或错误信息
         """
-        full_file_name = file_name + '.' + suffix
-        if os.path.isfile(full_file_name):
-            return full_file_name
-        else:
-            return ''
+        try:
+            # 检查文件是否存在
+            if not os.path.exists(file_path):
+                return f"错误：文件 {file_path} 不存在。"
 
-    def _load_cfg_dat_file(self, file_name: str):
+            # 检查文件是否为空
+            if os.path.getsize(file_path) == 0:
+                return f"错误：文件 {file_path} 为空。"
+
+            # 如果通过以上检查，说明文件存在且非空
+            return file_path
+        except Exception as e:
+            # 捕获其他可能的异常，如权限问题等
+            return f"发生错误：{str(e)}"
+
+    def _load_cfg_dat_file(self, _cfg_file_name: str, _dat_file_name: str = None):
         """
         判断是否存在cfg和dat文件
-        @param file_name: 文件名，不含后缀
+        :param _cfg_file_name: cfg文件名，不含后缀
+        :param _dat_file_name: dat文件名，不含后缀
         """
-        cfg_file = self._check_file_with_suffix(file_name, "cfg")
-        dat_file = self._check_file_with_suffix(file_name, "dat")
-        if cfg_file != '' and dat_file != '':
-            self.cfg = CFGParser(cfg_file)
-            self._dat = DATParser(self.cfg, dat_file)
-        else:
-            raise FileNotFoundError(f"{file_name}文件不存在！")
+        # 判断cfg文件存在且不为空，进行解析CFG文件
+        if self.verify_file_validity(_cfg_file_name):
+            self.cfg = CFGParser(_cfg_file_name)
+        # 当dat文件为空，则取cfg文件名，后缀名大小写和cfg一致
+        if _dat_file_name is None:
+            _name, _suffix = _cfg_file_name.rsplit('.', 1)
+            _dat_suffix = 'dat' if _suffix == 'cfg' else 'DAT'
+            _dat_file_name = _name + '.' + _dat_suffix
+        # 判断dat文件存在且不为空，进行解析DAT文件
+        if self.verify_file_validity(_dat_file_name):
+            self.dat = DATParser(self.cfg, _dat_file_name)
 
-    def _load_dmf_file(self, file_name: str):
+    def _load_dmf_file(self, _dmf_file_name: str):
         """
         判断是否存在dmf文件
-        :param file_name: 文件名，含后缀
+        :param _dmf_file_name: dmf文件名，含后缀
         """
-        dmf_file = self._check_file_with_suffix(file_name, "dmf")
-        if dmf_file != '':
-            self._dmf = DMFParser(dmf_file)
+        if not self.verify_file_validity(_dmf_file_name):
+            self._dmf = DMFParser(_dmf_file_name)
 
     def get_analog_ysz(self, ch_number: Union[int, list],
                        start_point: int = 0, end_point: int = None,
