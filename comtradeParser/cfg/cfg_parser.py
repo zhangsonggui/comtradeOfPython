@@ -5,16 +5,17 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : CFGParser.py
+# @File    : cfg_parser.py
 # @IDE     : PyCharm
 import logging
 from datetime import datetime
 from typing import Union
 
-from comtradeParser.utils import constants
+from comtradeParser.cfg.data_format_type import DataFormatType
+from comtradeParser.utils.file_tools import read_file_adaptive_encoding
 
 
-class CFGParser:
+class CfgParser:
     """
     这是用于读取IEEE Comtrade cfg文件的python类
     提供通道信息，开关量信息获取，采样段信息，游标位置和周波采样信息
@@ -72,7 +73,7 @@ class CFGParser:
         self._lf = 0  # 频率
         self._nrates_num: int = 0  # 采样段数量
         self._nrates = []  # 采样段数
-        self._start_time = ''  # 文件开始时间绝对时间
+        self._start_time = None  # 文件开始时间绝对时间
         self._trigger_time = None  # 文件零时刻绝对时间
         self._zero_time = 0  # 零时刻相对时间,纳秒值
         self._zero_point: int = 0  # 零时刻采样点位置
@@ -85,8 +86,9 @@ class CFGParser:
         :param: CFG文件路径字符串
         """
         if cfg_content is None:
-            with open(file_name, 'r', encoding='GBK') as cfg_file:
-                self._file_handler = cfg_file.readlines()
+            self._file_handler = read_file_adaptive_encoding(file_name)
+            # with open(file_name, 'r', encoding='GBK') as cfg_file:
+            #     self._file_handler = cfg_file.readlines()
         else:
             self._file_handler = cfg_content.split('\n')
         self._parse_header()  # 解析CFG头部信息
@@ -243,6 +245,20 @@ class CFGParser:
         @return: 字符串，变电站名称
         """
         return self._station_name
+
+    def get_rec_dev_id(self) -> str:
+        """
+        获取录波设备ID
+        @return: 字符串，录波设备ID
+        """
+        return self._rec_dev_id
+
+    def get_rev_year(self) -> int:
+        """
+        获取录波文件版本
+        @return: 整数，录波文件版本
+        """
+        return self._rev_year
 
     def get_total_channel_num(self) -> int:
         """
@@ -426,6 +442,13 @@ class CFGParser:
         """
         return self._trigger_time
 
+    def get_start_time_from_cfg(self) -> datetime:
+        """
+        返回文件开始的绝对时间
+        @return: 返回故障时刻的绝对时间
+        """
+        return self._start_time
+
     def get_zero_in_cycle(self) -> int:
         """
         根据零时刻相对时间和每一段采样值的最后时间相比较，确定在那个采样段内
@@ -449,7 +472,11 @@ class CFGParser:
         获取模拟通道数
         :return: 模拟量通道数
         """
-        return self._A
+        # 判断模拟量数组中的数量和第二行模拟量通道数是否相等，如果不相等返回数组长度
+        if self._A == len(self._ans):
+            return self._A
+        else:
+            return len(self._ans)
 
     def get_channel_info(self, cfg_id: int = None, key: str = None, _type: str = 'ana'):
         """
@@ -463,7 +490,7 @@ class CFGParser:
             return self._get_key_values(key, _type)
         if cfg_id is None:
             return self._get_all_info(_type)
-        if cfg_id is not None and key is not None:
+        if cfg_id is not None:  # and key is not None:
             try:
                 cfg_id = int(cfg_id)
             except ValueError:
@@ -485,7 +512,7 @@ class CFGParser:
         """
         return self._dns if _type == 'dig' else self._ans
 
-    def _get_specific_info(self, cfg_an: int, key: str, _type: str = 'ana'):
+    def _get_specific_info(self, cfg_an: int, key: str = None, _type: str = 'ana'):
         """
         根据cfg_an和key返回特定通道的信息
         """
@@ -522,15 +549,53 @@ class CFGParser:
         @param cfg_an: cfg文件中的通道号an
         @return: 布尔值True代表一次值，False代表二次值
         """
-        ps = self.get_channel_info(cfg_an, key="ps")
-        return ps in constants.PAIMARY_SIGN
+        channel = self.get_channel_info(cfg_an)
+        ps = channel.get("ps").lower()
+        uu = channel.get("uu").lower()
+        # 修订ps没有按照实际填写，一次值单位，标识为S的情况
+        if ps == 'p' or 'k' in uu:
+            return True
+        else:
+            return False
+
+    def add_analog_channel(self, channel: list):
+        """
+        添加模拟量通道
+        :param channel: 模拟量通道信息
+        """
+        self._ans.extend(channel)
+        # 更新模拟量通道数量
+        self.modify_analog_channel_num(self.get_analog_channel_num())
+
+    def modify_analog_channel_num(self, num: int):
+        self._A = num
+        # 更新通道总数
+        self.modify_channel_num(self.get_analog_channel_num() + self.get_digital_channel_num())
+
+    def modify_digital_channel_num(self, num: int):
+        self._D = num
+        # 更新通道总数
+        self.modify_channel_num(self.get_analog_channel_num() + self.get_digital_channel_num())
+
+    def modify_channel_num(self, num: int):
+        self._TT = num
 
     def get_digital_channel_num(self):
         """
         获取开关量通道数
         :return: 开关量量通道数
         """
-        return self._D
+        if self._D == len(self._dns):
+            return self._D
+        else:
+            return len(self._dns)
+
+    def get_nartes(self):
+        return {
+            'lf': self._lf,
+            'nrates_num': self._nrates_num,
+            "nrates": self._nrates
+        }
 
     def get_data_format_type(self):
         """
@@ -538,9 +603,8 @@ class CFGParser:
         :return: 数据格式类型，如：binary,ascii
         """
         ft = self._ft.upper()  # 将ft转换为大写
-        if ft == "BINARY":
-            return "binary", 2
-        if ft == "BINARY32" or ft == "FLOAT32":
-            return "binary32", 4
-        if ft == "ASCII":
-            return "ascii", 0
+        try:
+            format_type = DataFormatType[ft]
+        except KeyError:
+            format_type = DataFormatType.UNKNOWN
+        return format_type.value[1:]
