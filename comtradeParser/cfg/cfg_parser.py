@@ -9,9 +9,10 @@
 # @IDE     : PyCharm
 import logging
 from datetime import datetime
-from typing import Union
 
+from comtradeParser.cfg.analog_channel import parse_analog_channel, AnalogChannel
 from comtradeParser.cfg.data_format_type import DataFormatType
+from comtradeParser.cfg.digital_channel import parse_digital_channel, DigitalChannel
 from comtradeParser.utils.file_tools import read_file_adaptive_encoding
 
 
@@ -30,8 +31,10 @@ class CfgParser:
     _D = 0  # 开关量数量
     # 2.模拟量通道信息:
     _ans = []
+    analog_first_index = 1
     # 3.开关量通道信息:
     _dns = []
+    digital_first_index = 1
     # 4.其他信息
     _lf = 0  # 频率
     _nrates_num: int = 0  # 采样段数量
@@ -67,8 +70,10 @@ class CfgParser:
         self._D = 0  # 开关量数量
         # 2.模拟量通道信息:
         self._ans = []
+        self.analog_first_index = 1
         # 3.开关量通道信息:
         self._dns = []
+        self.digital_first_index = 1
         # 4.其他信息
         self._lf = 0  # 频率
         self._nrates_num: int = 0  # 采样段数量
@@ -87,18 +92,27 @@ class CfgParser:
         """
         if cfg_content is None:
             self._file_handler = read_file_adaptive_encoding(file_name)
-            # with open(file_name, 'r', encoding='GBK') as cfg_file:
-            #     self._file_handler = cfg_file.readlines()
         else:
             self._file_handler = cfg_content.split('\n')
         self._parse_header()  # 解析CFG头部信息
         self._parse_channel_num()  # 解析CFG文件通道数量
 
-        for i in range(2, self._A + 2):  # 解析模拟量通道信息，从第三行开始到模拟量通道总数+3
-            self._parse_analog(i)
-
-        for i in range(self._A + 2, self._TT + 2):  # 解析开关量通道信息
-            self._parse_digital(i)
+        # 解析模拟量通道信息，从第三行开始到模拟量通道总数+3
+        for i in range(2, self._A + 2):
+            channel_str = self._file_handler[i]
+            channel = parse_analog_channel(channel_str)
+            if i == 2:
+                self.analog_first_index = channel.an
+            self._ans.append(channel)
+            # self._parse_analog(i)
+        # 解析开关量通道信息,从模拟量通道总数+2开始
+        for i in range(self._A + 2, self._TT + 2):
+            channel_str = self._file_handler[i]
+            channel = parse_digital_channel(channel_str)
+            if i == self._A + 2:
+                self.digital_first_index = channel.dn
+            self._dns.append(channel)
+            # self._parse_digital(i)
 
         # 读取频率信息
         self._lf = int(self._file_handler[self._TT + 2])
@@ -137,47 +151,6 @@ class CfgParser:
         self._TT = int(tls[0])
         self._A = int(tls[1].strip('A'))
         self._D = int(tls[2].strip('D'))
-
-    def _parse_analog(self, idx: int):
-        """
-        解析CFG文件的模拟量通道信息
-        :@param chid: 模拟量通道行号
-        """
-        channel_info = self._file_handler[idx]
-        channel_info = channel_info.split(',')
-        an = {
-            "index": idx - 2,
-            "an": int(channel_info[0]),
-            "chid": channel_info[1],
-            "ph": channel_info[2],
-            "ccbm": channel_info[3],
-            "uu": channel_info[4],
-            "a": float(channel_info[5]),
-            "b": float(channel_info[6]),
-            "skew": float(channel_info[7]),
-            "min": int(channel_info[8]),
-            "max": int(channel_info[9]),
-            "primary": float(channel_info[10]) if len(channel_info) > 10 else 0.0,
-            "secondary": float(channel_info[11]) if len(channel_info) > 11 else 0.0,
-            "ps": channel_info[12].rstrip() if len(channel_info) > 12 else "S"
-        }
-        self._ans.append(an)
-
-    def _parse_digital(self, idx):
-        """
-        解析CFG文件的开关量通道信息
-        :@param chid: 开关量通道行号
-        """
-        channel_info = self._file_handler[idx]
-        channel_info = channel_info.split(',')
-        dn = {
-            "index": idx - 2 - self._A,
-            "an": int(channel_info[0]),
-            "chid": channel_info[1],
-            "ph": channel_info[2],
-            "ccbm": channel_info[3] if len(channel_info) > 3 else None
-        }
-        self._dns.append(dn)
 
     def _parse_nartes(self, start_idx: int, end_idx: int):
         """
@@ -239,26 +212,29 @@ class CfgParser:
             timemult = 1.0
         return timemult
 
-    def get_station_name(self) -> str:
-        """
-        获取变电站名称
-        @return: 字符串，变电站名称
-        """
+    @property
+    def station_name(self):
         return self._station_name
 
-    def get_rec_dev_id(self) -> str:
-        """
-        获取录波设备ID
-        @return: 字符串，录波设备ID
-        """
+    @station_name.setter
+    def station_name(self, value):
+        self._station_name = value
+
+    @property
+    def rec_dev_id(self):
         return self._rec_dev_id
 
-    def get_rev_year(self) -> int:
-        """
-        获取录波文件版本
-        @return: 整数，录波文件版本
-        """
+    @rec_dev_id.setter
+    def rec_dev_id(self, value):
+        self._rec_dev_id = value
+
+    @property
+    def rev_year(self):
         return self._rev_year
+
+    @rev_year.setter
+    def rev_year(self, value):
+        self._rev_year = value
 
     def get_total_channel_num(self) -> int:
         """
@@ -478,85 +454,73 @@ class CfgParser:
         else:
             return len(self._ans)
 
-    def get_channel_info(self, cfg_id: int = None, key: str = None, _type: str = 'ana'):
+    @property
+    def analog_num(self):
+        return self._A if self._A == len(self._ans) else len(self._ans)
+
+    @analog_num.setter
+    def analog_num(self, value):
+        self._A = value
+
+    def get_channel_info(self, cfg_id: int = None, key: str = None, type: str = 'analog'):
         """
-        获取通道信息，
-        :param cfg_id: cfg文件中的通道索引号，模拟量和开关量都统一为an，默认为空，当key不为空时返回该属性所有值的列表
-        :param key: 模拟量通道属性，默认为空当cfg_id为空获取所有通道的所有属性，如chid、ccbm
-        :param _type: 通道类型，默认为ana表示模拟量，dig表示开关量
-        :return: 当key存在时返回指定属性，当key不存在时返回通道所有属性
+        获取模拟量通道信息
+        :param cfg_id :cfg中通道标识an或dn
+        :param key :cfg通道属性
+        :param type: 通道类型,默认为analog代表模拟量，其余为开关量
+        :return: 模拟量通道信息
         """
-        if cfg_id is None and key is not None:
-            return self._get_key_values(key, _type)
+        first_index, channels, class_name = self.analog_first_index, self._ans, AnalogChannel
+        if type == 'digital':
+            first_index, channels, class_name = self.digital_first_index, self._dns, DigitalChannel
+
+        result = []
         if cfg_id is None:
-            return self._get_all_info(_type)
-        if cfg_id is not None:  # and key is not None:
-            try:
-                cfg_id = int(cfg_id)
-            except ValueError:
-                raise ValueError("cfg_an通道号必须是整数或能转换为整数的字符串")
-            return self._get_specific_info(cfg_id, key, _type)
+            if key is None:
+                result = channels
+            elif hasattr(class_name, key):
+                result = [obj.key for obj in channels]
+        else:
+            if cfg_id < first_index or cfg_id > self._A:
+                raise ValueError("cfg_id超出范围")
+            if key is None:
+                result = channels[cfg_id - first_index]
+            elif hasattr(class_name, key):
+                result = getattr(channels[cfg_id - first_index], key)
+        return result
 
-    def _get_key_values(self, key: str, _type: str = 'ana'):
-        """
-        根据key返回所有匹配的值
-        """
-        channels = self._dns if _type == 'dig' else self._ans
-        if not channels:
-            return []  # 明确处理self._ans为空的情况
-        return [d[key] for d in channels if key in d]
-
-    def _get_all_info(self, _type: str = 'ana'):
-        """
-        返回所有通道的信息
-        """
-        return self._dns if _type == 'dig' else self._ans
-
-    def _get_specific_info(self, cfg_an: int, key: str = None, _type: str = 'ana'):
-        """
-        根据cfg_an和key返回特定通道的信息
-        """
-        channels = self._dns if _type == 'dig' else self._ans
-        idx = next((i for i, d in enumerate(channels) if d.get("an") == cfg_an), None)
-        if idx is None:
-            raise ValueError("通道号不存在")
-        specific_info = channels[idx]
-        return specific_info if key is None else specific_info.get(key, None)
-
-    def is_analog_usage(self, cfg_an: Union[int, str]) -> bool:
+    def is_analog_usage(self, cfg_id: int = None) -> bool:
         """
         获取对应模拟通道是否使用
-        @param cfg_an: cfg文件中的通道索引号an
+        @param cfg_id: cfg文件中的通道索引号an
         @return: 布尔值True代表使用，False代表未使用
         """
-        ratio = self.get_analog_ratio(cfg_an)
+        ratio = self.get_analog_ratio(cfg_id)
         return False if ratio == 1 else True
 
-    def get_analog_ratio(self, cfg_an: int) -> float:
+    def get_analog_ratio(self, cfg_id: int) -> float:
         """
         获取对应模拟量通道的变比
-        @param cfg_an: cfg_id: cfg文件中的通道号an
+        @param cfg_id: cfg文件中的通道号an
         @return: 通道变比
         """
-        primary = self.get_channel_info(cfg_an, key="primary")
-        secondary = self.get_channel_info(cfg_an, key="secondary")
-        ratio = primary / secondary
-        return 0 if cfg_an is None else ratio
+        channel: AnalogChannel = self.get_channel_info(cfg_id)
+        primary = channel.primary
+        secondary = channel.secondary
+        ratio = primary / secondary if secondary != 0 else 0
+        return ratio
 
-    def is_primary_analog(self, cfg_an: Union[int, str]) -> bool:
+    def is_primary_analog(self, cfg_id: int) -> bool:
         """
         判断通道数值是否是一次值
-        @param cfg_an: cfg文件中的通道号an
+        @param cfg_id: cfg文件中的通道号an
         @return: 布尔值True代表一次值，False代表二次值
         """
-        channel = self.get_channel_info(cfg_an)
-        ps = channel.get("ps").lower()
-        uu = channel.get("uu").lower()
+        channel: AnalogChannel = self.get_channel_info(cfg_id)
+        ps = channel.ps.lower()
+        uu = channel.uu.lower()
         # 修订ps没有按照实际填写，一次值单位，标识为S的情况
-        if ps == 'p' or 'k' in uu:
-            return True
-        else:
-            return False
+        return True if ps == 'p' or 'k' in uu else False
 
     def add_analog_channel(self, channel: list):
         """
