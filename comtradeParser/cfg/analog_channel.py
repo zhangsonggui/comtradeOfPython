@@ -3,24 +3,11 @@
 
 class AnalogChannel:
     """
-    模拟量通道对象
+    模拟量通道类
     """
-    _an: int = 0
-    _chid: str = ''
-    _ph: str = ''
-    _ccbm: str = ''
-    _uu: str = ''
-    _a: float = 0.0
-    _b: float = 0.0
-    _skew: float = 0.0
-    _min: float = 0.0
-    _max: float = 0.0
-    _primary: float = 0.0
-    _secondary: float = 0.0
-    _ps: str = ''
-    _ratio: float = 0.0
 
-    def __init__(self, an, chid, ph, ccbm, uu, a, b, skew, min_val, max_val, primary=0.0, secondary=0.0, ps="S"):
+    def __init__(self, an: int, chid: str, ph: str, ccbm: str, uu: str, a: float, b: float, skew: float, min_val: float,
+                 max_val: float, primary: float = 0.0, secondary: float = 0.0, ps: str = "S", ratio: float = 0.0):
         self.clear()
         self._an = an
         self._chid = chid
@@ -35,6 +22,7 @@ class AnalogChannel:
         self._primary = primary
         self._secondary = secondary
         self._ps = ps
+        self._ratio = ratio
 
     def clear(self):
         self._an = 0
@@ -161,7 +149,6 @@ class AnalogChannel:
     def secondary(self, value):
         if value != 0:
             self._secondary = value
-            self.ratio = self.primary / self.secondary
         else:
             raise Exception("二次值不能为0")
 
@@ -175,7 +162,7 @@ class AnalogChannel:
 
     @property
     def ratio(self):
-        self._ratio = self.primary / self.secondary if self.secondary != 0 else 0
+        self.ratio = self._primary / self._secondary
         return self._ratio
 
     @ratio.setter
@@ -197,9 +184,10 @@ def parse_analog_channel(channel_str):
         skew=float(channel_info[7]),
         min_val=int(channel_info[8]),
         max_val=int(channel_info[9]),
-        primary=float(channel_info[10]) if len(channel_info) > 10 else 0.0,
-        secondary=float(channel_info[11]) if len(channel_info) > 11 else 0.0,
-        ps=channel_info[12].rstrip() if len(channel_info) > 12 else "S"
+        primary=float(channel_info[10]) if len(channel_info) > 10 else 1.0,
+        secondary=float(channel_info[11]) if len(channel_info) > 11 else 1.0,
+        ps=channel_info[12].rstrip() if len(channel_info) > 12 else "S",
+        # ratio=float(channel_info[10]) / float(channel_info[11]) if len(channel_info) > 11 else 1
     )
 
 

@@ -6,13 +6,8 @@ class DigitalChannel:
     """
     开关量通道对象
     """
-    _dn: int = 0
-    _chid: str = ''
-    _ph: str = ''
-    _ccbm: str = ''
-    _y: int = 0
 
-    def __init__(self, dn, chid, ph, ccbm, y):
+    def __init__(self, dn: int, chid: str, ph: str, ccbm: str, y: int):
         self.clear()
         self._dn = dn
         self._chid = chid
@@ -88,6 +83,6 @@ def parse_digital_channel(channel_str):
     )
 
 
-def generate_analog_channel_str(analog_channel_obj):
+def generate_analog_channel_str(dnalog_channel_obj):
     """直接使用对象的方法生成字符串"""
-    return analog_channel_obj.to_string()
+    return dnalog_channel_obj.to_string()

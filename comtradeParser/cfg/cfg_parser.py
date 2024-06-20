@@ -8,11 +8,12 @@
 # @File    : cfg_parser.py
 # @IDE     : PyCharm
 import logging
-from datetime import datetime
 
 from comtradeParser.cfg.analog_channel import parse_analog_channel, AnalogChannel
 from comtradeParser.cfg.data_format_type import DataFormatType
 from comtradeParser.cfg.digital_channel import parse_digital_channel, DigitalChannel
+from comtradeParser.cfg.fault_time import parse_fault_time, FaultTime
+from comtradeParser.cfg.sample_rate_info import parse_sample_rate_info, SampleRateInfo
 from comtradeParser.utils.file_tools import read_file_adaptive_encoding
 
 
@@ -21,6 +22,7 @@ class CfgParser:
     这是用于读取IEEE Comtrade cfg文件的python类
     提供通道信息，开关量信息获取，采样段信息，游标位置和周波采样信息
     """
+
     # 1.基本信息
     _file_handler = ''  # 文件处理
     _station_name = ''  # 变电站名称
@@ -36,13 +38,9 @@ class CfgParser:
     _dns = []
     digital_first_index = 1
     # 4.其他信息
-    _lf = 0  # 频率
-    _nrates_num: int = 0  # 采样段数量
-    _nrates = []  # 采样段信息
-    _start_time = ''  # 文件开始时间绝对时间
-    _trigger_time = None  # 文件零时刻绝对时间
-    _zero_time: int = 0  # 零时刻相对时间
-    _zero_point: int = 0  # 零时刻采样点
+    _nrates_num = 0
+    _sample_rate_segments = None  # 采样段信息
+    _fault_time: FaultTime = None
     _ft = ''  # 数据文件格式
     _timemult = 0.0  # 倍增系数
 
@@ -75,13 +73,9 @@ class CfgParser:
         self._dns = []
         self.digital_first_index = 1
         # 4.其他信息
-        self._lf = 0  # 频率
-        self._nrates_num: int = 0  # 采样段数量
-        self._nrates = []  # 采样段数
-        self._start_time = None  # 文件开始时间绝对时间
-        self._trigger_time = None  # 文件零时刻绝对时间
-        self._zero_time = 0  # 零时刻相对时间,纳秒值
-        self._zero_point: int = 0  # 零时刻采样点位置
+        self._nrates_num = 0
+        self._sample_rate_segments = None  # 采样段数
+        self._fault_time = None
         self._ft = ''  # 数据文件格式
         self._timemult = 0.0  # 倍增系数
 
@@ -104,7 +98,6 @@ class CfgParser:
             if i == 2:
                 self.analog_first_index = channel.an
             self._ans.append(channel)
-            # self._parse_analog(i)
         # 解析开关量通道信息,从模拟量通道总数+2开始
         for i in range(self._A + 2, self._TT + 2):
             channel_str = self._file_handler[i]
@@ -112,21 +105,17 @@ class CfgParser:
             if i == self._A + 2:
                 self.digital_first_index = channel.dn
             self._dns.append(channel)
-            # self._parse_digital(i)
-
-        # 读取频率信息
-        self._lf = int(self._file_handler[self._TT + 2])
-
-        # 处理采样信息
+        # 解析采样段信息
         self._nrates_num = int(self._file_handler[self._TT + 3])
-        self._parse_nartes(self._TT + 4, self._TT + 4 + self._nrates_num)
-        self._parse_segment()
+        nrates_str = self._file_handler[self._TT + 2:self._TT + 4 + self._nrates_num]
+        self._sample_rate_segments = parse_sample_rate_info(nrates_str)
 
         # 处理时间
-        self._parse_time()
+        strtimes = self._file_handler[self._TT + 4 + self._nrates_num:self._TT + 6 + self._nrates_num]
+        self._fault_time: FaultTime = parse_fault_time(strtimes)
 
         # 读取数据文件类型
-        self._ft = self._file_handler[2 + self._TT + 1 + self._nrates_num + 3].strip('\n')
+        self._ft = self._file_handler[self._TT + 4 + self._nrates_num + 2].strip('\n')
 
         # 读取时间倍增系数
         self._timemult = self._parse_timemult()
@@ -152,60 +141,12 @@ class CfgParser:
         self._A = int(tls[1].strip('A'))
         self._D = int(tls[2].strip('D'))
 
-    def _parse_nartes(self, start_idx: int, end_idx: int):
-        """
-        解析采样频率、最终采样点和对应的没周波采样点数
-        该段的开始采样点，结束采样点，采样总数，该段用时
-        """
-        for i in range(start_idx, end_idx):
-            nartes_info = self._file_handler[i]
-            nartes_info = nartes_info.split(',')
-            # 采样频率
-            sample_rate = int(float(nartes_info[0]))
-            # 最终采样点
-            end_point = int(float(nartes_info[1]))
-            # 采样段每周波采样点数
-            cycle_sample_num = int(float(sample_rate) / self._lf)
-            narte = {
-                "sample_rate": sample_rate,
-                "end_point": end_point,
-                "cycle_sample_num": cycle_sample_num
-            }
-            self._nrates.append(narte)
-
-    def _parse_segment(self):
-        """
-        解析采样段信息
-        """
-        for i in range(self._nrates_num):
-            narate = self._nrates[i]
-            sample_num = narate['end_point'] if i == 0 else narate['end_point'] - self._nrates[i - 1]['end_point']
-            self._nrates[i]['sample_num'] = sample_num
-            start_point = 0 if i == 0 else self._nrates[i - 1].get('end_point')
-            self._nrates[i]['start_point'] = start_point
-            # 计算采样段一共用了多少时间
-            waste_time = sample_num / narate["cycle_sample_num"] * 20
-            self._nrates[i]['waste_time'] = waste_time
-            end_time = waste_time if i == 0 else waste_time + self._nrates[i - 1]['waste_time']
-            self._nrates[i]['end_time'] = end_time
-
-    def _parse_time(self):
-        """
-        解析时间
-        """
-        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 1].strip('\n').strip()
-        self._start_time = datetime.strptime(strtime, '%d/%m/%Y,%H:%M:%S.%f')
-        strtime = self._file_handler[2 + self._TT + 1 + self._nrates_num + 2].strip('\n').strip()
-        self._trigger_time = datetime.strptime(strtime, '%d/%m/%Y,%H:%M:%S.%f')
-        self._zero_time = (self._trigger_time - self._start_time).microseconds
-        self._zero_point = self.get_zero_point()
-
     def _parse_timemult(self):
         """
         解析时间倍增系数
         """
         try:
-            timemult = float(self._file_handler[self._TT + self._nrates_num + 4])
+            timemult = float(self._file_handler[self._TT + self._nrates_num + 3])
         except IndexError:
             timemult = 1.0
         except ValueError:
@@ -236,40 +177,99 @@ class CfgParser:
     def rev_year(self, value):
         self._rev_year = value
 
-    def get_total_channel_num(self) -> int:
+    @property
+    def channel_total_num(self):
         """
-        获取模拟量和开关量通道总数
-        @return: 整数，通道总数
+        获取通道总数
+        :return: 整数，通道总数
         """
         return self._TT
 
-    def get_sample_num(self) -> int:
+    @channel_total_num.setter
+    def channel_total_num(self, value):
+        self._TT = value
+
+    @property
+    def sample_total_num(self):
         """
-        返回总采样点数
-        @return: 返回总采样点数，类型为整形
+        获取总采样点数
+        @return: 整数，总采样点数
         """
-        return self._nrates[-1]['end_point']
+        return self._sample_rate_segments.sample_total_num
+
+    @sample_total_num.setter
+    def sample_total_num(self, value):
+        self._sample_rate_segments.sample_total_num = value
+
+    @property
+    def sample_rate_segments(self):
+        return self._sample_rate_segments
+
+    @sample_rate_segments.setter
+    def sample_rate_segments(self, value):
+        self._sample_rate_segments = value
+
+    @property
+    def fault_time(self):
+        return self._fault_time
+
+    @fault_time.setter
+    def fault_time(self, value):
+        self._fault_time = value
+
+    @property
+    def digital_channel_num(self):
+        return self._D if self._D == len(self._dns) else len(self._dns)
+
+    @property
+    def analog_channel_num(self):
+        return self._A if self._A == len(self._ans) else len(self._ans)
+
+    @analog_channel_num.setter
+    def analog_channel_num(self, value):
+        self._A = value
+
+    @digital_channel_num.setter
+    def digital_channel_num(self, value):
+        self._D = value
+
+    @property
+    def analog_channels(self):
+        return self._ans
+
+    @analog_channels.setter
+    def analog_channels(self, value):
+        self._ans = value
+
+    @property
+    def digital_channels(self):
+        return self._dns
+
+    @digital_channels.setter
+    def digital_channels(self, value):
+        self._dns = value
 
     def get_cursor_sample_range(self, point1: int = 0, point2: int = None,
                                 cycle_num: float = None, mode=1) -> tuple:
         """
-        获取游标采样点位置开始、结束采样取值范围、采样点个数，当end_point不为空，以end_point采样点为准，
-        当end_point和cycle_num同时为空时，获取全部采样点，
-        当cycle_num不为空按整周波倍数默认向后取值。
+        获取游标采样点位置开始、结束采样取值范围、采样点个数\n
+        当end_point不为空且大于开始采样点，以end_point采样点为准，
+        当end_point不合法且cycle_num为空时，获取全部采样点，
+        当cycle_num不为空按周波倍数默认向后取值。
         :param point1: 采样起始点，默认为0
         :param point2: 采样终止点，不含终止点，默认为None 代表全部采样点
         :param cycle_num: 采样周波数量，当end_point为空时生效
         :param mode: 取值模式，仅在按周波取值时生效，默认为1：代表向采样点后方取值，-1：代表向采样点前方取值，0：代表向采样点两边取值
-        :return: 返回一个二维数组，一维是通道，二维是各采样点的瞬时值数组
+        :return: 返回一个元祖，分别代表开始采样点、结束采样点、采样点数量
         """
         start_point = point1
-        # 当end_point不为空时，以end_point为最后采样点
-        if point2 is not None:
+        # 当end_point不为空时，且end_point大于start_point时，以end_point为最后采样点
+        if point2 is not None and point2 > start_point:
             end_point = point2
-        # 当end_point和cycle_num都为空时，获取全部采样点
-        elif point2 is None and cycle_num is None:
-            end_point = self.get_sample_num() - 1
-        # 按周波计算采样点范围，当跨采样段取该段的最后一个值，如果向前取值开始采样点为该段的第一个值
+        # 当point2不合法，且cycle_num都为空时，获取全部采样点
+        elif cycle_num is None:
+            end_point = self.sample_rate_segments.sample_total_num - 1
+        # 当cycle_num不为空时，优先按周波计算采样点范围，当跨采样段取该段的最后一个值，如果向前取值开始采样点为该段的第一个值
         else:
             start_point, end_point = self.get_cursor_cycle_sample_range(point1, cycle_num, mode)
         samp_num = end_point - start_point
@@ -278,10 +278,10 @@ class CfgParser:
     def get_cursor_cycle_sample_range(self, point1: int = 0, cycle_num: float = 1, mode=1) -> tuple:
         """
         获取游标采样点所在周波获取采样取值范围
-        @param point1:游标位置
-        @param cycle_num:周波数量
-        @param mode:取值模式，仅在按周波取值时生效，默认为1：代表向采样点后方取值，-1：代表向采样点前方取值，0：代表向采样点两边取值
-        @return 返回起始点和终止点
+        :param point1:游标位置
+        :param cycle_num:周波数量
+        :param mode:取值模式，仅在按周波取值时生效，默认为1：代表向采样点后方取值，-1：代表向采样点前方取值，0：代表向采样点两边取值
+        :return 返回起始点和终止点
         """
         point1_segment = self.get_cursor_point_in_segment(point1)
         point1_cycle_samp_num = self.get_cursor_cycle_sample_num(point1)
@@ -305,20 +305,12 @@ class CfgParser:
         # 判断两点采样频率是否相等
         if not self.equal_samp_rate(point1, point2):
             if mode == 1:
-                point2 = self._nrates[point1_segment]["end_point"] - 1
+                point2 = self.sample_rate_segments.nrates[point1_segment].end_point - 1
                 point1 = point2 - samp_num
             else:
-                point1 = 0 if point1_segment == 0 else self._nrates[point1_segment]["end_points"] - 1
+                point1 = 0 if point1_segment == 0 else self.sample_rate_segments.nrates[point1_segment].end_point - 1
                 point2 = point1 + samp_num
         return point1, point2
-
-    def get_segment_cycle_sample_num(self, nrate: int = 0) -> int:
-        """
-        获取当前采样段每周波采多少个点
-        @param nrate: 采样信息段，类型为整形，从0开始，默认为0
-        @return: 返回当前采样段每周波采多少个点，类型为整形
-        """
-        return self._nrates[nrate]["cycle_sample_num"]
 
     def get_cursor_cycle_sample_num(self, cursor_site: int) -> int:
         """
@@ -326,8 +318,11 @@ class CfgParser:
         @param cursor_site: 游标采样点位置
         @return: 游标位置采样点数
         """
-        n = self.get_cursor_point_in_segment(cursor_site)  # 所在采样段
-        return self.get_segment_cycle_sample_num(n)  # 每周波采样点数
+        segment = self.sample_rate_segments
+        for i in range(segment.nrate_num):
+            nrate = segment.nrates[i]
+            if nrate.start_point <= cursor_site < nrate.end_point:
+                return nrate.cycle_sample_num
 
     def get_point_between_segment(self, point1: int, point2: int) -> list:
         """
@@ -356,28 +351,30 @@ class CfgParser:
         if point1 is None:
             point1 = 0
         if point2 is None:
-            point2 = self.get_sample_num()
-        segment_sample_num = []
+            point2 = self.sample_total_num
         if not isinstance(point1, int) or (
                 point2 is not None and not isinstance(point2, int)):
             raise ValueError("point1 和 point2 必须是整数")
+        # 找出两个采样点涉及的采样段
         segment = self.get_point_between_segment(point1, point2)
+        # 获取采样段对象
+        nrates = self.sample_rate_segments.nrates
         # 如果两个点的采样频率相同，直接返回两点的差
-        if self.equal_samp_rate(point1, point2):
-            return [point2 - point1]
-        # 循环除最后一个采样段以外的每个采样段的采样点数
-        for i, val in enumerate(segment):
-            nrate = self._nrates[val]
-            if i == 0:  # 第一个采样段考虑开始采样点不是该段的第一个值
-                first_segment_sample = nrate.get('sample_num') - point1 + nrate.get('start_point')
-                segment_sample_num.append(first_segment_sample)
+        points = []
+        for i, n in enumerate(segment):
+            if len(segment) <= 1:  # 当采样段只有1个，直接返回两点的差
+                points.append(point2 - point1)
             else:
-                segment_sample_num.append(nrate.get('sample_num'))
-        # 判断最后一个采样段的采样点和该段的最终采样点不一致时，以point2点减去开始的点
-        end_segment = self._nrates[segment[-1]]
-        if point2 != end_segment.get('end_point'):
-            segment_sample_num[-1] = point2 - end_segment.get('start_point')
-        return segment_sample_num
+                # 当采样段为第一个，返回第一个采样段最后的采样点和开始采样点的差
+                if i == 0:
+                    points.append(nrates[n].end_point - point1)
+                # 当采样段为最后一个，返回结束采样点到最后一个采样段开始采样点的差
+                elif i == len(segment) - 1:
+                    points.append(point2 - nrates[n].start_point)
+                # 返回该段采样点数
+                else:
+                    points.append(nrates[n].sample_num)
+        return points
 
     def get_cursor_point_in_segment(self, cursor_site: int) -> int:
         """
@@ -385,14 +382,15 @@ class CfgParser:
         @param cursor_site: 采样点位置
         @return: 采样点所在的采样段
         """
-        for i in range(self._nrates_num):
-            nrate = self._nrates[i]
-            if nrate["start_point"] <= cursor_site < nrate["end_point"]:
+        segment = self.sample_rate_segments
+        for i in range(segment.nrate_num):
+            nrate = segment.nrates[i]
+            if nrate.start_point <= cursor_site < nrate.end_point:
                 return i
 
     def equal_samp_rate(self, point1: int, point2: int) -> bool:
         """
-        比较两个采样点所在的采样点是否一致
+        比较两个采样点所在的采样点是否一致，含中间采样段
         :param point1: 采样点1的位置
         :param point2: 采样点2的位置
         :return: True or False
@@ -401,37 +399,17 @@ class CfgParser:
         point1_segment = self.get_cursor_point_in_segment(point1)
         point2_segment = self.get_cursor_point_in_segment(point2)
         for i in range(point1_segment, point2_segment + 1):
-            segment_num.append(self.get_segment_cycle_sample_num(i))
+            segment_num.append(self.sample_rate_segments.nrates[i].cycle_sample_num)
         return True if len(set(segment_num)) == 1 else False
-
-    def get_zero_time_from_cfg(self) -> int:
-        """
-        返回cfg文件中零时刻的相对时间，单位：纳秒
-        @return: 返回整型的纳秒值
-        """
-        return self._zero_time
-
-    def get_trigger_time_from_cfg(self) -> datetime:
-        """
-        返回故障时刻的绝对时间
-        @return: 返回故障时刻的绝对时间
-        """
-        return self._trigger_time
-
-    def get_start_time_from_cfg(self) -> datetime:
-        """
-        返回文件开始的绝对时间
-        @return: 返回故障时刻的绝对时间
-        """
-        return self._start_time
 
     def get_zero_in_cycle(self) -> int:
         """
         根据零时刻相对时间和每一段采样值的最后时间相比较，确定在那个采样段内
         @return: 返回零时刻所在采样段
         """
-        for i in range(self._nrates_num):
-            if self.get_zero_time_from_cfg() < self._nrates[i]["end_time"] * 1000:
+        segment = self.sample_rate_segments
+        for i in range(segment.nrate_num):
+            if self.fault_time.zero_time < segment.nrates[i].end_time * 1000:
                 return i
 
     def get_zero_point(self) -> int:
@@ -441,37 +419,18 @@ class CfgParser:
         @return: 零时刻采样点位置
         """
         n = self.get_zero_in_cycle()
-        return round(self.get_zero_time_from_cfg() / 20000 * self.get_segment_cycle_sample_num(n))
+        return round(self.fault_time.zero_time / 20000 * self.sample_rate_segments.nrates[n].cycle_sample_num)
 
-    def get_analog_channel_num(self):
-        """
-        获取模拟通道数
-        :return: 模拟量通道数
-        """
-        # 判断模拟量数组中的数量和第二行模拟量通道数是否相等，如果不相等返回数组长度
-        if self._A == len(self._ans):
-            return self._A
-        else:
-            return len(self._ans)
-
-    @property
-    def analog_num(self):
-        return self._A if self._A == len(self._ans) else len(self._ans)
-
-    @analog_num.setter
-    def analog_num(self, value):
-        self._A = value
-
-    def get_channel_info(self, cfg_id: int = None, key: str = None, type: str = 'analog'):
+    def get_channel_info(self, cfg_id: int = None, key: str = None, _type: str = 'analog'):
         """
         获取模拟量通道信息
         :param cfg_id :cfg中通道标识an或dn
         :param key :cfg通道属性
-        :param type: 通道类型,默认为analog代表模拟量，其余为开关量
+        :param _type: 通道类型,默认为analog代表模拟量，其余为开关量
         :return: 模拟量通道信息
         """
         first_index, channels, class_name = self.analog_first_index, self._ans, AnalogChannel
-        if type == 'digital':
+        if _type == 'digital':
             first_index, channels, class_name = self.digital_first_index, self._dns, DigitalChannel
 
         result = []
@@ -522,45 +481,6 @@ class CfgParser:
         # 修订ps没有按照实际填写，一次值单位，标识为S的情况
         return True if ps == 'p' or 'k' in uu else False
 
-    def add_analog_channel(self, channel: list):
-        """
-        添加模拟量通道
-        :param channel: 模拟量通道信息
-        """
-        self._ans.extend(channel)
-        # 更新模拟量通道数量
-        self.modify_analog_channel_num(self.get_analog_channel_num())
-
-    def modify_analog_channel_num(self, num: int):
-        self._A = num
-        # 更新通道总数
-        self.modify_channel_num(self.get_analog_channel_num() + self.get_digital_channel_num())
-
-    def modify_digital_channel_num(self, num: int):
-        self._D = num
-        # 更新通道总数
-        self.modify_channel_num(self.get_analog_channel_num() + self.get_digital_channel_num())
-
-    def modify_channel_num(self, num: int):
-        self._TT = num
-
-    def get_digital_channel_num(self):
-        """
-        获取开关量通道数
-        :return: 开关量量通道数
-        """
-        if self._D == len(self._dns):
-            return self._D
-        else:
-            return len(self._dns)
-
-    def get_nartes(self):
-        return {
-            'lf': self._lf,
-            'nrates_num': self._nrates_num,
-            "nrates": self._nrates
-        }
-
     def get_data_format_type(self):
         """
         获取数据格式类型和字节宽度
@@ -572,3 +492,7 @@ class CfgParser:
         except KeyError:
             format_type = DataFormatType.UNKNOWN
         return format_type.value[1:]
+
+
+def parse_cfg():
+    pass
