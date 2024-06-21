@@ -2,16 +2,16 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from comtradeParser.cfg.CFGParser import CFGParser
-from comtradeParser.dat.DATParser import DATParser
+from comtradeParser.cfg.cfg_parser import CfgParser
+from comtradeParser.dat.dat_parser import DatParser
 
 
 class TestDATCase(unittest.TestCase):
     def setUp(self):
         cfg_name = '../data/xtz.cfg'
         dat_name = '../data/xtz.dat'
-        self.cfg = CFGParser(cfg_name)
-        self.dat = DATParser(self.cfg, dat_name)
+        self.cfg = CfgParser(cfg_name)
+        self.dat = DatParser(self.cfg, dat_name)
 
     def test_get_analog_ysz(self):
         ch_number = 1
