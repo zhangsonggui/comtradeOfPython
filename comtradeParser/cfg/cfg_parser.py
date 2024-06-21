@@ -10,10 +10,9 @@
 import logging
 
 from comtradeParser.cfg.analog_channel import parse_analog_channel, AnalogChannel
-from comtradeParser.cfg.data_format_type import DataFormatType
 from comtradeParser.cfg.digital_channel import parse_digital_channel, DigitalChannel
-from comtradeParser.cfg.fault_time import parse_fault_time, FaultTime
-from comtradeParser.cfg.sample_rate_info import parse_sample_rate_info, SampleRateInfo
+from comtradeParser.cfg.fault_header import parse_header
+from comtradeParser.cfg.sample_info import parse_sample_info
 from comtradeParser.utils.file_tools import read_file_adaptive_encoding
 
 
@@ -25,33 +24,27 @@ class CfgParser:
 
     # 1.基本信息
     _file_handler = ''  # 文件处理
-    _station_name = ''  # 变电站名称
-    _rec_dev_id = ''  # 设备名称
-    _rev_year = 1991  # 版本年份，默认为1991
-    _TT = 0  # 通道总数
-    _A = 0  # 模拟量数量
-    _D = 0  # 开关量数量
+    _fault_header = None
     # 2.模拟量通道信息:
     _ans = []
-    analog_first_index = 1
+    _analog_first_index = 1
     # 3.开关量通道信息:
     _dns = []
-    digital_first_index = 1
-    # 4.其他信息
-    _nrates_num = 0
-    _sample_rate_segments = None  # 采样段信息
-    _fault_time: FaultTime = None
-    _ft = ''  # 数据文件格式
-    _timemult = 0.0  # 倍增系数
+    _digital_first_index = 1
+    # 4.采样信息
+    _sample_info = None
 
-    def __init__(self, cfg_name):
+    def __init__(self, cfg_name, cfg_content=None):
         """
         构造函数：初始化解析CFG文件的实例
         @param cfg_name:CFG文件的路径字符串。
         """
-        logging.info("初始化解析{}文件实例!".format(cfg_name))
         self.clear()
-        self._parse_cfg(cfg_name)
+        if cfg_content is None:
+            self._file_handler = read_file_adaptive_encoding(cfg_name)
+        else:
+            self._file_handler = cfg_content.split('\n')
+        self._parse_cfg()
 
     def clear(self):
         """
@@ -60,12 +53,7 @@ class CfgParser:
         """
         # 1.基本信息
         self._file_handler = ''  # 文件处理
-        self._station_name = ''  # 变电站名称
-        self._rec_dev_id = ''  # 设备名称
-        self._rev_year = 1991  # 版本年份，默认为1991
-        self._TT = 0  # 通道总数
-        self._A = 0  # 模拟量数量
-        self._D = 0  # 开关量数量
+        self._fault_header = None
         # 2.模拟量通道信息:
         self._ans = []
         self.analog_first_index = 1
@@ -73,109 +61,100 @@ class CfgParser:
         self._dns = []
         self.digital_first_index = 1
         # 4.其他信息
-        self._nrates_num = 0
-        self._sample_rate_segments = None  # 采样段数
-        self._fault_time = None
-        self._ft = ''  # 数据文件格式
-        self._timemult = 0.0  # 倍增系数
+        self._sample_info = None
 
-    def _parse_cfg(self, file_name, cfg_content=None):
+    def _parse_cfg(self):
         """
         解析CFG文件
         :param: CFG文件路径字符串
         """
-        if cfg_content is None:
-            self._file_handler = read_file_adaptive_encoding(file_name)
-        else:
-            self._file_handler = cfg_content.split('\n')
-        self._parse_header()  # 解析CFG头部信息
-        self._parse_channel_num()  # 解析CFG文件通道数量
-
+        fault_header = self._file_handler[0:2]
+        self._fault_header = parse_header(fault_header)
         # 解析模拟量通道信息，从第三行开始到模拟量通道总数+3
-        for i in range(2, self._A + 2):
-            channel_str = self._file_handler[i]
-            channel = parse_analog_channel(channel_str)
+        for i in range(2, self.analog_channel_num + 2):
+            analog_channel = self._file_handler[i]
+            analog_channel = parse_analog_channel(analog_channel)
             if i == 2:
-                self.analog_first_index = channel.an
-            self._ans.append(channel)
+                self.analog_first_index = analog_channel.an
+            self._ans.append(analog_channel)
         # 解析开关量通道信息,从模拟量通道总数+2开始
-        for i in range(self._A + 2, self._TT + 2):
-            channel_str = self._file_handler[i]
-            channel = parse_digital_channel(channel_str)
-            if i == self._A + 2:
-                self.digital_first_index = channel.dn
-            self._dns.append(channel)
+        for i in range(self.analog_channel_num + 2, self.channel_total_num + 2):
+            digital_channel = self._file_handler[i]
+            digital_channel = parse_digital_channel(digital_channel)
+            if i == self.analog_channel_num + 2:
+                self.digital_first_index = digital_channel.dn
+            self._dns.append(digital_channel)
         # 解析采样段信息
-        self._nrates_num = int(self._file_handler[self._TT + 3])
-        nrates_str = self._file_handler[self._TT + 2:self._TT + 4 + self._nrates_num]
-        self._sample_rate_segments = parse_sample_rate_info(nrates_str)
+        sample_info = self._file_handler[self.channel_total_num + 2:]
+        self._sample_info = parse_sample_info(sample_info)
 
-        # 处理时间
-        strtimes = self._file_handler[self._TT + 4 + self._nrates_num:self._TT + 6 + self._nrates_num]
-        self._fault_time: FaultTime = parse_fault_time(strtimes)
+    @property
+    def fault_header(self):
+        """
+        获取基本信息
+        :return: fault_header
+        """
+        return self._fault_header
 
-        # 读取数据文件类型
-        self._ft = self._file_handler[self._TT + 4 + self._nrates_num + 2].strip('\n')
-
-        # 读取时间倍增系数
-        self._timemult = self._parse_timemult()
-
-    def _parse_header(self):
+    @fault_header.setter
+    def fault_header(self, value):
         """
-        解析CFG文件的头部信息
+        设置基本信息
+        :param value: fault_header
+        :return:
         """
-        cfg_header = self._file_handler[0]
-        cfg_header = cfg_header.split(',')
-        self._station_name = cfg_header[0]
-        self._rec_dev_id = cfg_header[1]
-        if len(cfg_header) > 2:
-            self._rev_year = int(cfg_header[2])
-
-    def _parse_channel_num(self):
-        """
-        解析CFG文件的量通道数量
-        """
-        channel_num = self._file_handler[1].rstrip()
-        tls = channel_num.split(',')
-        self._TT = int(tls[0])
-        self._A = int(tls[1].strip('A'))
-        self._D = int(tls[2].strip('D'))
-
-    def _parse_timemult(self):
-        """
-        解析时间倍增系数
-        """
-        try:
-            timemult = float(self._file_handler[self._TT + self._nrates_num + 3])
-        except IndexError:
-            timemult = 1.0
-        except ValueError:
-            timemult = 1.0
-        return timemult
+        self._fault_header = value
 
     @property
     def station_name(self):
-        return self._station_name
+        """
+        获取站名
+        :return: station_name
+        """
+        return self.fault_header.station_name
 
     @station_name.setter
     def station_name(self, value):
-        self._station_name = value
+        """
+        设置站名
+        :param value: station_name
+        :return:
+        """
+        self.fault_header.station_name = value
 
     @property
     def rec_dev_id(self):
-        return self._rec_dev_id
+        """
+        获取录波设备名
+        :return: rec_dev_id
+        """
+        return self.fault_header.rec_dev_id
 
     @rec_dev_id.setter
     def rec_dev_id(self, value):
-        self._rec_dev_id = value
+        """
+        设置录波设备名
+        :param value: rec_dev_id
+        :return:
+        """
+        self.fault_header.rec_dev_id = value
 
     @property
     def rev_year(self):
-        return self._rev_year
+        """
+        获取录波文件版本
+        :return: rec_dev_id
+        """
+        return self.fault_header.rev_year
 
     @rev_year.setter
     def rev_year(self, value):
-        self._rev_year = value
+        """
+        设置录波文件版本
+        :param value: rec_dev_id
+        :return:
+        """
+        self.fault_header.rev_year = value
 
     @property
     def channel_total_num(self):
@@ -183,11 +162,90 @@ class CfgParser:
         获取通道总数
         :return: 整数，通道总数
         """
-        return self._TT
+        channel_total_num = self.fault_header.channel_total_num
+        channel_ad_num = self.analog_channel_num + self.digital_channel_num
+        return channel_total_num if channel_total_num == channel_ad_num else channel_ad_num
 
     @channel_total_num.setter
     def channel_total_num(self, value):
-        self._TT = value
+        """
+        设置通道总数
+        :param value: 整数，通道总数
+        :return:
+        """
+        self.channel_total_num = value
+
+    @property
+    def analog_channel_num(self):
+        """
+        获取模拟量通道总数，当模拟量数组和模拟量数量不一致时以模拟量数组为准
+        :return: 整数，模拟量通道总数
+        """
+        if len(self._ans) != 0 and len(self._ans) != self.fault_header.analog_channel_num:
+            return len(self._ans)
+        return self.fault_header.analog_channel_num
+
+    @analog_channel_num.setter
+    def analog_channel_num(self, value):
+        """
+        设置模拟量通道总数
+        :param value: 整数，模拟量通道总数
+        :return:
+        """
+        self.analog_channel_num = value
+
+    @property
+    def analog_first_index(self):
+        """
+        获取模拟量通道起始编号
+        @return: 整数，模拟量通道起始编号
+        """
+        return self._analog_first_index
+
+    @analog_first_index.setter
+    def analog_first_index(self, value):
+        """
+        设置模拟量通道起始编号
+        @param value: 整数，模拟量通道起始编号
+        @return
+        """
+        self._analog_first_index = value
+
+    @property
+    def digital_channel_num(self):
+        """
+        获取开关量通道总数，当开关量数组和开关量数量不一致时以模拟量数组为准
+        :return: 整数，模拟量通道总数
+        """
+        if len(self._dns) != 0 and len(self._dns) != self.fault_header.digital_channel_num:
+            return len(self._dns)
+        return self.fault_header.digital_channel_num
+
+    @digital_channel_num.setter
+    def digital_channel_num(self, value):
+        """
+        设置开关量通道总数
+        @param value: 整数，模拟量通道总数
+        @return
+        """
+        self.digital_channel_num = value
+
+    @property
+    def digital_first_index(self):
+        """
+        获取开关量通道起始编号
+        @return: 整数，开关量通道起始编号
+        """
+        return self._digital_first_index
+
+    @digital_first_index.setter
+    def digital_first_index(self, value):
+        """
+        设置开关量通道起始编号
+        @param value: 整数，开关量通道起始编号
+        @return
+        """
+        self._digital_first_index = value
 
     @property
     def sample_total_num(self):
@@ -195,59 +253,116 @@ class CfgParser:
         获取总采样点数
         @return: 整数，总采样点数
         """
-        return self._sample_rate_segments.sample_total_num
+        return self._sample_info.sample_total_num
 
     @sample_total_num.setter
     def sample_total_num(self, value):
-        self._sample_rate_segments.sample_total_num = value
+        """
+        设置总采样点数
+        @param value: 整数，总采样点数
+        @return
+        """
+        self._sample_info.sample_total_num = value
 
     @property
-    def sample_rate_segments(self):
-        return self._sample_rate_segments
+    def sample_info(self):
+        """
+        获取采样信息
+        """
+        return self._sample_info
 
-    @sample_rate_segments.setter
-    def sample_rate_segments(self, value):
-        self._sample_rate_segments = value
+    @sample_info.setter
+    def sample_info(self, value):
+        """
+        设置采样信息
+        @param value: 采样信息
+        @return
+        """
+        self._sample_info = value
 
     @property
     def fault_time(self):
-        return self._fault_time
+        """
+        获取故障时间
+        @return: 故障时间
+        """
+        return self._sample_info.fault_time
 
     @fault_time.setter
     def fault_time(self, value):
-        self._fault_time = value
-
-    @property
-    def digital_channel_num(self):
-        return self._D if self._D == len(self._dns) else len(self._dns)
-
-    @property
-    def analog_channel_num(self):
-        return self._A if self._A == len(self._ans) else len(self._ans)
-
-    @analog_channel_num.setter
-    def analog_channel_num(self, value):
-        self._A = value
-
-    @digital_channel_num.setter
-    def digital_channel_num(self, value):
-        self._D = value
+        """
+        设置故障时间
+        @param value: 故障时间
+        @return
+        """
+        self._sample_info.fault_time = value
 
     @property
     def analog_channels(self):
+        """
+        获取模拟量通道
+        @return: 模拟量通道
+        """
         return self._ans
 
     @analog_channels.setter
     def analog_channels(self, value):
+        """
+        设置模拟量通道
+        @param value: 模拟量通道
+        @return
+        """
         self._ans = value
 
     @property
     def digital_channels(self):
+        """
+        获取开关量通道
+        @return: 开关量通道
+        """
         return self._dns
 
     @digital_channels.setter
     def digital_channels(self, value):
+        """
+        设置开关量通道
+        @param value: 开关量通道
+        @return
+        """
         self._dns = value
+
+    @property
+    def nrates(self):
+        """
+        获取采样率
+        @return: 采样率
+        """
+        return self._sample_info.nrates
+
+    @nrates.setter
+    def nrates(self, value):
+        """
+        设置采样率
+        @param value: 采样率
+        @return
+        """
+        self._sample_info.nrates = value
+
+    @property
+    def data_format_type(self):
+        return self._sample_info.ft
+
+    @data_format_type.setter
+    def data_format_type(self, value):
+        self._sample_info.ft = value
+
+    @property
+    def timemult(self):
+        return self._sample_info.timemult
+
+    @timemult.setter
+    def timemult(self, value):
+        self._sample_info.timemult = value
 
     def get_cursor_sample_range(self, point1: int = 0, point2: int = None,
                                 cycle_num: float = None, mode=1) -> tuple:
@@ -268,7 +383,7 @@ class CfgParser:
             end_point = point2
         # 当point2不合法，且cycle_num都为空时，获取全部采样点
         elif cycle_num is None:
-            end_point = self.sample_rate_segments.sample_total_num - 1
+            end_point = self.sample_info.sample_total_num - 1
         # 当cycle_num不为空时，优先按周波计算采样点范围，当跨采样段取该段的最后一个值，如果向前取值开始采样点为该段的第一个值
         else:
             start_point, end_point = self.get_cursor_cycle_sample_range(point1, cycle_num, mode)
@@ -305,10 +420,10 @@ class CfgParser:
         # 判断两点采样频率是否相等
         if not self.equal_samp_rate(point1, point2):
             if mode == 1:
-                point2 = self.sample_rate_segments.nrates[point1_segment].end_point - 1
+                point2 = self.sample_info.nrates[point1_segment].end_point - 1
                 point1 = point2 - samp_num
             else:
-                point1 = 0 if point1_segment == 0 else self.sample_rate_segments.nrates[point1_segment].end_point - 1
+                point1 = 0 if point1_segment == 0 else self.sample_info.nrates[point1_segment].end_point - 1
                 point2 = point1 + samp_num
         return point1, point2
 
@@ -318,7 +433,7 @@ class CfgParser:
         @param cursor_site: 游标采样点位置
         @return: 游标位置采样点数
         """
-        segment = self.sample_rate_segments
+        segment = self.sample_info
         for i in range(segment.nrate_num):
             nrate = segment.nrates[i]
             if nrate.start_point <= cursor_site < nrate.end_point:
@@ -358,7 +473,7 @@ class CfgParser:
         # 找出两个采样点涉及的采样段
         segment = self.get_point_between_segment(point1, point2)
         # 获取采样段对象
-        nrates = self.sample_rate_segments.nrates
+        nrates = self.sample_info.nrates
         # 如果两个点的采样频率相同，直接返回两点的差
         points = []
         for i, n in enumerate(segment):
@@ -382,7 +497,7 @@ class CfgParser:
         @param cursor_site: 采样点位置
         @return: 采样点所在的采样段
         """
-        segment = self.sample_rate_segments
+        segment = self.sample_info
         for i in range(segment.nrate_num):
             nrate = segment.nrates[i]
             if nrate.start_point <= cursor_site < nrate.end_point:
@@ -399,7 +514,7 @@ class CfgParser:
         point1_segment = self.get_cursor_point_in_segment(point1)
         point2_segment = self.get_cursor_point_in_segment(point2)
         for i in range(point1_segment, point2_segment + 1):
-            segment_num.append(self.sample_rate_segments.nrates[i].cycle_sample_num)
+            segment_num.append(self.sample_info.nrates[i].cycle_sample_num)
         return True if len(set(segment_num)) == 1 else False
 
     def get_zero_in_cycle(self) -> int:
@@ -407,7 +522,7 @@ class CfgParser:
         根据零时刻相对时间和每一段采样值的最后时间相比较，确定在那个采样段内
         @return: 返回零时刻所在采样段
         """
-        segment = self.sample_rate_segments
+        segment = self.sample_info
         for i in range(segment.nrate_num):
             if self.fault_time.zero_time < segment.nrates[i].end_time * 1000:
                 return i
@@ -419,7 +534,7 @@ class CfgParser:
         @return: 零时刻采样点位置
         """
         n = self.get_zero_in_cycle()
-        return round(self.fault_time.zero_time / 20000 * self.sample_rate_segments.nrates[n].cycle_sample_num)
+        return round(self.fault_time.zero_time / 20000 * self.sample_info.nrates[n].cycle_sample_num)
 
     def get_channel_info(self, cfg_id: int = None, key: str = None, _type: str = 'analog'):
         """
@@ -440,7 +555,7 @@ class CfgParser:
             elif hasattr(class_name, key):
                 result = [obj.key for obj in channels]
         else:
-            if cfg_id < first_index or cfg_id > self._A:
+            if cfg_id < first_index or cfg_id > self.analog_channel_num:
                 raise ValueError("cfg_id超出范围")
             if key is None:
                 result = channels[cfg_id - first_index]
@@ -480,19 +595,3 @@ class CfgParser:
         uu = channel.uu.lower()
         # 修订ps没有按照实际填写，一次值单位，标识为S的情况
         return True if ps == 'p' or 'k' in uu else False
-
-    def get_data_format_type(self):
-        """
-        获取数据格式类型和字节宽度
-        :return: 数据格式类型，如：binary,ascii
-        """
-        ft = self._ft.upper()  # 将ft转换为大写
-        try:
-            format_type = DataFormatType[ft]
-        except KeyError:
-            format_type = DataFormatType.UNKNOWN
-        return format_type.value[1:]
-
-
-def parse_cfg():
-    pass

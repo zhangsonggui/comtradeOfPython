@@ -83,6 +83,6 @@ def parse_digital_channel(channel_str):
     )
 
 
-def generate_analog_channel_str(dnalog_channel_obj):
+def generate_digital_channel_str(digital_channel_obj):
     """直接使用对象的方法生成字符串"""
-    return dnalog_channel_obj.to_string()
+    return digital_channel_obj.to_string()

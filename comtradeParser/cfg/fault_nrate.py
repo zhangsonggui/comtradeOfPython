@@ -87,3 +87,10 @@ def parse_nrate(nrate_str):
     nrate_info = nrate_str.split(',')
     return FaultNrate(samp=int(nrate_info[0]),
                       end_point=int(nrate_info[1].rstrip()))
+
+
+def generate_nrate_str(nrate_obj):
+    """
+    直接使用对象的方法生成字符串
+    """
+    return nrate_obj.to_string()
