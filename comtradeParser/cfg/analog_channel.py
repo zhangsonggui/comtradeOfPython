@@ -173,6 +173,10 @@ class AnalogChannel:
 def parse_analog_channel(channel_str):
     """从字符串解析成对象"""
     channel_info = channel_str.split(',')
+    ps = channel_info[12].rstrip() if len(channel_info) > 12 else "S"
+    uu = channel_info[4].upper()
+    if uu == ['KV', 'KA']:
+        ps = 'P'
     return AnalogChannel(
         an=int(channel_info[0]),
         chid=channel_info[1],
@@ -186,7 +190,7 @@ def parse_analog_channel(channel_str):
         max_val=int(channel_info[9]),
         primary=float(channel_info[10]) if len(channel_info) > 10 else 1.0,
         secondary=float(channel_info[11]) if len(channel_info) > 11 else 1.0,
-        ps=channel_info[12].rstrip() if len(channel_info) > 12 else "S",
+        ps=ps
         # ratio=float(channel_info[10]) / float(channel_info[11]) if len(channel_info) > 11 else 1
     )
 
