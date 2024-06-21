@@ -9,6 +9,8 @@
 # @IDE     : PyCharm
 import logging
 
+import numpy as np
+
 from comtradeParser.cfg.analog_channel import parse_analog_channel, AnalogChannel
 from comtradeParser.cfg.digital_channel import parse_digital_channel, DigitalChannel
 from comtradeParser.cfg.fault_header import parse_header
@@ -87,6 +89,10 @@ class CfgParser:
         # 解析采样段信息
         sample_info = self._file_handler[self.channel_total_num + 2:]
         self._sample_info = parse_sample_info(sample_info)
+        # 每个采样点模拟量和开关量的字节数
+        self.sample_info.analog_bytes = self.analog_channel_num * self.sample_info.bit_width
+        self.sample_info.digital_bytes = int(np.ceil(self.digital_channel_num) / float(16))
+        self.sample_info.total_bytes = 8 + self.sample_info.analog_bytes + self.sample_info.digital_bytes * 2
 
     @property
     def fault_header(self):
@@ -555,7 +561,7 @@ class CfgParser:
             elif hasattr(class_name, key):
                 result = [obj.key for obj in channels]
         else:
-            if cfg_id < first_index or cfg_id > self.analog_channel_num:
+            if cfg_id <= first_index or cfg_id >= self.analog_channel_num:
                 raise ValueError("cfg_id超出范围")
             if key is None:
                 result = channels[cfg_id - first_index]
@@ -590,7 +596,8 @@ class CfgParser:
         @param cfg_id: cfg文件中的通道号an
         @return: 布尔值True代表一次值，False代表二次值
         """
-        channel: AnalogChannel = self.get_channel_info(cfg_id)
+        idx = cfg_id - self.analog_first_index
+        channel: AnalogChannel = self.analog_channels[idx]
         ps = channel.ps.lower()
         uu = channel.uu.lower()
         # 修订ps没有按照实际填写，一次值单位，标识为S的情况
