@@ -10,7 +10,8 @@ class SampleInfo:
     """
 
     def __init__(self, lf: int, nrate_num: int, sample_total_num: int, ft: str, timemult: float, nrates: list,
-                 fault_time: FaultTime, bit_width: int):
+                 fault_time: FaultTime, bit_width: int, analog_bytes: int = 0, digital_bytes: int = 0,
+                 total_bytes: int = 0):
         self._lf = lf
         self._nrate_num = nrate_num
         self._sample_total_num = sample_total_num
@@ -19,6 +20,9 @@ class SampleInfo:
         self._nrates = nrates
         self._fault_time = fault_time
         self._bit_width = bit_width
+        self._analog_bytes = analog_bytes
+        self._digital_bytes = digital_bytes
+        self._total_bytes = total_bytes
 
     def clear(self) -> None:
         self._lf = 0
@@ -29,6 +33,9 @@ class SampleInfo:
         self._nrates = []
         self._fault_time = None
         self._bit_width = 2
+        self._analog_bytes = 0
+        self._digital_bytes = 0
+        self._total_bytes = 0
 
     @property
     def lf(self):
@@ -141,6 +148,51 @@ class SampleInfo:
         修改采样格式
         """
         self._bit_width = value
+
+    @property
+    def analog_bytes(self):
+        """
+        获取采样格式
+        """
+        return self._analog_bytes
+
+    @analog_bytes.setter
+    def analog_bytes(self, value):
+        """
+        修改采样格式
+        """
+        self._analog_bytes = value
+
+    @property
+    def digital_bytes(self):
+        """
+        获取采样格式
+        """
+        return self._digital_bytes
+
+    @digital_bytes.setter
+    def digital_bytes(self, value):
+        """
+        修改采样格式
+        """
+        self._digital_bytes = value
+
+    @property
+    def total_bytes(self):
+        """
+        获取采样格式
+        """
+        ad = self.analog_bytes + self.digital_bytes * 2
+        if self._total_bytes != ad:
+            return ad + 8
+        return self._total_bytes
+
+    @total_bytes.setter
+    def total_bytes(self, value):
+        """
+        修改采样格式
+        """
+        self._total_bytes = value
 
     def nrates_to_string(self):
         """
