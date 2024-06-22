@@ -45,7 +45,19 @@ class DatParser:
 
     @property
     def cfg(self):
+        """
+        获取cfg文件对象
+        :return: cfg文件对象
+        """
         return self._cfg
+
+    @property
+    def dat_file_content(self):
+        """
+        获取DAT文件内容
+        :return: np.ndarray格式的DAT文件内容
+        """
+        return self._dat_file_content
 
     def _parse_binary_data(self, file_name) -> np.ndarray:
         """
@@ -73,7 +85,7 @@ class DatParser:
         :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
         :return: 采样时间数组
         """
-        return self._dat_file_content[0:2, start_point:end_point]
+        return self.dat_file_content[0:2, start_point:end_point]
 
     def get_analog_ysz_from_channel(self, cfg_an: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
@@ -93,7 +105,7 @@ class DatParser:
             raise ValueError(
                 f"指定的模拟量通道{cfg_an}大于模拟量通道{self.cfg.analog_channel_num}，无法读取该通道数据!")
         idx = cfg_an - self.cfg.analog_first_index
-        values = self._dat_file_content[2 + idx:2 + idx + 1, start_point:end_point]
+        values = self.dat_file_content[2 + idx:2 + idx + 1, start_point:end_point]
         return values[0]
 
     def get_analog_ssz_from_channel(self, cfg_an: int, start_point: int = 0, end_point: int = None,
@@ -111,12 +123,11 @@ class DatParser:
         # 利用numpy的乘法和加法运算获取瞬时值
         channel: AnalogChannel = self.cfg.analog_channels[cfg_an - self.cfg.analog_first_index]
         ssz = vs * channel.a + channel.b
-        # 获取通道是否一次值
-        ch_primary = self.cfg.is_primary_analog(cfg_an)
+        # 判断输出值的类型，根据变比进行转换
         if primary:
-            result = ssz if ch_primary else ssz * channel.ratio
+            result = ssz if channel.ps == "P" else ssz * channel.ratio
         else:
-            result = ssz / channel.ratio if ch_primary else ssz
+            result = ssz / channel.ratio if channel.ps == "P" else ssz
         return np.around(result, 3)
 
     def get_digital_ssz_from_channel(self, idx: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
