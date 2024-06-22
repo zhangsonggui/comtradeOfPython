@@ -44,9 +44,7 @@ class AnalogChannel:
         """从对象生成字符串"""
         parts = [str(self._an), self._chid, self._ph, self._ccbm, self._uu,
                  str(self._a), str(self._b), str(self._skew), str(self._min), str(self._max),
-                 str(self._primary) if self._primary != 1.0 else "",
-                 str(self._secondary) if self._secondary != 1.0 else "",
-                 self._ps]
+                 str(self._primary), str(self._secondary), self._ps]
         # 移除末尾的空字符串以保持与原始解析逻辑一致
         while parts and not parts[-1]:
             parts.pop()
@@ -191,7 +189,6 @@ def parse_analog_channel(channel_str):
         primary=float(channel_info[10]) if len(channel_info) > 10 else 1.0,
         secondary=float(channel_info[11]) if len(channel_info) > 11 else 1.0,
         ps=ps
-        # ratio=float(channel_info[10]) / float(channel_info[11]) if len(channel_info) > 11 else 1
     )
 
 
