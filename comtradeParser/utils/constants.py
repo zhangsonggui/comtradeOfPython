@@ -5,7 +5,7 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : ReadFaultFile.py
+# @File    : constants.py
 # @IDE     : PyCharm
 # 定义通道关键字，用于屏蔽不需要解析的通道
 NAME_MASKEY = ["高频", "模拟量", "高抗", "电抗", "单量", "母联", "分段", "开关量", "电压", "电流"]
