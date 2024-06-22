@@ -107,8 +107,8 @@ class FaultHeader:
 
     def to_string(self):
         """从对象生成字符串"""
-        return (f'{self.station_name},{self.rec_dev_id},{str(self.rev_year)}\n \
-                {str(self.channel_total_num)},{str(self.analog_channel_num)}A,{str(self.digital_channel_num)}D')
+        return (f'{self.station_name},{self.rec_dev_id},{str(self.rev_year)}\n' +
+                f'{str(self.channel_total_num)},{str(self.analog_channel_num)}A,{str(self.digital_channel_num)}D')
 
 
 def parse_header(header_str):
