@@ -7,14 +7,13 @@
 # @Author  : 张松贵
 # @File    : cfg_parser.py
 # @IDE     : PyCharm
-import logging
 
 import numpy as np
 
-from comtradeParser.cfg.analog_channel import parse_analog_channel, AnalogChannel
-from comtradeParser.cfg.digital_channel import parse_digital_channel, DigitalChannel
-from comtradeParser.cfg.fault_header import parse_header
-from comtradeParser.cfg.sample_info import parse_sample_info
+from comtradeParser.cfg.analog_channel import parse_analog_channel, AnalogChannel, generate_analog_channel_str
+from comtradeParser.cfg.digital_channel import parse_digital_channel, DigitalChannel, generate_digital_channel_str
+from comtradeParser.cfg.fault_header import parse_header, generate_fault_header_str
+from comtradeParser.cfg.sample_info import parse_sample_info, generate_sample_info_str
 from comtradeParser.utils.file_tools import read_file_adaptive_encoding
 
 
@@ -542,10 +541,10 @@ class CfgParser:
         n = self.get_zero_in_cycle()
         return round(self.fault_time.zero_time / 20000 * self.sample_info.nrates[n].cycle_sample_num)
 
-    def get_channel_info(self, cfg_id: int = None, key: str = None, _type: str = 'analog'):
+    def get_channel_info(self, cfg_an: int = None, key: str = None, _type: str = 'analog'):
         """
         获取模拟量通道信息
-        :param cfg_id :cfg中通道标识an或dn
+        :param cfg_an :cfg中通道标识an或dn
         :param key :cfg通道属性
         :param _type: 通道类型,默认为analog代表模拟量，其余为开关量
         :return: 模拟量通道信息
@@ -555,50 +554,44 @@ class CfgParser:
             first_index, channels, class_name = self.digital_first_index, self._dns, DigitalChannel
 
         result = []
-        if cfg_id is None:
+        if cfg_an is None:
             if key is None:
                 result = channels
             elif hasattr(class_name, key):
                 result = [obj.key for obj in channels]
         else:
-            if cfg_id <= first_index or cfg_id >= self.analog_channel_num:
+            if first_index <= cfg_an <= self.analog_channel_num:
                 raise ValueError("cfg_id超出范围")
             if key is None:
-                result = channels[cfg_id - first_index]
+                result = channels[cfg_an - first_index]
             elif hasattr(class_name, key):
-                result = getattr(channels[cfg_id - first_index], key)
+                result = getattr(channels[cfg_an - first_index], key)
         return result
 
-    def is_analog_usage(self, cfg_id: int = None) -> bool:
-        """
-        获取对应模拟通道是否使用
-        @param cfg_id: cfg文件中的通道索引号an
-        @return: 布尔值True代表使用，False代表未使用
-        """
-        ratio = self.get_analog_ratio(cfg_id)
-        return False if ratio == 1 else True
 
-    def get_analog_ratio(self, cfg_id: int) -> float:
-        """
-        获取对应模拟量通道的变比
-        @param cfg_id: cfg文件中的通道号an
-        @return: 通道变比
-        """
-        channel: AnalogChannel = self.get_channel_info(cfg_id)
-        primary = channel.primary
-        secondary = channel.secondary
-        ratio = primary / secondary if secondary != 0 else 0
-        return ratio
+def generate_cfg_str(cfg_obj):
+    """
+    生成cfg文件字符串
+    @param cfg_obj: cfg对象
+    @return: cfg文件字符串
+    """
+    fault_headers_str = generate_fault_header_str(cfg_obj.fault_header) + '\n'
+    analog_channels_str = ''
+    for ac in cfg_obj.analog_channels:
+        analog_channels_str += generate_analog_channel_str(ac) + '\n'
+    digital_channels_str = ''
+    for dc in cfg_obj.digital_channels:
+        digital_channels_str += generate_digital_channel_str(dc) + '\n'
+    sample_info_str = generate_sample_info_str(cfg_obj.sample_info) + '\n'
+    return fault_headers_str + analog_channels_str + digital_channels_str + sample_info_str
 
-    def is_primary_analog(self, cfg_id: int) -> bool:
-        """
-        判断通道数值是否是一次值
-        @param cfg_id: cfg文件中的通道号an
-        @return: 布尔值True代表一次值，False代表二次值
-        """
-        idx = cfg_id - self.analog_first_index
-        channel: AnalogChannel = self.analog_channels[idx]
-        ps = channel.ps.lower()
-        uu = channel.uu.lower()
-        # 修订ps没有按照实际填写，一次值单位，标识为S的情况
-        return True if ps == 'p' or 'k' in uu else False
+
+def cfg_to_file(cfg: CfgParser, filename: str):
+    """
+    将cfg文件写入文件
+    :param cfg: cfg文件对象
+    :param filename: 文件名
+    """
+    with open(filename, 'w', encoding='gbk') as f:
+        f.write(generate_cfg_str(cfg))
+    return f'{filename}文件生成成功！'
