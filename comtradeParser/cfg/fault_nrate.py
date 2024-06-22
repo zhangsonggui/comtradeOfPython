@@ -24,7 +24,7 @@ class FaultNrate:
         self._end_time = 0
 
     def to_string(self):
-        return f'{str(self._samp)},{str(self._end_point)}\n'
+        return f'{str(self._samp)},{str(self._end_point)}'
 
     @property
     def samp(self):
