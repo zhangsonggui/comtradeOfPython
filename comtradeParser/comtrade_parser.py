@@ -5,28 +5,28 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : ComtradeParser.py
+# @File    : comtrade_parser.py
 # @IDE     : PyCharm
 import cmath
 import math
-import os
 from typing import Union
 
 import numpy as np
 
-from comtradeParser.cfg.CFGParser import CFGParser
+from comtradeParser.cfg.cfg_parser import CfgParser
 from comtradeParser.computation.fourier import dft_rx, dft_exp_decay
 from comtradeParser.computation.sequence import phasor_to_sequence
-from comtradeParser.dat.DATParser import DATParser
+from comtradeParser.dat.dat_parser import DatParser
 from comtradeParser.dmf.ChannelGroupParser import ChannelGroupParser
 from comtradeParser.dmf.DMFParser import DMFParser
+from comtradeParser.utils import file_tools
 
 
 class ComtradeParser:
-    cfg = None
+    _cfg = None
     _dat = None
     _dmf = None
-    cgp = None
+    _cgp = None
 
     def __init__(self, _cfg_file_name: str, _dat_file_name: str = None, _dmf_file_name: str = None):
         """
@@ -38,39 +38,61 @@ class ComtradeParser:
         self.clear()
         self._load_cfg_dat_file(_cfg_file_name, _dat_file_name)
         self._load_dmf_file(_dmf_file_name)
-        self.cgp = ChannelGroupParser(self.cfg, self._dmf)
+        self._cgp = ChannelGroupParser(self.cfg, self._dmf)
 
     def clear(self):
         """
         清除类内部的私有变量
         @return:
         """
-        self.cfg = None
+        self._cfg = None
         self._dat = None
         self._dmf = None
-        self.cgp = None
+        self._cgp = None
 
-    @staticmethod
-    def verify_file_validity(file_path: str):
+    @property
+    def cfg(self):
         """
-        验证文件是否存在且非空。
-        :param file_path: 文件的路径
-        :return: 文件名路径或错误信息
+        CFG对象
         """
-        try:
-            # 检查文件是否存在
-            if not os.path.exists(file_path):
-                return f"错误：文件 {file_path} 不存在。"
+        return self._cfg
 
-            # 检查文件是否为空
-            if os.path.getsize(file_path) == 0:
-                return f"错误：文件 {file_path} 为空。"
+    @cfg.setter
+    def cfg(self, value):
+        self._cfg = value
 
-            # 如果通过以上检查，说明文件存在且非空
-            return file_path
-        except Exception as e:
-            # 捕获其他可能的异常，如权限问题等
-            return f"发生错误：{str(e)}"
+    @property
+    def dat(self):
+        """
+        DAT对象
+        """
+        return self._dat
+
+    @dat.setter
+    def dat(self, value):
+        self._dat = value
+
+    @property
+    def dmf(self):
+        """
+        DMF对象
+        """
+        return self._dmf
+
+    @dmf.setter
+    def dmf(self, value):
+        self._dmf = value
+
+    @property
+    def cgp(self):
+        """
+        ChannelGroupParser对象
+        """
+        return self._cgp
+
+    @cgp.setter
+    def cgp(self, value):
+        self._cgp = value
 
     def _load_cfg_dat_file(self, _cfg_file_name: str, _dat_file_name: str = None):
         """
@@ -79,31 +101,40 @@ class ComtradeParser:
         :param _dat_file_name: dat文件名，不含后缀
         """
         # 判断cfg文件存在且不为空，进行解析CFG文件
-        if self.verify_file_validity(_cfg_file_name):
-            self.cfg = CFGParser(_cfg_file_name)
+        if file_tools.verify_file_validity(_cfg_file_name):
+            self.cfg = CfgParser(_cfg_file_name)
         # 当dat文件为空，则取cfg文件名，后缀名大小写和cfg一致
         if _dat_file_name is None:
             _name, _suffix = _cfg_file_name.rsplit('.', 1)
-            _dat_suffix = 'dat' if _suffix == 'cfg' else 'DAT'
+            _dat_suffix = 'dat' if _suffix == '_cfg' else 'DAT'
             _dat_file_name = _name + '.' + _dat_suffix
         # 判断dat文件存在且不为空，进行解析DAT文件
-        if self.verify_file_validity(_dat_file_name):
-            self.dat = DATParser(self.cfg, _dat_file_name)
+        if file_tools.verify_file_validity(_dat_file_name):
+            self.dat = DatParser(self._cfg, _dat_file_name)
 
     def _load_dmf_file(self, _dmf_file_name: str):
         """
         判断是否存在dmf文件
         :param _dmf_file_name: dmf文件名，含后缀
         """
-        if not self.verify_file_validity(_dmf_file_name):
-            self._dmf = DMFParser(_dmf_file_name)
+        if not file_tools.verify_file_validity(_dmf_file_name):
+            self.dmf = DMFParser(_dmf_file_name)
+
+    def get_sample_relative_time_list(self, start_point: int = 0, end_point: int = None) -> np.ndarray:
+        """
+        获取采样点和相对时间数组
+        :param start_point: 采样起始点，默认为0
+        :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
+        :return: 采样时间数组
+        """
+        return self.dat.get_sample_relative_time_list(start_point, end_point)
 
     def get_analog_ysz(self, ch_number: Union[int, list],
                        start_point: int = 0, end_point: int = None,
                        cycle_num: int = None, mode=1) -> np.ndarray:
         """
         读取指定模拟量通道、采样点的原始值数组。
-        :param ch_number: CFG文件中的通道序号或列表
+        :param ch_number: CFG文件中的通道序号an或序号列表
         :param start_point: 采样起始点，默认为0
         :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
         :param cycle_num: 采样周波数量，当end_point为空时生效
@@ -112,10 +143,10 @@ class ComtradeParser:
         """
         if isinstance(ch_number, int):
             ch_number = [ch_number]
-        start_point, end_point, samp_point = self.cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+        start_point, end_point, samp_point = self._cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
         values = np.zeros((len(ch_number), samp_point))
         for i, ch in enumerate(ch_number):
-            values[i] = self._dat.get_analog_ysz_from_channel(ch)[start_point:end_point + 1]
+            values[i] = self.dat.get_analog_ysz_from_channel(ch)[start_point:end_point + 1]
         return values
 
     def get_analog_ssz(self, ch_number: Union[int, list], primary: bool = False,
@@ -136,10 +167,10 @@ class ComtradeParser:
         """
         if isinstance(ch_number, int):
             ch_number = [ch_number]
-        start_point, end_point, samp_point = self.cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+        start_point, end_point, samp_point = self._cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
         values = np.zeros((len(ch_number), samp_point))
         for i, ch in enumerate(ch_number):
-            values[i] = self._dat.get_analog_ssz_from_channel(ch, primary)[start_point:end_point + 1]
+            values[i] = self.dat.get_analog_ssz_from_channel(ch, primary=primary)[start_point:end_point + 1]
         return np.around(values, 3)
 
     def get_analog_yxz(self, vs: np.ndarray = None, sample_rate: int = None, **kwargs) -> np.ndarray:
@@ -150,7 +181,7 @@ class ComtradeParser:
         :return 返回有效值列表，索引序号和ch_number对应
         """
         if vs is None:
-            vs = self.get_analog_ssz(kwargs.get('ch_number'), kwargs.get('primary'), kwargs.get('start_point'),
+            vs = self.get_analog_ssz(kwargs.get('cfg_an'), kwargs.get('primary'), kwargs.get('start_point'),
                                      kwargs.get('end_point'), kwargs.get('cycle_num'), kwargs.get('mode'))
         yxz = np.zeros(vs.shape[0])
         if not isinstance(vs, np.ndarray) and sample_rate != vs.shape[1]:
@@ -168,7 +199,7 @@ class ComtradeParser:
         :return: 各通道的有效值列表
         """
         if vs is None:
-            vs = self.get_analog_ssz(kwargs.get('ch_number'), kwargs.get('primary'), kwargs.get('start_point'),
+            vs = self.get_analog_ssz(kwargs.get('cfg_an'), kwargs.get('_primary'), kwargs.get('start_point'),
                                      kwargs.get('end_point'), kwargs.get('cycle_num'), kwargs.get('mode'))
         angle = np.zeros(vs.shape[0])
         if not isinstance(vs, np.ndarray) and sample_rate != vs.shape[1]:
@@ -189,7 +220,7 @@ class ComtradeParser:
         :return 返回相量值列表，索引序号和ch_number对应
         """
         if vs is None:
-            vs = self.get_analog_ssz(kwargs.get('ch_number'), kwargs.get('primary'), kwargs.get('start_point'),
+            vs = self.get_analog_ssz(kwargs.get('cfg_an'), kwargs.get('_primary'), kwargs.get('start_point'),
                                      kwargs.get('end_point'), kwargs.get('cycle_num'), kwargs.get('mode'))
         if not isinstance(vs, np.ndarray) and sample_rate != vs.shape[1]:
             raise ValueError("输入的瞬时值数组vs必须是采样率为{}的numpy数组".format(sample_rate))
@@ -205,7 +236,7 @@ class ComtradeParser:
         :return: 返回一个数组，正序、负序、零序分量值
         """
         if vs is None:
-            vs = self.get_analog_ssz(kwargs.get('ch_number'), kwargs.get('primary'), kwargs.get('start_point'),
+            vs = self.get_analog_ssz(kwargs.get('cfg_an'), kwargs.get('_primary'), kwargs.get('start_point'),
                                      kwargs.get('end_point'), kwargs.get('cycle_num'), kwargs.get('mode'))
         xfl = []
         if decay_dc:
@@ -244,7 +275,7 @@ class ComtradeParser:
         """
         if isinstance(ch_number, int):
             ch_number = [ch_number]
-        start_point, end_point, samp_point = self.cfg.get_cursor_sample_range(start_point, end_point)
+        start_point, end_point, samp_point = self._cfg.get_cursor_sample_range(start_point, end_point)
         values = np.zeros((len(ch_number), samp_point))
         for i, ch in enumerate(ch_number):
             values[i] = self._dat.get_digital_ssz_from_channel(ch)[start_point:end_point + 1]
@@ -270,7 +301,7 @@ class ComtradeParser:
         :return:
         """
         dsc = []
-        dns = self.cfg.get_channel_info(key='dn', _type='dig')
+        dns = self._cfg.get_channel_info(key='dn', _type='dig')
         dc = self.get_digital_change(dns)
         for index, value in enumerate(dc):
             if len(value) > 1:
@@ -298,7 +329,7 @@ class ComtradeParser:
         """
         消除直流分量后返回对应通道的实部和虚部，需要1.5个周波的数据。
         1.[ (第三组点的实部+第二组点的虚部)/(第一组点的虚部+第二组点的实部) ] 的平方，把这个数记为a;
-        2.通过第一步的运算结果a，求K1和K2，k1是 (第一组点的实部+第三组点的实部)/ (1+a):k2是(第一组点的虚部+第三组点的虚部) / (1+0).
+        2.通过第一步的运算结果a，求K1和K2，k1是 (第一组点的实部+第三组点的实部)/ (1+_a):k2是(第一组点的虚部+第三组点的虚部) / (1+0).
         3.求修改后的基波分量实部和虚部，实部=第一组点的实部-k1: 虚部= 第二组点的虚部-k2
         :param vs: 瞬时值数组
         :param sample_rate:
