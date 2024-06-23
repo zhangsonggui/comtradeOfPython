@@ -17,7 +17,7 @@ from comtradeParser.cfg.cfg_parser import CfgParser
 from comtradeParser.computation.fourier import dft_rx, dft_exp_decay
 from comtradeParser.computation.sequence import phasor_to_sequence
 from comtradeParser.dat.dat_parser import DatParser
-from comtradeParser.dmf.ChannelGroupParser import ChannelGroupParser
+from comtradeParser.dmf.channel_to_group import ChannelGroupParser
 from comtradeParser.dmf.dmf_parser import DmfParser
 from comtradeParser.utils import file_tools
 
