@@ -2,99 +2,85 @@
 # -*- coding: utf-8 -*-
 import numpy as np
 
-from comtradeParser.ComtradeParser import ComtradeParser
 from comtradeParser.cfg.cfg_parser import CfgParser
-from comtradeParser.cfg.fault_time import generate_fault_time_str
-from comtradeParser.cfg.sample_info import generate_sample_info_str
+from comtradeParser.fault_record import FaultRecord
 from comtradeParser.utils.file_tools import file_finder
-from comtradeParser.utils.merge.modify_channel import ModifyChannel
-from comtradeParser.cfg.analog_channel import generate_analog_channel_str
-from comtradeParser.cfg.digital_channel import generate_digital_channel_str
 
 
-class MergeComtrade():
+def read_cfgs(directory: str, extension: str = '.cfg'):
+    """
+    读取指定目录下的cfg文件目录，并将文件实例化
+    :return:cfg实例化对象的数组
+    """
+    cfg_files = file_finder(directory, extension)
+    cfgs = []
+    for cfg_file in cfg_files:
+        item = {
+            "file_name": cfg_file,
+            "cfg": CfgParser(cfg_file)
+        }
+        cfgs.append(item)
+    return cfgs
+
+
+class MergeComtrade:
     """
     合并comtrade文件
     """
 
-    def __init__(self, directory: str, extension: str = '.cfg', cfg_path: list = None):
+    def __init__(self, directory: str, extension: str = '.cfg'):
         """
         初始化类
         :param directory: comtrade文件所在目录
         :param extension: comtrade文件扩展名，默认为.cfg
-        :param cfg_path: 要合并文件的cfg文件路径列表，默认为空。
         """
-        if cfg_path is not None:
-            self._cfg_files = cfg_path
-        elif directory is not None:
-            self._cfg_files = file_finder(directory, extension)
-        else:
-            raise Exception("没有选择文件！")
+        self._cfgs = read_cfgs(directory, extension)
 
     @property
-    def cfg_files(self):
-        return self._cfg_files
+    def cfgs(self):
+        return self._cfgs
 
-    @cfg_files.setter
-    def cfg_files(self, value):
-        self._cfg_files = value
+    @cfgs.setter
+    def cfgs(self, value):
+        self._cfgs = value
 
-    def merge_cfg_data(self, modify_analogs: list = None, modify_digitals: list = None):
+    def merge_cfg_data(self):
         """
-        :param modify_analogs: 模拟量修改信息，默认为空，表示不修改模拟量通道，列表元素为字典，key为属性名，value为属性值
-        :param modify_digitals: 开关量修改信息，默认为空，表示不修改模拟量通道，列表元素为字典，key为属性名，value为属性值
+        合并cfg文件
         """
-        cfg_new = None
-        for idx, cfg_path in enumerate(self.cfg_files):
-            cfg = CfgParser(cfg_path)
-            mc = ModifyChannel(cfg, modify_analogs, modify_digitals)
+        merge_cfg: CfgParser = None
+        for idx, cfg in enumerate(self.cfgs):
+            # 将要修改的通道信息传入通道修改类中
+            cfg = cfg.get('cfg')
+            # 第一个文件返回cfg全部对象
             if idx == 0:
-                cfg_new = mc.cfg
+                merge_cfg = cfg
+            # 第二个以后的文件只返回模拟量通道信息和开关量信息
             else:
-                cfg_new.analog_channels.extend(mc.analog_channels)
-                cfg_new.digital_channels.extend(mc.digital_channels)
-        for idx, an in enumerate(cfg_new.analog_channels):
+                merge_cfg.analog_channels.extend(cfg.analog_channels)
+                merge_cfg.digital_channels.extend(cfg.digital_channels)
+        # 统一修改合并后cfg文件的模拟量通道编号,从1开始编号
+        for idx, an in enumerate(merge_cfg.analog_channels):
             an.an = idx + 1
-        return cfg_new
+        # 统一修改合并后cfg文件的开关模拟量通道编号,从1开始编号
+        for idx, dn in enumerate(merge_cfg.digital_channels):
+            dn.dn = idx + 1
+        return merge_cfg
 
-    def merge_dat_data(self, modify_analogs: list = None, modify_digitals: list = None):
+    def merge_dat_data(self):
         """
         todo:要实现合并通道数量，采样点范围，要修改那几个通道的幅值
-        :param modify_analogs: 模拟量修改信息，默认为空，表示不修改模拟量通道，列表元素为字典，key为属性名，value为属性值
-        :param modify_digitals: 开关量修改信息，默认为空，表示不修改模拟量通道，列表元素为字典，key为属性名，value为属性值
         """
-        sszs = []
-        for idx, cfg_file in enumerate(self.cfg_files):
-            record = ComtradeParser(cfg_file)  # 解析cfg文件
-            an = record.cfg.get_channel_info(key='_an')  # 获取所有通道信息，后续通过界面获取
-            samp_times = record.get_sample_relativetime_list()
+        merge_ssz = []
+        for idx, cfg in enumerate(self.cfgs):
+            # TODO: 该处应该接收modify_analogs和modify_digitals两个列表中的参数，临时直接获取全部的通道
+            file_name = cfg.get('file_name')
+            fr = FaultRecord(file_name)  # 解析cfg文件
+            an = fr.cfg.get_channel_info(key='an')  # 获取所有通道信息，后续通过界面获取
+            samp_times = fr.get_sample_relative_time_list()
             if idx == 0:
-                sszs.append(samp_times)
-            ssz = record.get_analog_ssz(an, primary=True)
-            sszs.append(ssz)
-        sszs = np.concatenate(sszs)
-        return sszs.T
-
-    def cfg_to_file(self, cfg: CfgParser, filename: str):
-        pass
-        # with open(filename, 'w', encoding='gbk') as f:
-        # f.write(cfg.header_to_string())
-        # f.write('\n')
-        # f.write(cfg.channel_to_string())
-        # f.write('\n')
-        # for channel in cfg.analog_channels:
-        #     f.write(generate_analog_channel_str(channel))
-        #     f.write('\n')
-        # for digital in cfg.digital_channels:
-        #     f.write(generate_digital_channel_str(digital))
-        #     f.write('\n')
-        # f.write(generate_sample_rate_info_str(cfg.sample_rate_segments))
-        # f.write(generate_fault_time_str(cfg.fault_time))
-        # f.write('\n')
-        # f.write(cfg.data_format_type)
-        # f.write('\n')
-        # f.write(str(cfg.timemult))
-        # return f'{filename}文件生成成功！'
-
-    def dat_to_file(self, dat: np.ndarray, filename: str):
-        pass
+                merge_ssz.append(samp_times)
+            ssz = fr.get_analog_ssz(an, primary=True)
+            merge_ssz.append(ssz)
+        merge_ssz = np.concatenate(merge_ssz)
+        return merge_ssz.T
