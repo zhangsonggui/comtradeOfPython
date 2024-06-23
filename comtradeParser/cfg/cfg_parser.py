@@ -558,9 +558,9 @@ class CfgParser:
             if key is None:
                 result = channels
             elif hasattr(class_name, key):
-                result = [obj.key for obj in channels]
+                result = [getattr(obj, key) for obj in channels]
         else:
-            if first_index <= cfg_an <= self.analog_channel_num:
+            if first_index > cfg_an > self.analog_channel_num:
                 raise ValueError("cfg_id超出范围")
             if key is None:
                 result = channels[cfg_an - first_index]
