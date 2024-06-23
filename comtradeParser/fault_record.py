@@ -5,7 +5,7 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : comtrade_parser.py
+# @File    : fault_record.py
 # @IDE     : PyCharm
 import cmath
 import math
@@ -18,11 +18,11 @@ from comtradeParser.computation.fourier import dft_rx, dft_exp_decay
 from comtradeParser.computation.sequence import phasor_to_sequence
 from comtradeParser.dat.dat_parser import DatParser
 from comtradeParser.dmf.ChannelGroupParser import ChannelGroupParser
-from comtradeParser.dmf.DMFParser import DMFParser
+from comtradeParser.dmf.dmf_parser import DmfParser
 from comtradeParser.utils import file_tools
 
 
-class ComtradeParser:
+class FaultRecord:
     _cfg = None
     _dat = None
     _dmf = None
@@ -118,7 +118,7 @@ class ComtradeParser:
         :param _dmf_file_name: dmf文件名，含后缀
         """
         if not file_tools.verify_file_validity(_dmf_file_name):
-            self.dmf = DMFParser(_dmf_file_name)
+            self.dmf = DmfParser(_dmf_file_name)
 
     def get_sample_relative_time_list(self, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
