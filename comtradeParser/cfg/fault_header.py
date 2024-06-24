@@ -3,15 +3,16 @@
 
 class FaultHeader:
 
-    def __init__(self, station_name: str, rec_dev_id: str, rev_year: int, channel_total_num: int,
-                 analog_channel_num: int,
-                 digital_channel_num: int):
+    def __init__(self, station_name: str = '变电站', rec_dev_id: str = '录波设备', rev_year: int = 1999,
+                 channel_total_num: int = 0, analog_channel_num: int = 0, digital_channel_num: int = 0):
         self._station_name = station_name
         self._rec_dev_id = rec_dev_id
         self._rev_year = rev_year
-        self._channel_total_num = channel_total_num
         self._analog_channel_num = analog_channel_num
         self._digital_channel_num = digital_channel_num
+        if channel_total_num != analog_channel_num + digital_channel_num:
+            self._channel_total_num = analog_channel_num + digital_channel_num
+        self._channel_total_num = channel_total_num
 
     def clear(self):
         self._station_name = ''

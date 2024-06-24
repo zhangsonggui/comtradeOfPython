@@ -1,6 +1,6 @@
 import unittest
 
-from comtradeParser.dmf.DMFParser import DMFParser
+from comtradeParser.dmf.dmf_parser import DMFParser
 
 
 class TestDMFParser(unittest.TestCase):
@@ -12,11 +12,11 @@ class TestDMFParser(unittest.TestCase):
         test_data = 0
         parsed_data = self.parser.get_line(test_data)
         expected_output = {
-            "idx": 4,
+            "cfg_an": 4,
             "name": "xyx",
             "bus_idx": 1,
             "bus_name": "220kV I母线",
-            "type": 'A',
+            "_type": 'A',
             "isUse": True,
             "acvchn": [1, 2, 3, 4],
             "accchn": [13, 14, 15, 16],
@@ -77,9 +77,9 @@ class TestDMFParser(unittest.TestCase):
         test_data = 0
         parsed_data = self.parser.get_bus(test_data)
         expected_output = {
-            "idx": 1,
+            "cfg_an": 1,
             "name": "220kV I母线",
-            "type": 'V',
+            "_type": 'V',
             "isUse": True,
             "acvchn": [1, 2, 3, 4],
             "stachn": [1, 3]

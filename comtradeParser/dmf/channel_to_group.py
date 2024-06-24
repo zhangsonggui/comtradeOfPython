@@ -5,12 +5,12 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : ChannelGroupParser.py
+# @File    : channel_to_group.py
 # @IDE     : PyCharm
 import logging
 
-from comtradeParser.cfg.CFGParser import CFGParser
-from comtradeParser.dmf.DMFParser import DMFParser
+from comtradeParser.cfg.cfg_parser import CfgParser
+from comtradeParser.dmf.dmf_parser import DmfParser
 
 
 class ChannelGroupParser:
@@ -27,7 +27,7 @@ class ChannelGroupParser:
     _trans_model = []  # 主变分组信息
     _trans_name = []  # 主变名称分组
 
-    def __init__(self, cfg: CFGParser, dmf: DMFParser):
+    def __init__(self, cfg: CfgParser, dmf: DmfParser):
         """
         初始化通道分组信息
         @param cfg: cfg文件对象
@@ -97,8 +97,8 @@ class ChannelGroupParser:
         """
         从cfg文件中加载配置信息
         """
-        analog_names = self._cfg.get_channel_info(key="chid")
-        analog_ccbms = self._cfg.get_channel_info(key="ccbm")
+        analog_names = self._cfg.get_channel_info(key="_chid")
+        analog_ccbms = self._cfg.get_channel_info(key="_ccbm")
         for i in range(0, len(analog_names), 4):
             if analog_names[i] in self._MASKEY:
                 continue
@@ -121,14 +121,14 @@ class ChannelGroupParser:
     #     self._lines_name.sort(key=ccbms.index)
     #     # 循环监视通道，当通道为使用状态生成字典，添加到数组
     #     for group_name in self._lines_name:
-    #         idx = self.cfg.get_analog_ccbm(group_name)
-    #         if self.cfg.get_analog_usage(idx):
+    #         cfg_an = self._cfg.get_analog_ccbm(group_name)
+    #         if self._cfg.get_analog_usage(cfg_an):
     #             self._lines_model.append({
-    #                 "idx": idx,
+    #                 "cfg_an": cfg_an,
     #                 "name": group_name,
-    #                 "type": self.cfg.get_analog_type(idx),
+    #                 "_type": self._cfg.get_analog_type(cfg_an),
     #                 "isUse": True,
-    #                 "accchn": self.cfg.get_channels_group(idx)
+    #                 "accchn": self._cfg.get_channels_group(cfg_an)
     #             })
 
     def _load_bus_from_cfg(self):

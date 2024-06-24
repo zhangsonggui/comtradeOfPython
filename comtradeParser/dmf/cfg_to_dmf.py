@@ -5,10 +5,10 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : CFG2DMF.py
+# @File    : cfg_to_dmf.py
 # @IDE     : PyCharm
 from comtradeParser.utils import constants
-from comtradeParser.cfg.CFGParser import CFGParser
+from comtradeParser.cfg.cfg_parser import CfgParser
 
 
 class CFG2DMF:
@@ -20,7 +20,7 @@ class CFG2DMF:
     _analog_ccbms = []
     _accbm = []
 
-    def __init__(self, cfg: CFGParser):
+    def __init__(self, cfg: CfgParser):
         """
         cfg2dmf构造函数
         @param cfg: cfg文件对象
@@ -34,8 +34,8 @@ class CFG2DMF:
         self._cfg = None
 
     def _extract_use_group_name_from_cfg(self):
-        self.analog_names = self._cfg.get_channel_info(key="chid")
-        self.analog_ccbms = self._cfg.get_channel_info(key="ccbm")
+        self.analog_names = self._cfg.get_channel_info(key="_chid")
+        self.analog_ccbms = self._cfg.get_channel_info(key="_ccbm")
         # 每隔4个通道为一组，循环读取通道名称
         for i in range(0, len(self.analog_names), 4):
             # 当通道名称包含关键字时，跳过

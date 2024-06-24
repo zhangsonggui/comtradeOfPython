@@ -3,13 +3,13 @@
 
 import unittest
 
-from comtradeParser.ComtradeParser import ComtradeParser
+from comtradeParser.fault_record import FaultRecordParser
 
 
 class testComtradeParser(unittest.TestCase):
     def setUp(self):
         file_name = r'data/xtz.cfg'
-        self.parser = ComtradeParser(file_name)
+        self.parser = FaultRecordParser(file_name)
 
     def test_get_channels_analog_ysz(self):
         ch1_ysz = self.parser.get_analog_ysz(1, 0)
@@ -24,14 +24,15 @@ class testComtradeParser(unittest.TestCase):
         self.assertEqual(4, len(ch2_ssz))
 
     def test_get_analog_yxz(self):
-        ch1_yxz = self.parser.get_analog_yxz(ch_number=1,primary=False,start_point=0,cycle_num=1)
-        self.assertEqual(60.189,ch1_yxz[0])
-        ch9_yxz = self.parser.get_analog_yxz(ch_number=9,primary=False, start_point= 400,cycle_num=1)
-        self.assertEqual(0.473,ch9_yxz[0])
+        ch1_yxz = self.parser.get_analog_yxz(ch_number=1, primary=False, start_point=0, cycle_num=1)
+        self.assertEqual(60.189, ch1_yxz[0])
+        ch9_yxz = self.parser.get_analog_yxz(ch_number=9, primary=False, start_point=400, cycle_num=1)
+        self.assertEqual(0.473, ch9_yxz[0])
 
     def test_get_analog_angle(self):
         ch9_angle = self.parser.get_analog_angle(ch_number=9, primary=False, start_point=400, cycle_num=1)
         self.assertEqual(-16.208, ch9_angle[0])
+
 
 if __name__ == '__main__':
     unittest.main()

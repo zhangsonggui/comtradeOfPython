@@ -5,14 +5,14 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : DMFParser.py
+# @File    : dmf_parser.py
 # @IDE     : PyCharm
 import logging
 
 import xmltodict
 
 
-class DMFParser:
+class DmfParser:
     """
     这是用于读取IEEE Comtrade dmf文件的python类
     """
@@ -136,9 +136,9 @@ class DMFParser:
             self._buses_stachn.append(stachns)
             # 生成母线模型
             self._buses_model.append({
-                "idx": bus_idx,
+                "cfg_an": bus_idx,
                 "name": bus_name,
-                "type": 'V',
+                "_type": 'V',
                 "isUse": True,
                 "acvchn": acvchns,
                 "stachn": stachns
@@ -152,7 +152,7 @@ class DMFParser:
         """
         for line in lines_xml:
             # 获取线路通道信息
-            line_idx = int(line.get("@idx"))
+            line_idx = int(line.get("@cfg_an"))
             self._lines_idx.append(line_idx)
             line_name = line.get("@line_name")
             self._lines_name.append(line_name)
@@ -180,11 +180,11 @@ class DMFParser:
             # 生成线路模型
             bus_idx = self.get_bus_index_of_dmf_id(line_bus)
             self._lines_model.append({
-                "idx": line_idx,
+                "cfg_an": line_idx,
                 "name": line_name,
                 "bus_idx": line_bus,
                 "bus_name": self.get_bus_name(bus_idx),
-                "type": 'A',
+                "_type": 'A',
                 "isUse": True,
                 "acvchn": self.get_bus_voltage_channels(bus_idx),
                 "accchn": accchns,

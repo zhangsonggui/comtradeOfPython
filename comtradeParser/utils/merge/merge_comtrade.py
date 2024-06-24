@@ -60,6 +60,9 @@ class MergeComtrade:
                 merge_cfg.analog_channels.extend(cfg.analog_channels)
                 merge_cfg.digital_channels.extend(cfg.digital_channels)
         # 统一修改合并后cfg文件的模拟量通道编号,从1开始编号
+        merge_cfg.fault_header.analog_channel_num = merge_cfg.analog_channel_num
+        merge_cfg.fault_header.digital_channels_num = merge_cfg.digital_channel_num
+        merge_cfg.fault_header.channel_total_num = merge_cfg.analog_channel_num + merge_cfg.digital_channel_num
         for idx, an in enumerate(merge_cfg.analog_channels):
             an.an = idx + 1
         # 统一修改合并后cfg文件的开关模拟量通道编号,从1开始编号
