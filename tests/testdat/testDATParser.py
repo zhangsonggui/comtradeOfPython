@@ -8,8 +8,8 @@ from comtradeParser.dat.dat_parser import DatParser
 
 class TestDATCase(unittest.TestCase):
     def setUp(self):
-        cfg_name = '../data/xtz._cfg'
-        dat_name = '../data/xtz.dat'
+        cfg_name = r'../data/xtz.cfg'
+        dat_name = r'../data/xtz.dat'
         self.cfg = CfgParser(cfg_name)
         self.dat = DatParser(self.cfg, dat_name)
 

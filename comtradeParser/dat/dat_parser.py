@@ -17,6 +17,19 @@ from comtradeParser.cfg.cfg_parser import CfgParser
 from comtradeParser.cfg.sample_info import SampleInfo
 
 
+def digital_split(datas: tuple) -> list:
+    """
+    将开关量整数数组拆分成数组
+    :return: data
+    """
+    digitals = []
+    for data in datas:
+        binary_array = [(data >> i) & 1 for i in range(15, -1, -1)]
+        binary_array.reverse()
+        digitals.extend(binary_array)
+    return digitals
+
+
 class DatParser:
     """
     这是用于读取IEEE Comtrade dat文件的python类
@@ -32,16 +45,22 @@ class DatParser:
         """
         self.clear()
         self._cfg: CfgParser = cfg
+        self.sample_time_lists = np.zeros((self.cfg.sample_info.sample_total_num, 2), dtype=np.int32)
+        self.analog_values = np.zeros((self.cfg.sample_info.sample_total_num, self.cfg.analog_channel_num),
+                                      dtype=np.float32)
+        self.digital_values = np.zeros((self.cfg.sample_info.sample_total_num, self.cfg.digital_channel_num),
+                                       dtype=np.int32)
         # 判断DAT文件的格式
         if self.cfg.sample_info.ft == "ASCII":
-            with open(dat_file_name, 'r') as f:
-                self._dat_file_content = np.loadtxt(f, delimiter=',').T
+            self._parse_ascii_data(dat_file_name)
         else:
-            self._dat_file_content = self._parse_binary_data(dat_file_name)
+            self._parse_binary_data(dat_file_name)
 
     def clear(self):
         self._cfg = None  # 清空cfg文件对象
-        self._dat_file_content = None  # 清空数据文件内容
+        self.sample_time_lists = None
+        self.analog_values = None
+        self.digital_values = None
 
     @property
     def cfg(self):
@@ -51,32 +70,38 @@ class DatParser:
         """
         return self._cfg
 
-    @property
-    def dat_file_content(self):
+    def _parse_ascii_data(self, file_name) -> None:
         """
-        获取DAT文件内容
-        :return: np.ndarray格式的DAT文件内容
+        解析ASCII格式的DAT文件
+        :param file_name: DAT文件路径
+        :return:ASCII文件的结构化的numpy数组
         """
-        return self._dat_file_content
+        with open(file_name, 'r') as f:
+            dat_file_content = np.loadtxt(f, delimiter=',')
+        self.sample_time_lists[:] = dat_file_content[0:2]
+        self.analog_values[:] = dat_file_content[2:self.cfg.analog_channel_num + 2]
+        self.digital_values[:] = dat_file_content[2:self.cfg.analog_channel_num + 2]
 
-    def _parse_binary_data(self, file_name) -> np.ndarray:
+    def _parse_binary_data(self, file_name) -> None:
         """
         解析二进制格式的DAT文件
-        :todo 二进制开关量没有拆分成每个通道
         :param file_name: DAT文件路径
         :return:二进制文件的结构化的numpy数组
         """
         sample: SampleInfo = self.cfg.sample_info
-        value = np.zeros((sample.sample_total_num, 2 + self.cfg.analog_channel_num + sample.digital_bytes))
+        an_bit = int(sample.analog_bytes / sample.bit_width)
+        dn_bit = sample.digital_bytes
+        str_struct = f"ii{an_bit}h{dn_bit}H"
         with open(file_name, "rb") as f:
-            for i in range(sample.sample_total_num):
-                ana_byte_str = f.read(sample.total_bytes)
-                if len(ana_byte_str) != sample.total_bytes:
+            for i in range(sample.sample_total_num):  # 循环每一个采样点
+                ana_byte_str = f.read(sample.total_bytes)  # 读取一个采样点所占用的字节
+                if len(ana_byte_str) != sample.total_bytes:  # 读取字节长度不够一个采样点的数据
                     raise ValueError("读取数据长度不符合预期")
-                str_struct = f"ii{self.cfg.analog_channel_num}h{sample.digital_bytes}H"
-                value[i, :] = struct.unpack(str_struct, ana_byte_str)
-
-        return value.T
+                sample_struct = struct.unpack(str_struct, ana_byte_str)  # 将二进制格式进行解包
+                self.sample_time_lists[i:] = sample_struct[0:2]
+                self.analog_values[i:] = sample_struct[2:self.cfg.analog_channel_num + 2]
+                digital_ints = sample_struct[self.cfg.analog_channel_num + 2:]
+                self.digital_values[i:] = digital_split(digital_ints)
 
     def get_sample_relative_time_list(self, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
@@ -85,7 +110,7 @@ class DatParser:
         :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
         :return: 采样时间数组
         """
-        return self.dat_file_content[0:2, start_point:end_point]
+        return self.sample_time_lists.T[:, start_point:end_point]
 
     def get_analog_ysz_from_channel(self, cfg_an: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
@@ -105,7 +130,7 @@ class DatParser:
             raise ValueError(
                 f"指定的模拟量通道{cfg_an}大于模拟量通道{self.cfg.analog_channel_num}，无法读取该通道数据!")
         idx = cfg_an - self.cfg.analog_first_index
-        values = self.dat_file_content[2 + idx:2 + idx + 1, start_point:end_point]
+        values = self.analog_values.T[idx:idx + 1, start_point:end_point]
         return values[0]
 
     def get_analog_ssz_from_channel(self, cfg_an: int, start_point: int = 0, end_point: int = None,
@@ -130,26 +155,25 @@ class DatParser:
             result = ssz / channel.ratio if channel.ps == "P" else ssz
         return np.around(result, 3)
 
-    def get_digital_ssz_from_channel(self, idx: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
+    def get_digital_ssz_from_channel(self, cfg_dn: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
         返回指定状态量通道的瞬时值数组
-        :param idx: CFG文件中通道数组中的索引号
+        :param cfg_dn: CFG文件中通道数组中的索引号
         :param start_point: 采样起始点，默认为0
         :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
         :return: 指定通道0和1的数组
         """
         # 判断采样通道的合法性，获取通道对应数组的索引值
-        if not isinstance(idx, int):
+        if not isinstance(cfg_dn, int):
             try:
-                idx = int(idx)
+                cfg_dn = int(cfg_dn)
             except ValueError:
-                raise ValueError(f"指定的模拟量通道{idx}不是数字类型，无法读取该通道数据!")
-        if idx > self.cfg.digital_channel_num:
+                raise ValueError(f"指定的模拟量通道{cfg_dn}不是数字类型，无法读取该通道数据!")
+        if cfg_dn > self.cfg.digital_channel_num:
             raise ValueError("指定的开关量通道数大于开关量通道数")
-        ch_idx = self._cfg.get_channel_info(idx, 'index', 'dig')
-        ch_idx = 2 + self.cfg.analog_channel_num + ch_idx
-        values = self._dat_file_content[ch_idx:ch_idx + 1, start_point:end_point]
-        return values
+        idx = cfg_dn - self.cfg.digital_first_index
+        values = self.digital_values.T[idx:idx + 1, start_point:end_point]
+        return values[0]
 
     def get_digital_shift_stat_channel(self, idx: int):
         """
