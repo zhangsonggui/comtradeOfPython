@@ -3,7 +3,7 @@
 import numpy as np
 
 from comtradeParser.cfg.cfg_parser import CfgParser
-from comtradeParser.fault_record import FaultRecord
+from comtradeParser.comtrade import Comtrade
 from comtradeParser.utils.file_tools import file_finder
 
 
@@ -78,7 +78,7 @@ class MergeComtrade:
         for idx, cfg in enumerate(self.cfgs):
             # TODO: 该处应该接收modify_analogs和modify_digitals两个列表中的参数，临时直接获取全部的通道
             file_name = cfg.get('file_name')
-            fr = FaultRecord(file_name)  # 解析cfg文件
+            fr = Comtrade(file_name)  # 解析cfg文件
             an = fr.cfg.get_channel_info(key='an')  # 获取所有通道信息，后续通过界面获取
             samp_times = fr.get_sample_relative_time_list()
             if idx == 0:
