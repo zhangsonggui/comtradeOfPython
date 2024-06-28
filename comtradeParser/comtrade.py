@@ -5,7 +5,7 @@
 #
 # @Time    : 2024/3/23 11:27
 # @Author  : 张松贵
-# @File    : fault_record.py
+# @File    : comtrade.py
 # @IDE     : PyCharm
 import cmath
 import math
@@ -22,7 +22,7 @@ from comtradeParser.dmf.dmf_parser import DmfParser
 from comtradeParser.utils import file_tools
 
 
-class FaultRecord:
+class Comtrade:
     _cfg = None
     _dat = None
     _dmf = None
