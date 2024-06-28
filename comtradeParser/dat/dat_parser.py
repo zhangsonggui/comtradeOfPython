@@ -80,7 +80,7 @@ class DatParser:
             dat_file_content = np.loadtxt(f, delimiter=',')
         self.sample_time_lists[:] = dat_file_content[0:2]
         self.analog_values[:] = dat_file_content[2:self.cfg.analog_channel_num + 2]
-        self.digital_values[:] = dat_file_content[2:self.cfg.analog_channel_num + 2]
+        self.digital_values[:] = dat_file_content[self.cfg.analog_channel_num + 2:]
 
     def _parse_binary_data(self, file_name) -> None:
         """
