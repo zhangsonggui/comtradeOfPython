@@ -31,5 +31,5 @@ def cfg_to_file(cfg: CfgParser, filename: str):
     :param filename: 文件名
     """
     with open(filename, 'w', encoding='gbk') as f:
-        f.write(generate_cfg_str(cfg))
+        f.write(generate_cfg_str(cfg.cfg))
     return f'{filename}文件生成成功！'

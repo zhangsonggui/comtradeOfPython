@@ -1,73 +1,22 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+# 解析时间字符串为对象，根据时间对象生成字符串
+# @FileName  :fault_time.py
+# @Author    :张松贵
 from datetime import datetime
+
+from comtradeParser.cfg.entity.fault_time import FaultTime
 
 time_format = '%d/%m/%Y,%H:%M:%S.%f'  # 时间格式字符串
 
 
-class FaultTime:
+def parse_str_fault_time(fault_time_strs):
     """
-    故障时间类
+    解析时间字符串为对象，包含采样开始时间和故障时间
+    :param fault_time_strs: 时间格式为天/月/年，时:分:秒.微秒
     """
-
-    def __init__(self, start_time: datetime, trigger_time: datetime, zero_time: int):
-        self.clear()
-        self._start_time = start_time
-        self._trigger_time = trigger_time
-        self._zero_time = zero_time
-
-    def clear(self):
-        self._start_time = None
-        self._trigger_time = None
-        self._zero_time = 0
-
-    @property
-    def start_time(self):
-        """
-        波形开始时间
-        """
-        return self._start_time
-
-    @start_time.setter
-    def start_time(self, value):
-        """
-        修改波形开始时间
-        """
-        self._start_time = value
-
-    @property
-    def trigger_time(self):
-        """
-        故障开始时间
-        """
-        return self._trigger_time
-
-    @trigger_time.setter
-    def trigger_time(self, value):
-        """
-        修改故障开始时间
-        """
-        self._trigger_time = value
-
-    @property
-    def zero_time(self):
-        """
-        故障开始时间与波形开始时间的时间差
-        """
-        return self._zero_time
-
-    @zero_time.setter
-    def zero_time(self, value):
-        """
-        修改故障开始时间与波形开始时间的时间差
-        """
-        self._zero_time = value
-
-    def to_string(self):
-        return f"{self.start_time.strftime(time_format)}\n{self.trigger_time.strftime(time_format)}"
-
-
-def parse_fault_time(fault_time_strs):
     try:
         str_time = fault_time_strs[0].strip()
         start_time = datetime.strptime(str_time, time_format)
@@ -81,8 +30,9 @@ def parse_fault_time(fault_time_strs):
                      zero_time=zero_time)
 
 
-def generate_fault_time_str(fault_time_obj):
+def generate_fault_time_str(fault_time_obj: FaultTime):
     """
-    直接使用对象的方法生成字符串
+    根据时间对象生成字符串
+    :return 时间字符串时间格式为天/月/年，时:分:秒.微秒
     """
     return fault_time_obj.to_string()

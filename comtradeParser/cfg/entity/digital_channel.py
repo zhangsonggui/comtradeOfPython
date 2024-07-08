@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+# 开关量通道类
 # @FileName  :digital_channel.py
 # @Time      :2024/07/05 13:53:42
 # @Author    :张松贵

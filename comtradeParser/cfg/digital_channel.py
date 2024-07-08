@@ -1,78 +1,18 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
+# -*- coding:utf-8 -*-
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+# 解析开关量通道字符串为对象和根据开关量对象生成字符串
+# @FileName  :digital_channel.py
+# @Author    :张松贵
+from comtradeParser.cfg.entity.digital_channel import DigitalChannel
 
 
-class DigitalChannel:
+def parse_str_digital_channel(channel_str):
     """
-    开关量通道对象
+    从字符串解析开关量通道对象,通过采用逗号分割字符串
+    :param channel_str: 开关量量通道字符串
     """
-
-    def __init__(self, dn: int, chid: str, ph: str, ccbm: str, y: int):
-        self.clear()
-        self._dn = dn
-        self._chid = chid
-        self._ph = ph
-        self._ccbm = ccbm
-        self._y = y
-
-    def clear(self):
-        self._dn = 0
-        self._chid = ''
-        self._ph = ''
-        self._ccbm = ''
-        self._y = 0
-
-    def to_string(self):
-        """从对象生成字符串"""
-        parts = [str(self._dn), self._chid, self._ph, self._ccbm, self._y]
-        # 移除末尾的空字符串以保持与原始解析逻辑一致
-        while parts and not parts[-1]:
-            parts.pop()
-        return ','.join(parts)
-
-    @property
-    def dn(self):
-        return self._dn
-
-    @dn.setter
-    def dn(self, value):
-        self._dn = value
-
-    @property
-    def chid(self):
-        return self._chid
-
-    @chid.setter
-    def chid(self, value):
-        self._chid = value
-
-    @property
-    def ph(self):
-        return self._ph
-
-    @ph.setter
-    def ph(self, value):
-        self._ph = value
-
-    @property
-    def ccbm(self):
-        return self._ccbm
-
-    @ccbm.setter
-    def ccbm(self, value):
-        self._ccbm = value
-
-    @property
-    def y(self):
-        return self._y
-
-    @y.setter
-    def y(self, value):
-        self._y = value
-
-
-def parse_digital_channel(channel_str):
-    """从字符串解析成对象"""
     channel_info = channel_str.split(',')
     return DigitalChannel(
         dn=int(channel_info[0]),
@@ -83,6 +23,10 @@ def parse_digital_channel(channel_str):
     )
 
 
-def generate_digital_channel_str(digital_channel_obj):
-    """直接使用对象的方法生成字符串"""
+def generate_digital_channel_str(digital_channel_obj: DigitalChannel):
+    """
+    将开关量通道对象格式化为采用逗号分割的字符串
+    :param digital_channel_obj: 开关量通道对象
+    :return : 开关量通道字符串
+    """
     return digital_channel_obj.to_string()

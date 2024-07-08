@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+# 故障采样段信息类，包含该段采样频率、采样点数、采样点开始位置、采样点结束位置、采样点用时、采样点结束位置、采样点原始采样值
 # @FileName  :fault_nrate.py
 # @Time      :2024/07/05 13:56:30
 # @Author    :张松贵
@@ -18,112 +21,112 @@ class FaultNrate:
         :param values: 该采样段原始采样值
         """
         self.clear()
-        self._samp = samp
-        self._end_point = end_point
-        self._cycle_sample_num = cycle_sample_num
-        self._sample_num = sample_num
-        self._start_point = start_point
-        self._waste_time = waste_time
-        self._end_time = end_time
-        self._valuses = values
+        self.__samp = samp
+        self.__end_point = end_point
+        self.__cycle_sample_num = cycle_sample_num
+        self.__sample_num = sample_num
+        self.__start_point = start_point
+        self.__waste_time = waste_time
+        self.__end_time = end_time
+        self.__values = values
 
     def clear(self):
-        self._samp = 0
-        self._end_point = 0
-        self._cycle_sample_num = 0
-        self._sample_num = 0
-        self._start_point = 0
-        self._waste_time = 0
-        self._end_time = 0
-        self._valuses = []
+        self.__samp = 0
+        self.__end_point = 0
+        self.__cycle_sample_num = 0
+        self.__sample_num = 0
+        self.__start_point = 0
+        self.__waste_time = 0
+        self.__end_time = 0
+        self.__values = []
 
     def to_string(self):
-        return f'{str(self._samp)},{str(self._end_point)}'
+        return f'{str(self.__samp)},{str(self.__end_point)}'
 
     @property
     def samp(self):
-        return self._samp
+        return self.__samp
 
     @samp.setter
     def samp(self, value):
         """
         该段采样频率
         """
-        self._samp = value
+        self.__samp = value
 
     @property
     def end_point(self):
         """
         该采样段结束位置
         """
-        return self._end_point
+        return self.__end_point
 
     @end_point.setter
     def end_point(self, value):
-        self._end_point = value
+        self.__end_point = value
 
     @property
     def cycle_sample_num(self):
         """
         该采样段每周波采样点数
         """
-        return self._cycle_sample_num
+        return self.__cycle_sample_num
 
     @cycle_sample_num.setter
     def cycle_sample_num(self, value):
-        self._cycle_sample_num = value
+        self.__cycle_sample_num = value
 
     @property
     def sample_num(self):
         """
         该采样段采样点数
         """
-        return self._sample_num
+        return self.__sample_num
 
     @sample_num.setter
     def sample_num(self, value):
-        self._sample_num = value
+        self.__sample_num = value
 
     @property
     def start_point(self):
         """
         该采样段开始位置
         """
-        return self._start_point
+        return self.__start_point
 
     @start_point.setter
     def start_point(self, value):
-        self._start_point = value
+        self.__start_point = value
 
     @property
     def waste_time(self):
         """
         该采样段用时
         """
-        return self._waste_time
+        return self.__waste_time
 
     @waste_time.setter
     def waste_time(self, value):
-        self._waste_time = value
+        self.__waste_time = value
 
     @property
     def end_time(self):
         """
         该采样段结束时间
         """
-        return self._end_time
+        return self.__end_time
 
     @end_time.setter
     def end_time(self, value):
-        self._end_time = value
+        self.__end_time = value
 
     @property
-    def valuses(self):
+    def values(self):
         """
         该采样段原始采样值
         """
-        return self._valuses
+        return self.__values
 
-    @valuses.setter
-    def valuses(self, value):
-        self._valuses = value
+    @values.setter
+    def values(self, value):
+        self.__values = value
