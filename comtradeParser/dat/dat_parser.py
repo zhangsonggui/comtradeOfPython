@@ -13,7 +13,8 @@ import struct
 import numpy as np
 
 from comtradeParser.cfg.analog_channel import AnalogChannel
-from comtradeParser.cfg.cfg_parser import CfgParser
+from comtradeParser.cfg.entity.digital_channel import DigitalChannel
+from comtradeParser.cfg.entity.fault_header import FaultHeader
 from comtradeParser.cfg.sample_info import SampleInfo
 
 
@@ -37,38 +38,46 @@ class DatParser:
     提供原始采样值、瞬时值的读取
     """
 
-    def __init__(self, cfg: CfgParser, dat_file_name):
+    def __init__(self, dat_file_name: str, fault_header: FaultHeader, sample_info: SampleInfo):
         """
         DATParser构造函数：
-        :param cfg: 与dat文件匹配的cfg文件对象
         :param dat_file_name: dat文件路径
+        :param fault_header:FaultHeader类,包含模拟量、开关量通道数量及对应的起始索引号
+        :param sample_info:
         """
         self.clear()
-        self._cfg: CfgParser = cfg
-        self.sample_time_lists = np.zeros((self.cfg.sample_info.sample_total_num, 2), dtype=np.int32)
-        self.analog_values = np.zeros((self.cfg.sample_info.sample_total_num, self.cfg.analog_channel_num),
-                                      dtype=np.float32)
-        self.digital_values = np.zeros((self.cfg.sample_info.sample_total_num, self.cfg.digital_channel_num),
-                                       dtype=np.int32)
+        self.__sample_total_num = sample_info.sample_total_num
+        self.__bit_width = sample_info.bit_width
+        self.__analog_bytes = sample_info.analog_bytes
+        self.__digital_bytes = sample_info.digital_bytes
+        self.__total_bytes = sample_info.total_bytes
+        self.__analog_channel_num = fault_header.analog_channel_num
+        self.__digital_channel_num = fault_header.digital_channel_num
+        self.__analog_first_index = fault_header.analog_first_index
+        self.__digital_first_index = fault_header.digital_first_index
+        self.__sample_time_lists = np.zeros((self.__sample_total_num, 2), dtype=np.int32)
+        self.__analog_values = np.zeros((self.__sample_total_num, self.__analog_channel_num), dtype=np.float32)
+        self.__digital_values = np.zeros((self.__sample_total_num, self.__digital_channel_num), dtype=np.int32)
+        self.__changed_digital_channels = self.get_changed_digital_channel()
+        self.__changed_digital_channels_details = self.get_digital_channel_change_details()
         # 判断DAT文件的格式
-        if self.cfg.sample_info.ft == "ASCII":
+        if sample_info.ft == "ASCII":
             self._parse_ascii_data(dat_file_name)
         else:
             self._parse_binary_data(dat_file_name)
 
     def clear(self):
-        self._cfg = None  # 清空cfg文件对象
-        self.sample_time_lists = None
-        self.analog_values = None
-        self.digital_values = None
+        self.__sample_time_lists = None
+        self.__analog_values = None
+        self.__digital_values = None
 
     @property
-    def cfg(self):
+    def changed_digital_channels(self) -> list:
         """
-        获取cfg文件对象
-        :return: cfg文件对象
+        获取开关量改变的通道列表
+        :return:变位开关量列表
         """
-        return self._cfg
+        return self.__changed_digital_channels
 
     def _parse_ascii_data(self, file_name) -> None:
         """
@@ -78,9 +87,9 @@ class DatParser:
         """
         with open(file_name, 'r') as f:
             dat_file_content = np.loadtxt(f, delimiter=',')
-        self.sample_time_lists[:] = dat_file_content[0:2]
-        self.analog_values[:] = dat_file_content[2:self.cfg.analog_channel_num + 2]
-        self.digital_values[:] = dat_file_content[self.cfg.analog_channel_num + 2:]
+        self.__sample_time_lists[:] = dat_file_content[0:2]
+        self.__analog_values[:] = dat_file_content[2:self.__analog_channel_num + 2]
+        self.__digital_values[:] = dat_file_content[self.__analog_channel_num + 2:]
 
     def _parse_binary_data(self, file_name) -> None:
         """
@@ -88,20 +97,19 @@ class DatParser:
         :param file_name: DAT文件路径
         :return:二进制文件的结构化的numpy数组
         """
-        sample: SampleInfo = self.cfg.sample_info
-        an_bit = int(sample.analog_bytes / sample.bit_width)
-        dn_bit = sample.digital_bytes
+        an_bit = int(self.__analog_bytes / self.__bit_width)
+        dn_bit = self.__digital_bytes
         str_struct = f"ii{an_bit}h{dn_bit}H"
         with open(file_name, "rb") as f:
-            for i in range(sample.sample_total_num):  # 循环每一个采样点
-                ana_byte_str = f.read(sample.total_bytes)  # 读取一个采样点所占用的字节
-                if len(ana_byte_str) != sample.total_bytes:  # 读取字节长度不够一个采样点的数据
+            for i in range(self.__sample_total_num):  # 循环每一个采样点
+                ana_byte_str = f.read(self.__total_bytes)  # 读取一个采样点所占用的字节
+                if len(ana_byte_str) != self.__total_bytes:  # 读取字节长度不够一个采样点的数据
                     raise ValueError("读取数据长度不符合预期")
                 sample_struct = struct.unpack(str_struct, ana_byte_str)  # 将二进制格式进行解包
-                self.sample_time_lists[i:] = sample_struct[0:2]
-                self.analog_values[i:] = sample_struct[2:self.cfg.analog_channel_num + 2]
-                digital_ints = sample_struct[self.cfg.analog_channel_num + 2:]
-                self.digital_values[i:] = digital_split(digital_ints)
+                self.__sample_time_lists[i:] = sample_struct[0:2]
+                self.__analog_values[i:] = sample_struct[2:self.__analog_channel_num + 2]
+                digital_ints = sample_struct[self.__analog_channel_num + 2:]
+                self.__digital_values[i:] = digital_split(digital_ints)
 
     def get_sample_relative_time_list(self, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
@@ -110,7 +118,7 @@ class DatParser:
         :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
         :return: 采样时间数组
         """
-        return self.sample_time_lists.T[:, start_point:end_point]
+        return self.__sample_time_lists.T[:, start_point:end_point]
 
     def get_analog_ysz_from_channel(self, cfg_an: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
@@ -126,89 +134,96 @@ class DatParser:
                 cfg_an = int(cfg_an)
             except ValueError:
                 raise ValueError(f"指定的模拟量通道{cfg_an}不是数字类型，无法读取该通道数据!")
-        if cfg_an > self.cfg.analog_channel_num:
+        if cfg_an > self.__analog_channel_num:
             raise ValueError(
-                f"指定的模拟量通道{cfg_an}大于模拟量通道{self.cfg.analog_channel_num}，无法读取该通道数据!")
-        idx = cfg_an - self.cfg.analog_first_index
-        values = self.analog_values.T[idx:idx + 1, start_point:end_point]
+                f"指定的模拟量通道{cfg_an}大于模拟量通道{self.__analog_channel_num}，无法读取该通道数据!")
+        idx = cfg_an - self.__analog_first_index
+        values = self.__analog_values.T[idx:idx + 1, start_point:end_point]
         return values[0]
 
-    def get_analog_ssz_from_channel(self, cfg_an: int, start_point: int = 0, end_point: int = None,
-                                    primary: bool = False) -> np.ndarray:
+    def get_analog_ssz_from_channel(self, analog_channel: AnalogChannel, start_point: int = 0,
+                                    end_point: int = None, primary: bool = False) -> np.ndarray:
         """
         读取单个模拟量通道全部采样点瞬时值
-        :param cfg_an: CFG文件通道标识
+        :param analog_channel: 模拟量通道对象
         :param start_point: 采样起始点，默认为0
         :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
-        :param primary: 输出值类型是一次值还是二次值，默认为False二次值
+        :param primary: 是否要换算一次值
         :return: 单个模拟量瞬时值数组
         """
         # 获取通道在通道数组中的索引值
-        vs = self.get_analog_ysz_from_channel(cfg_an, start_point, end_point)
+        vs = self.get_analog_ysz_from_channel(analog_channel.an, start_point, end_point)
         # 利用numpy的乘法和加法运算获取瞬时值
-        channel: AnalogChannel = self.cfg.analog_channels[cfg_an - self.cfg.analog_first_index]
-        ssz = vs * channel.a + channel.b
+        ssz = vs * analog_channel.a + analog_channel.b
         # 判断输出值的类型，根据变比进行转换
         if primary:
-            result = ssz if channel.ps == "P" else ssz * channel.ratio
+            result = ssz if analog_channel.ps == "P" else ssz * analog_channel.ratio
         else:
-            result = ssz / channel.ratio if channel.ps == "P" else ssz
+            result = ssz / analog_channel.ratio if analog_channel.ps == "P" else ssz
         return np.around(result, 3)
 
-    def get_digital_ssz_from_channel(self, cfg_dn: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
+    def get_digital_ssz_from_channel(self, digital_channel: DigitalChannel, start_point: int = 0,
+                                     end_point: int = None) -> np.ndarray:
         """
         返回指定状态量通道的瞬时值数组
-        :param cfg_dn: CFG文件中通道数组中的索引号
+        :param digital_channel: CFG文件中通道数组中的索引号
         :param start_point: 采样起始点，默认为0
         :param end_point: 采样终止点，不含终止点，默认为None 代表全部采样点
         :return: 指定通道0和1的数组
         """
         # 判断采样通道的合法性，获取通道对应数组的索引值
-        if not isinstance(cfg_dn, int):
-            try:
-                cfg_dn = int(cfg_dn)
-            except ValueError:
-                raise ValueError(f"指定的模拟量通道{cfg_dn}不是数字类型，无法读取该通道数据!")
-        if cfg_dn > self.cfg.digital_channel_num:
+        if not isinstance(digital_channel, DigitalChannel):
+            raise ValueError("指定的开关量通道不是DigitalChannel类型")
+        if dn := digital_channel.dn > self.__digital_channel_num:
             raise ValueError("指定的开关量通道数大于开关量通道数")
-        idx = cfg_dn - self.cfg.digital_first_index
-        values = self.digital_values.T[idx:idx + 1, start_point:end_point]
+        idx = dn - self.__digital_first_index
+        values = self.__digital_values.T[idx:idx + 1, start_point:end_point]
         return values[0]
 
-    def get_digital_shift_stat_channel(self, idx: int):
+    def get_digital_channels_first_value(self) -> list:
         """
-        获取单个开关量的变位情况
-        :param cfg_an: CFG文件中通道数组中的索引号
+        获取每个开关通道初始值
+        @return: 返回所有开关量通道初始值列表
+        """
+        first_value = self.__digital_values[0, :]
+        return list(first_value)
+
+    def get_digital_channel_change_details(self):
+        """
+        获取所有变化开关量通道变化详情
+        @return: 返回所有开关量通道变化详情列表
+        """
+        change_channels = self.get_changed_digital_channel()
+        change_details = []
+        for cc in change_channels:
+            # 使用np.diff计算连续元素之间的差异
+            ch_idx = cc - self.__digital_first_index
+            channel = self.__digital_values[:, ch_idx]
+            diffs = np.diff(channel)
+            # 找到变化的位置，即差异不为0的位置
+            change_positions = np.where(diffs != 0)[0] + 1  # 加1是因为np.diff减少了数组的长度
+            change_details.append(
+                {
+                    "channel": cc,
+                    "first_state": channel[0],  # 确定初始值
+                    "change_positions": list(change_positions),
+                    "changes": list(channel[change_positions])  # 确定变化的值，即变化位置的元素值
+                }
+            )
+        return change_details
+
+    def get_changed_digital_channel(self) -> list:
+        """
+        获取变位开关量的列表
         @return: 返回变位的开关量列表
         """
-        # 判断采样通道的合法性，获取通道对应数组的索引值
-        if not isinstance(idx, int):
-            try:
-                idx = int(idx)
-            except ValueError:
-                raise ValueError(f"指定的模拟量通道{idx}不是数字类型，无法读取该通道数据!")
-        if idx > self.cfg.digital_channel_num:
-            raise ValueError("指定的开关量通道数大于开关量通道数")
-        result = []
-        ssz = self.get_digital_ssz_from_channel(idx)
-        for i, val in enumerate(ssz):
-            if i == 0 or ssz[i - 1] != val:
-                result.append({"index": i, "value": val})
-        return result
+        if self.__digital_values.size == 0:  # 检查数据是否为空
+            return []  # 如果是空的，直接返回空列表
+            # 计算所有列的最大值和最小值
+        min_values, max_values = np.min(self.__digital_values, axis=0), np.max(self.__digital_values, axis=0)
 
-    def get_digital_change_channel(self, idx: int):
-        ssz = self.get_digital_ssz_from_channel(idx)
-        diff = np.diff(ssz)
-        change_indices = np.where(diff != 0)[0]
-        # 获取变化位置的前后值
-        change_values = []
-        for idx in change_indices:
-            # 因为差分后数组长度比原数组少1，所以变化位置的值需要从原数组获取
-            if idx == 0:  # 处理数组开头的变化
-                change_values.append((ssz[idx], ssz[idx + 1]))
-            elif idx == len(ssz) - 1:  # 处理数组末尾的变化
-                change_values.append((ssz[idx - 1], ssz[idx]))
-            else:  # 处理数组中间的变化
-                change_values.append((ssz[idx - 1], ssz[idx + 1]))
-        for i, (before, after) in enumerate(change_values, start=1):
-            print(f"Change {i}: Position {change_indices[i - 1]}, from {before} to {after}")
+        result = []
+        for i in range(self.__digital_channel_num):
+            if min_values[i] != max_values[i]:  # 如果最大值不等于最小值，说明该列有变化
+                result.append(i + self.__digital_first_index)
+        return result
