@@ -84,19 +84,25 @@ def dft_exp_decay(vs: np.ndarray, sample_rate: int = None):
     return complex(real, imag)
 
 
-def dft_rx_channels(vs: np.ndarray) -> np.ndarray:
+def dft_rx_channels(vs: np.ndarray, sample_rate: int = None, k: int = 1) -> np.ndarray:
     """
     提供多个通道的傅里叶计算实部和虚部
-    @param vs: 一个二维的numpy数组，一维是通道，二维是指定周期的瞬时值
-    @return:返回一个二维数组，一维是通道列表，二维是实部虚部元祖
+    :param vs: 一个二维的numpy数组，一维是通道，二维是指定周期的瞬时值
+    :param sample_rate: 采样率，默认为None，从CFG文件中获取
+    :param k: 频率因素，默认为1
+    :return:返回一个二维数组，一维是通道列表，二维是实部虚部元祖
     """
     if not isinstance(vs, np.ndarray):
-        raise Exception('vs必须为np.ndarray类型')
+        raise Exception(f'vs必须为np.ndarray类型')
+    if sample_rate is None:
+        sample_rate = vs.shape[1]
+    elif sample_rate != vs.shape[1]:
+        raise ValueError(f"输入的瞬时值数组长度与输入的采样率{sample_rate}不一致")
     dft = np.zeros(vs.shape[0], dtype=complex)
     # 获取一个周波的瞬时值
     for i in range(vs.shape[0]):
         # 进行傅里叶计算，获取实部和虚部
-        dft[i] = dft_rx(vs[i], vs.shape[1], 1)
+        dft[i] = dft_rx(vs[i], sample_rate, k)
     return dft
 
 
@@ -104,7 +110,7 @@ def eliminate_exp_decay_channels(vs: np.ndarray, sample_rate: int = None):
     """
     消除直流分量后返回对应通道的实部和虚部，需要1.5个周波的数据。
     1.[ (第三组点的实部+第二组点的虚部)/(第一组点的虚部+第二组点的实部) ] 的平方，把这个数记为a;
-    2.通过第一步的运算结果a，求K1和K2，k1是 (第一组点的实部+第三组点的实部)/ (1+__a):k2是(第一组点的虚部+第三组点的虚部) / (1+0).
+    2.通过第一步的运算结果a，求K1和K2，k1是 (第一组点的实部+第三组点的实部)/ (1+a):k2是(第一组点的虚部+第三组点的虚部) / (1+0).
     3.求修改后的基波分量实部和虚部，实部=第一组点的实部-k1: 虚部= 第二组点的虚部-k2
     :param vs: 瞬时值数组
     :param sample_rate:

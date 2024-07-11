@@ -105,7 +105,7 @@ class Cfg:
         self._sample_info = value
 
     def get_cursor_sample_range(self, point1: int = 0, point2: int = None,
-                                cycle_num: float = None, mode=1) -> tuple:
+                                cycle_num: float = None, mode: int = 1) -> tuple:
         """
         获取游标采样点位置开始、结束采样取值范围、采样点个数\n
         当end_point不为空且大于开始采样点，以end_point采样点为准，
@@ -117,6 +117,13 @@ class Cfg:
         :param mode: 取值模式，仅在按周波取值时生效，默认为1：代表向采样点后方取值，-1：代表向采样点前方取值，0：代表向采样点两边取值
         :return: 返回一个元祖，分别代表开始采样点、结束采样点、采样点数量
         """
+        # 检查mode的有效性
+        if mode not in [-1, 0, 1]:
+            raise ValueError("mode参数错误,必须是-1,0,1")
+        if point1 < 0:
+            raise ValueError("point1参数错误,不能小于0")
+        if point2 is not None and point1 > point2:
+            raise ValueError("point2参数错误,不能小于point1")
         start_point = point1
         # 当end_point不为空时，且end_point大于start_point时，以end_point为最后采样点
         if point2 is not None and point2 > start_point:
