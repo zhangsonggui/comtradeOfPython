@@ -161,49 +161,49 @@ class SampleInfo:
     @property
     def bit_width(self):
         """
-        获取采样格式
+        每采样点每通道占用字节
         """
         return self.__bit_width
 
     @bit_width.setter
     def bit_width(self, value):
         """
-        修改采样格式
+        每采样点每通道占用字节
         """
         self.__bit_width = value
 
     @property
     def analog_bytes(self):
         """
-        获取采样格式
+        每采样点模拟量占用字节
         """
         return self.__analog_bytes
 
     @analog_bytes.setter
     def analog_bytes(self, value):
         """
-        修改采样格式
+        每采样点模拟量占用字节
         """
         self.__analog_bytes = value
 
     @property
     def digital_bytes(self):
         """
-        获取采样格式
+        每采样点开关量占用字节
         """
         return self.__digital_bytes
 
     @digital_bytes.setter
     def digital_bytes(self, value):
         """
-        修改采样格式
+        每采样点开关量占用字节
         """
         self.__digital_bytes = value
 
     @property
     def total_bytes(self):
         """
-        获取采样格式
+        每采样点占用字节
         """
         ad = self.analog_bytes + self.digital_bytes * 2
         if self.__total_bytes != ad:
@@ -213,7 +213,7 @@ class SampleInfo:
     @total_bytes.setter
     def total_bytes(self, value):
         """
-        修改采样格式
+        每采样点占用字节
         """
         self.__total_bytes = value
 
