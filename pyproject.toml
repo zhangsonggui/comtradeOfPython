@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "comtradeParser"
+name = "py3comtrade"
 version = "2.0.0"
 description = "解析comtrade中的cfg、dat、dmf等文件，提供配置文件中通道数量，的解析、数值计算和文件合并功能。"
 authors = ["张松贵 <82018238@qq.com>"]
