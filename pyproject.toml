@@ -1,32 +1,18 @@
 [tool.poetry]
-name = "comtradeparser"
-version = "1.0.0"
-description = "本项目是采用python解析comtrade文件，可实现CFG、DAT、DMF文件的解析和数值计算功能。"
+name = "py3comtrade"
+version = "2.0.0"
+description = "解析comtrade中的cfg、dat、dmf等文件，提供配置文件中通道数量，的解析、数值计算和文件合并功能。"
 authors = ["张松贵 <82018238@qq.com>"]
 license = "MIT"
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.11.7"
-numpy = "^1.26.4"
+python = "^3.9"
+numpy = "^2.0.0"
+pandas = "^2.2.2"
 xmltodict = "^0.13.0"
-pandas = "^2.2.1"
-openpyxl = "^3.0.10"
+openpyxl = "^3.1.4"
 
-[tool.poetry.package]
-include = [
-    "comtradeparser/**",
-    "comtradeparser/cfg/**",
-    "comtradeparser/dat/**",
-    "comtradeparser/dmf/**",
-    "comtradeparser/computation/**",
-    "comtradeparser/utils/**"
-]
-
-[[tool.poetry.source]]
-name = "aliyun"
-url = "https://mirrors.aliyun.com/pypi/simple"
-default = true
 
 [build-system]
 requires = ["poetry-core"]

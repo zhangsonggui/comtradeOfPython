@@ -1,4 +1,0 @@
-numpy>=1.26.4
-xmltodict>=0.13.0
-pandas>=2.2.1
-openpyxl >=3.0.10
