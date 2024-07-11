@@ -68,7 +68,9 @@ pip install -r requirements.txt
 
 ## 3.4 pip仓库安装
 
-pypi仓库暂时禁止新建包，暂时无法使用pip安装
+```shell
+pip install py3comtrade
+```
 
 # 四、使用说明
 
