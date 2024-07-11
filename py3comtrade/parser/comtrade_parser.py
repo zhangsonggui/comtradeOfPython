@@ -8,12 +8,12 @@
 # @File    : comtrade.py
 # @IDE     : PyCharm
 
-from py3comtrade.parser.dmf_parser import DmfParser
 from py3comtrade.entity.cfg import Cfg
 from py3comtrade.entity.comtrade import Comtrade
 from py3comtrade.entity.dat import Dat
 from py3comtrade.parser.cfg_parser import CfgParser
 from py3comtrade.parser.dat_parser import DatParser
+from py3comtrade.parser.dmf_parser import DmfParser
 from py3comtrade.utils import file_tools
 
 
@@ -56,7 +56,7 @@ class ComtradeParser:
         # 当dat文件为空，则取cfg文件名，后缀名大小写和cfg一致
         if _dat_file_name is None:
             _name, _suffix = _cfg_file_name.rsplit('.', 1)
-            _dat_suffix = 'dat' if _suffix == '__cfg' else 'DAT'
+            _dat_suffix = 'dat' if _suffix == 'cfg' else 'DAT'
             _dat_file_name = _name + '.' + _dat_suffix
         # 判断dat文件存在且不为空，进行解析DAT文件
         if file_tools.verify_file_validity(_dat_file_name):
