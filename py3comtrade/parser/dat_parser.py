@@ -12,9 +12,9 @@ import struct
 
 import numpy as np
 
+from py3comtrade.entity.dat import Dat
 from py3comtrade.entity.fault_header import FaultHeader
 from py3comtrade.entity.sample_info import SampleInfo
-from py3comtrade.entity.dat import Dat
 
 
 def digital_split(datas: tuple) -> list:
@@ -82,9 +82,9 @@ class DatParser:
         """
         with open(file_name, 'r') as f:
             dat_file_content = np.loadtxt(f, delimiter=',')
-        self.__sample_time_lists[:] = dat_file_content[0:2]
-        self.__analog_values[:] = dat_file_content[2:self.__fault_header.analog_channel_num + 2]
-        self.__digital_values[:] = dat_file_content[self.__fault_header.analog_channel_num + 2:]
+        self.__sample_time_lists = dat_file_content[:, 0:2]
+        self.__analog_values = dat_file_content[:, 2:self.__fault_header.analog_channel_num + 2]
+        self.__digital_values = dat_file_content[:, self.__fault_header.analog_channel_num + 2:]
 
     def _parse_binary_data(self, file_name) -> None:
         """
