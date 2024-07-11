@@ -1,13 +1,17 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#
+# Copyright (C) 2024 - 2024 张松贵, Inc. All Rights Reserved
+# 提供多个comtrade文件合并成一个comtrade文件方法。
+# TODO： 目前仅实现同一采样频率的简单合并，后期增加采样频率归一化和采样点偏移的功能
 import argparse
 import datetime
 import logging
 import os
 
-from comtradeParser.cfg.cfg_to_file import cfg_to_file
-from comtradeParser.dat.dat_to_file import write_dat_ascii
-from comtradeParser.utils.merge.merge_comtrade import MergeComtrade
+from py3comtrade.merge.merge_comtrade import MergeComtrade
+from py3comtrade.utils.cfg_to_file import cfg_to_file
+from py3comtrade.utils.dat_to_file import write_dat_ascii
 
 
 def check_directory(path: str):
@@ -32,7 +36,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser(description='合并文件。')
     parser.add_argument('directory', type=str, help='待合并文件的目录路径')
     parser.add_argument('dist_name', nargs='?',
-                        default=f"山大实训站_仿真设备{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')}",
+                        default=f"实训站_仿真设备{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')}",
                         help='合并后文件名，默认为合并后的文件名，不带后缀名')
     return parser.parse_args()
 
