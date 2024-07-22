@@ -28,7 +28,7 @@ def parse_str_sample_info(sample_info):
     for i in range(0, nrate_num):
         nrate: FaultNrate = nrates[i]
         # 每个周波采多少个点数
-        nrate.cycle_sample_num = int(nrate.samp / lf)
+        nrate.cycle_sample_num = nrate.samp / lf
         # 每段包含多少个采样点数
         nrate.sample_num = nrate.end_point if i == 0 else nrate.end_point - nrates[i - 1].end_point
         # 每段开始的采样点号
