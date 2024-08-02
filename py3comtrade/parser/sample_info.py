@@ -16,7 +16,7 @@ def parse_str_sample_info(sample_info):
     解析采样频率开始行到结束的字符串，解析为采样信息对象
     :param sample_info:采样段数开始行到结束的字符串
     """
-    lf = int(sample_info[0].rstrip())
+    lf = int(float(sample_info[0].rstrip()))
     nrate_num = int(sample_info[1].rstrip())
 
     nrates = []  # 各采样段的采样率原始信息

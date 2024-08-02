@@ -14,8 +14,8 @@ def parse_str_nrate(nrate_str):
     :param nrate_str: 采样段字符串
     """
     nrate_info = nrate_str.split(',')
-    return FaultNrate(samp=int(nrate_info[0]),
-                      end_point=int(nrate_info[1].rstrip()))
+    return FaultNrate(samp=int(float(nrate_info[0])),
+                      end_point=int(float(nrate_info[1].rstrip())))
 
 
 def generate_nrate_str(nrate_obj: FaultNrate):
