@@ -7,8 +7,8 @@
 @Version :   1.0
 @Desc    :   文件操作工具
 """
-
 import os
+import zipfile
 
 
 def file_finder(directory: str, extension: str, recursive: bool = False):
@@ -91,3 +91,39 @@ def read_file_adaptive_encoding(filename):
             # 如果GBK也失败，打印错误信息并返回None
             print(f"读取文件'{filename}'时，UTF-8和GBK编码均失败。")
             return None
+
+
+def zip_files(files, output):
+    """压缩多个文件"""
+    zip = zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED)
+    for file in files:
+        zip.write(file)
+    zip.close()
+
+
+def zip_dir(path, output=None):
+    """压缩指定目录"""
+    output = output or os.path.basename(path) + '.zip'  # 压缩文件的名字
+    zip = zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED)
+    for root, dirs, files in os.walk(path):
+        relative_root = '' if root == path else root.replace(path, '') + os.sep  # 计算文件相对路径
+        for filename in files:
+            zip.write(os.path.join(root, filename), relative_root + filename)  # 文件路径 压缩文件路径（相对路径）
+    zip.close()
+
+
+def extract_files_with_suffixes(zip_file, output=None, suffixes=None):
+    """
+    从压缩文件中解压指定后缀名称到指定目录
+    :param zip_file :压缩文件路径
+    :param output:解压目标文件夹路径,当为None时，解压到压缩文件所在目录
+    :param suffixes:要解压的文件后缀列表
+    """
+    zip_path, zip_name, _ = split_path(zip_file)
+    # 指定解压的目标文件夹路径
+    output = output or os.path.join(zip_path, zip_name)  # 默认解压到当前目录同名文件夹中
+    # 使用zipfile模块打开ZIP文件并解压
+    with zipfile.ZipFile(zip_file, 'r') as zip_ref:
+        for entry in zip_ref.namelist():
+            if any(entry.endswith(suffix) for suffix in suffixes):
+                zip_ref.extract(entry, output)
