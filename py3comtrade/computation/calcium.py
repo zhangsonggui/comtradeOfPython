@@ -6,7 +6,7 @@ from py3comtrade.computation.fourier import dft_rx
 from py3comtrade.utils import math_polar_rect
 
 
-class Calcius:
+class Calcium:
     __instants: np.ndarray  # 瞬时值数组
     __instant: float  # 当前采样位置的瞬时值
     __phasor: complex  # 相量值
