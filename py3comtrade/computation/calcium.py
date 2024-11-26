@@ -28,6 +28,7 @@ class Calcium:
         self.__instants = None
         self.__phasor = complex(0.0, 0.0)
         self.__angle = 0.0
+        self.__effective = 0.0
 
     def calc_angle(self, phasor: complex):
         self.angle = math_polar_rect.complex_to_polar(phasor)[1]

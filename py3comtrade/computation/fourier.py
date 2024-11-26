@@ -36,7 +36,7 @@ def dft_rx(vs: np.ndarray, num_samples: int, k: int) -> complex:
 
     real /= m
     imag /= m
-    return complex(real, imag)
+    return complex(real, imag)/np.sqrt(2)
 
 
 def dft_exp_decay(vs: np.ndarray, sample_rate: int = None):
