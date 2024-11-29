@@ -3,19 +3,30 @@
 from enum import Enum
 
 
-class DigitalType(Enum):
+class SingnalType(Enum):
     RELAY = ("Relay", "保护动作出口")
     BREAKER = ("Breaker", "断路器位置")
-    SWITCH = ("SWITCH", "开关位置")
-    WARNING = ("WARNING", "装置告警出口")
-    OTHER = ("OTHER", "其他")
+    SWITCH = ("Switch", "开关位置")
+    WARNING = ("Warning", "装置告警出口")
+    OTHER = ("Other", "其他")
+
+    @staticmethod
+    def get_flag_enum(_signal_type):
+        if _signal_type == SingnalType.RELAY:
+            return RelayFlag
+        elif _signal_type == SingnalType.BREAKER:
+            return BreakerFlag
+        elif _signal_type == SingnalType.WARNING:
+            return WarningFlag
+        else:
+            return ChannelFlag
 
 
-class GeneralDigitalFlag(Enum):
+class ChannelFlag(Enum):
     GENERAL = ("general", "一般开关量")
 
 
-class RelayDigitalFlag(Enum):
+class RelayFlag(Enum):
     TR = ("Tr", "保护跳闸")
     TRPHSA = ("TrPhsA", "跳A")
     TRPHSB = ("TrPhsB", "跳B")
@@ -27,7 +38,7 @@ class RelayDigitalFlag(Enum):
     PROTRV = ("ProtRv", "收信")
 
 
-class BreakerDigitalFlag(Enum):
+class BreakerFlag(Enum):
     HWJ = ("HWJ", "不分相断路器合位")
     TWJ = ("TWJ", "不分相断路器跳位")
     HWJPHSA = ("HWJPhsA", "断路器A相合位")
@@ -44,7 +55,7 @@ class BreakerDigitalFlag(Enum):
     TWJLOW = ("TWJLow", "变压器低压侧断路器跳位")
 
 
-class WarningDigitalFlag(Enum):
+class WarningFlag(Enum):
     WARNVT = ("WarnVt", "TV断线")
     WARNCT = ("WarnCt", "CT断线")
     WARNCOMM = ("WarnComm", "通道告警")
@@ -54,3 +65,11 @@ class WarningDigitalFlag(Enum):
 class Contact(Enum):
     NORMALLYOPEN = (0, "常开节点")
     NORMALLYCLOSED = (1, "常闭节点")
+
+
+if __name__ == '__main__':
+    signal_type = SingnalType.RELAY
+    flag_enum = SingnalType.get_flag_enum(signal_type)
+    if flag_enum:
+        for flag in flag_enum:
+            print(flag.name, flag.value[1])
