@@ -1,9 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#  Copyright (c) [2019] [name of copyright holder]
+#  [py3comtrade] is licensed under Mulan PSL v2.
+#  You can use this software according to the terms and conditions of the Mulan
+#  PSL v2.
+#  You may obtain a copy of Mulan PSL v2 at:
+#           http://license.coscl.org.cn/MulanPSL2
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+#  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+#  See the Mulan PSL v2 for more details.
+
 from typing import Union
 
 from py3comtrade.model.base_channel import BaseChannel
-from py3comtrade.model.type.analog_enum import ElectricalUnit
+from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType
 from py3comtrade.model.type.phase_code import PhaseCode
 
 
@@ -16,14 +27,14 @@ class Analog(BaseChannel):
     __max_val: float
     __primary: float
     __secondary: float
-    __ps: str
+    __ps: PsType
     __ratio: float
 
     def __init__(
             self,
             cfg_index: Union[int, str],
             name: str,
-            phase: Union[PhaseCode, str] = PhaseCode.NO_PHASE,
+            phase: PhaseCode = PhaseCode.NO_PHASE,
             ccbm: str = "",
             unit: ElectricalUnit = ElectricalUnit.NO_UNIT,
             a: Union[float, str] = 0.0,
@@ -33,7 +44,7 @@ class Analog(BaseChannel):
             max_val: Union[float, str] = 0.0,
             primary: Union[float, str] = 0.0,
             secondary: Union[float, str] = 0.0,
-            ps: str = "S",
+            ps: PsType = PsType.S,
     ):
         """
         模拟量通道类
@@ -62,7 +73,7 @@ class Analog(BaseChannel):
         self.__secondary = (
             secondary if isinstance(secondary, float) else float(secondary)
         )
-        self.__ps: str = ps
+        self.__ps = ps
 
     def clear(self) -> None:
         super().clear()
@@ -70,8 +81,8 @@ class Analog(BaseChannel):
     def __str__(self):
         return (
                 super().__str__()
-                + f",{self.unit},{self.a},{self.b},{self.skew},{self.min_val},{self.max_val}"
-                + f",{self.primary},{self.secondary},{self.ps}"
+                + f",{self.unit.get_code},{self.a},{self.b},{self.skew},{self.min_val},{self.max_val}"
+                + f",{self.primary},{self.secondary},{self.ps.get_code}"
         )
 
     def __format_str_to_float(self, _str):
@@ -146,11 +157,11 @@ class Analog(BaseChannel):
         self.__secondary = value
 
     @property
-    def ps(self) -> str:
+    def ps(self) -> PsType:
         return self.__ps
 
     @ps.setter
-    def ps(self, value) -> None:
+    def ps(self, value: PsType) -> None:
         self.__ps = value
 
     @property
