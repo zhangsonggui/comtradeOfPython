@@ -13,35 +13,18 @@
 from enum import Enum
 
 
-class PhaseCode(Enum):
-    N_PHASE = ('N', "N相")
-    A_PHASE = ('A', "A相")
-    B_PHASE = ('B', "B相")
-    C_PHASE = ('C', "C相")
-    NO_PHASE = ('', "无相别")
+class BaseEnum(Enum):
+    def __new__(cls, *args, **kargs):
+        obj = object.__new__(cls)
+        obj._value_ = args[0]
+        return obj
 
-    def __init__(self, code, descripton):
+    def __init__(self, code, description):
         self.code = code
-        self.descripton = descripton
+        self.descripton = description
 
     def get_code(self) -> str:
         return self.code
 
     def get_description(self) -> str:
         return self.descripton
-
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-
-        :param string: 需要被解析的字符串
-        :return: 对应的枚举成员或 None 如果没有匹配
-        """
-        string = string.upper()
-        for phase in cls:
-            if phase == cls.NO_PHASE:
-                continue
-            if phase.get_code() == string:
-                return phase
-        return cls.NO_PHASE
