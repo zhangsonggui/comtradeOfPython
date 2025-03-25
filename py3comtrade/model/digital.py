@@ -11,46 +11,32 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 
-from typing import Union
+from pydantic import Field
 
-from py3comtrade.model.base_channel import BaseChannel
+from py3comtrade.model.channel import Channel
 from py3comtrade.model.type.digital_enum import Contact
-from py3comtrade.model.type.phase_code import PhaseCode
 
 
-class Digital(BaseChannel):
+class Digital(Channel):
     """
     开关量通道类
     """
+    contact: Contact = Field(default=Contact.NORMALLYOPEN, description="状态通道正常状态")
 
-    __contact: Contact
-
-    def __init__(
-            self,
-            cfg_index: Union[int, str],
-            name: str,
-            phase: PhaseCode = PhaseCode.NO_PHASE,
-            ccbm: str = "",
-            contact: Contact = Contact.NORMALLYOPEN,
-    ):
-        """
-        初始化
-        :param cfg_index: 通道索引
-        :param name: 通道名称
-        :param phase: 通道相位
-        :param ccbm: 通道CCBM
-        :param contact: 开关量初始值
-        """
-        super().__init__(cfg_index, name, phase, ccbm)
-        self.__contact = contact
+    def __init__(self,
+                 cfg_index: int,
+                 name: str,
+                 phase: str = None,
+                 ccbm: str = None,
+                 contact: Contact = Contact.NORMALLYOPEN):
+        super().__init__(cfg_index=cfg_index, name=name, phase=phase, ccbm=ccbm)
+        self.contact = contact
 
     def clear(self) -> None:
+        """清除模型中所有字段"""
         super().clear()
-        self.__contact = 0
+        for field in self.__fields__.keys():
+            setattr(self, field, None)
 
     def __str__(self):
-        return super().__str__() + f",{self.contact}"
-
-    @property
-    def contact(self) -> Contact:
-        return self.__contact
+        return super().__str__() + f",{self.contact.code}"

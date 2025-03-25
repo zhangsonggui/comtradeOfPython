@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from py3comtrade.model.analog import Analog
-from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType
-from py3comtrade.model.type.phase_code import PhaseCode
+from ..model.analog import Analog
+from ..model.type.analog_enum import ElectricalUnit, PsType
+from ..model.type.phase_code import PhaseCode
 
 
 def analog_parser(line):

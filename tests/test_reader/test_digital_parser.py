@@ -13,9 +13,11 @@ class TestDigitalParser(unittest.TestCase):
         digital_a = digital_parser(line_digital_a)
         self.assertEqual('220kV hh1x_211开关_A相断路器合位', digital_a.name)
         self.assertEqual(PhaseCode.A_PHASE, digital_a.phase)
+        self.assertEqual(line_digital_a, str(digital_a))
 
         line_digital_n = "1,220kV hh1x_211开关_A相断路器合位,,,0"
         digital_n = digital_parser(line_digital_n)
         self.assertEqual('220kV hh1x_211开关_A相断路器合位', digital_n.name)
         self.assertEqual(PhaseCode.NO_PHASE, digital_n.phase)
         self.assertEqual('', digital_n.ccbm)
+        self.assertEqual(line_digital_n, str(digital_n))
