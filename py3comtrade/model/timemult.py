@@ -1,24 +1,20 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from typing import Union
+#  Copyright (c) [2019] [name of copyright holder]
+#  [py3comtrade] is licensed under Mulan PSL v2.
+#  You can use this software according to the terms and conditions of the Mulan
+#  PSL v2.
+#  You may obtain a copy of Mulan PSL v2 at:
+#           http://license.coscl.org.cn/MulanPSL2
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+#  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+#  See the Mulan PSL v2 for more details.
+from pydantic import BaseModel, Field
 
 
-class TimeMult:
-    def __init__(self, timemult: Union[float, int] = 1.0):
-        self.clear()
-        if not isinstance(timemult, (float, int)):
-            raise TypeError("timemult must be float or int")
-        self.__timemult = timemult
+class TimeMult(BaseModel):
+    timemult: float = Field(default=1.0, description="时间倍数")
 
     def clear(self):
-        self.__timemult = 1.0
-
-    @property
-    def timemult(self):
-        return self.__timemult
-
-    @timemult.setter
-    def timemult(self, value):
-        if not isinstance(value, (float, int)):
-            raise TypeError("timemult must be float or int")
-        self.__timemult = value
+        self.timemult = 1.0

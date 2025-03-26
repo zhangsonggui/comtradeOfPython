@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#  Copyright (c) [2019] [name of copyright holder]
+#  [py3comtrade] is licensed under Mulan PSL v2.
+#  You can use this software according to the terms and conditions of the Mulan
+#  PSL v2.
+#  You may obtain a copy of Mulan PSL v2 at:
+#           http://license.coscl.org.cn/MulanPSL2
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+#  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+#  See the Mulan PSL v2 for more details.
+
+from pydantic import BaseModel, Field
+
 from py3comtrade.model.analog import Analog
 from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.config_header import ConfigHeader
@@ -10,21 +23,22 @@ from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
 
 
-class Configure:
+class Configure(BaseModel):
     """
     配置文件类，用于存储配置文件信息
     """
 
-    __header: ConfigHeader
-    __channel_num: ChannelNum
-    __analogs: list[Analog] = []
-    __digitals: list[Digital] = []
-    __sample: ConfigSample = ConfigSample()
-    __file_start_time: PrecisionTime
-    __fault_time: PrecisionTime
-    __timemult: TimeMult
+    header: ConfigHeader = Field(default=ConfigHeader(), description="配置文件头")
+    channel_num: ChannelNum = Field(default=None, description="通道数量")
+    analogs: list[Analog] = Field(default=[], description="模拟通道列表")
+    digitals: list[Digital] = Field(default=[], description="开关量通道列表")
+    sample: ConfigSample = ConfigSample()
+    file_start_time: PrecisionTime = Field(default=None, description="文件起始时间")
+    fault_time: PrecisionTime = Field(default=None, description="故障时间")
+    timemult: TimeMult = TimeMult(timemult=1)
 
     def __init__(self, file_path):
+        super().__init__()
         self.__file_path = file_path
 
     def clear(self):
@@ -197,80 +211,16 @@ class Configure:
             if digital.cfg_index == dn:
                 return digital
 
-    @property
-    def header(self) -> ConfigHeader:
-        return self.__header
-
-    @header.setter
-    def header(self, value: ConfigHeader):
-        self.__header = value
-
-    @property
-    def channel_num(self) -> ChannelNum:
-        return self.__channel_num
-
-    @channel_num.setter
-    def channel_num(self, value: ChannelNum):
-        self.__channel_num = value
-
-    @property
-    def analogs(self) -> list[Analog]:
-        return self.__analogs
-
-    @analogs.setter
-    def analogs(self, value):
-        self.__analogs = value
-
     def add_analog(self, _analog: Analog):
         """
         添加模拟量
         """
-        _analog.index = len(self.__analogs)
-        self.__analogs.append(_analog)
-
-    @property
-    def digitals(self):
-        return self.__digitals
-
-    @digitals.setter
-    def digitals(self, value):
-        self.__digitals = value
+        _analog.index = len(self.analogs)
+        self.analogs.append(_analog)
 
     def add_digital(self, _digital: Digital):
         """
         添加开关量
         """
-        _digital.index = len(self.__digitals)
-        self.__digitals.append(_digital)
-
-    @property
-    def sample(self):
-        return self.__sample
-
-    @sample.setter
-    def sample(self, value):
-        self.__sample = value
-
-    @property
-    def file_start_time(self):
-        return self.__file_start_time
-
-    @file_start_time.setter
-    def file_start_time(self, value):
-        self.__file_start_time = value
-
-    @property
-    def fault_time(self):
-        return self.__fault_time
-
-    @fault_time.setter
-    def fault_time(self, value):
-        self.__fault_time = value
-
-    @property
-    def timemult(self):
-        return self.__timemult
-
-    @timemult.setter
-    def timemult(self, value):
-        self.__timemult = value.strip()
+        _digital.index = len(self.digitals)
+        self.digitals.append(_digital)
