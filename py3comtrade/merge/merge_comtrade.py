@@ -4,7 +4,7 @@ import numpy as np
 from py3comtrade.entity.cfg import Cfg
 from py3comtrade.parser.cfg_parser import CfgParser
 
-from py3comtrade.comtrade import read_comtrade
+from py3comtrade.model.comtrade import read_comtrade
 from py3comtrade.utils.file_tools import file_finder
 
 

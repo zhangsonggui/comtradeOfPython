@@ -14,7 +14,7 @@ class TestDataReader(unittest.TestCase):
         cfg_name = r'../data/xtz.cfg'
         dat_name = r'../data/xtz.dat'
         self.cfg = config_reader(cfg_name)
-        self.dat = DataReader(dat_name, self.cfg.sample)
+        self.dat = DataReader(file_path=dat_name, sample=self.cfg.sample)
 
     def test_read_file(self):
         pass

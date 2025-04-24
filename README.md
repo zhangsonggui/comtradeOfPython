@@ -66,22 +66,22 @@
 
 ### 3.1cfg_to_file
 
-- generate_cfg_str：根据对象生成文本字符串
+- **generate_cfg_str**：根据对象生成文本字符串
 
-- cfg_to_file：cfg对象保存为cfg文件
+- **cfg_to_file**：cfg对象保存为cfg文件
 
 ### 3.2dat_to_file
 
-- write_dat_ascii：生成ASCII格式dat文件
-- write_dat_binary：生成binary格式dat文件
-- write_dat_binary32：生成binary32格式dat文件
+- **write_dat_ascii**：生成ASCII格式dat文件
+- **write_dat_binary**：生成binary格式dat文件
+- **write_dat_binary32**：生成binary32格式dat文件
 
 ### 3.3file_tools
 
-- file_finder：扫描指定目录、指定后缀的所有文件，是否递归查找
-- split_path：分割文件路径为目录、文件名和后缀名
-- verify_file_validity：验证文件是否存在且非空
-- read_file_adaptive_encoding：尝试以GBK和UTF-8两种编码读取文件，以适应不确定的编码情况。
+- **file_finder**：扫描指定目录、指定后缀的所有文件，是否递归查找
+- **split_path**：分割文件路径为目录、文件名和后缀名
+- **verify_file_validity**：验证文件是否存在且非空
+- **read_file_adaptive_encoding**：尝试以GBK和UTF-8两种编码读取文件，以适应不确定的编码情况。
 
 ## 4. 故障分析模块
 
@@ -136,14 +136,14 @@ pip install py3comtrade
 > 使用示例
 
 ```python
-from py3comtrade.comtrade import Comtrade
-from py3comtrade.comtrade import ReadFileMode
+from py3comtrade.model.comtrade import Comtrade
+from py3comtrade.model.comtrade import ReadMode
 
 # 获取comtrade对象
 comtrade_file_path = 'comtrade_file_path'
 record = Comtrade(comtrade_file_path)
 # 读取数据
-record.read(read_mode=ReadFileMode.FULL)
+record.read(read_mode=ReadMode.FULL)
 # 获取变电站名称
 station_name = record.cfg.header.station_name
 # cfg为Configura对象，具体的方法可以查看帮助文档

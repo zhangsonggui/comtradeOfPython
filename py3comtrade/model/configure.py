@@ -42,14 +42,9 @@ class Configure(BaseModel):
         self.__file_path = file_path
 
     def clear(self):
-        self.header.clear()
-        self.channel_num.clear()
-        self.analogs = []
-        self.digitals = []
-        self.sample.clear()
-        self.file_start_time.clear()
-        self.fault_time.clear()
-        self.timemult.clear()
+        """清除模型中所有字段"""
+        for field in self.__fields__.keys():
+            setattr(self, field, None)
 
     def get_cursor_in_segment(self, cursor_site: int) -> int:
         """
@@ -181,7 +176,9 @@ class Configure(BaseModel):
         :param index: 索引
         :return: 模拟量对象
         """
-        return self.analogs[index]
+        if 0 <= index < len(self.analogs):
+            return self.analogs[index]
+        raise IndexError("索引超出范围")
 
     def get_analog_by_an(self, an: int) -> Analog:
         """
@@ -193,13 +190,27 @@ class Configure(BaseModel):
             if analog.cfg_index == an:
                 return analog
 
+    def add_analog(self, analog: Analog, index: int = None):
+        """
+        添加模拟量
+        :param analog: 模拟量通道对象
+        :param index: 添加的位置，当为空时从列表的尾部添加
+        """
+        if index is not None:
+            self.analogs.insert(index, analog)
+        else:
+            analog.index = len(self.analogs)
+            self.analogs.append(analog)
+
     def get_digital_by_index(self, index: int) -> Digital:
         """
         根据索引获取开关量
         :param index: 索引
         :return: 开关量对象
         """
-        return self.digitals[index]
+        if 0 <= index < len(self.digitals):
+            return self.digitals[index]
+        raise IndexError("索引超出范围")
 
     def get_digital_by_dn(self, dn: int) -> Digital:
         """
@@ -211,16 +222,14 @@ class Configure(BaseModel):
             if digital.cfg_index == dn:
                 return digital
 
-    def add_analog(self, _analog: Analog):
-        """
-        添加模拟量
-        """
-        _analog.index = len(self.analogs)
-        self.analogs.append(_analog)
-
-    def add_digital(self, _digital: Digital):
+    def add_digital(self, digital: Digital, index: int = None):
         """
         添加开关量
+        :param digital: 开关量通道对象
+        :param index: 添加的位置，当为空时从列表的尾部添加
         """
-        _digital.index = len(self.digitals)
-        self.digitals.append(_digital)
+        if index is not None:
+            self.digitals.insert(index, digital)
+        else:
+            digital.index = len(self.digitals)
+            self.digitals.append(digital)

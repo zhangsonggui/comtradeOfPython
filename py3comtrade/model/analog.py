@@ -28,33 +28,7 @@ class Analog(Channel):
     secondary: float = Field(default=1.0, description="通道互感器变比二次系数")
     ps: PsType = Field(default=PsType.P, description="一次还是二次值标识")
     ratio: float = Field(default=1.0, description="通道比率")
-
-    def __init__(
-            self,
-            cfg_index: int,
-            name: str,
-            phase: str = None,
-            ccbm: str = None,
-            unit: ElectricalUnit = ElectricalUnit.VOLT,
-            a: float = 1.0,
-            b: float = 0.0,
-            skew: float = 0.0,
-            min_val: float = 0.0,
-            max_val: float = 0.0,
-            primary: float = 1.0,
-            secondary: float = 1.0,
-            ps: PsType = PsType.P,
-    ):
-        super().__init__(cfg_index=cfg_index, name=name, phase=phase, ccbm=ccbm)
-        self.unit = unit
-        self.a = a
-        self.b = b
-        self.skew = skew
-        self.min_val = min_val
-        self.max_val = max_val
-        self.primary = primary
-        self.secondary = secondary
-        self.ps = ps
+    y: list[float] = Field(default=[], description="通道数值")
 
     def clear(self) -> None:
         """清除模型中所有字段"""

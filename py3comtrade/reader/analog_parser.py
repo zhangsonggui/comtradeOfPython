@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#  Copyright (c) [2019] [name of copyright holder]
+#  [py3comtrade] is licensed under Mulan PSL v2.
+#  You can use this software according to the terms and conditions of the Mulan
+#  PSL v2.
+#  You may obtain a copy of Mulan PSL v2 at:
+#           http://license.coscl.org.cn/MulanPSL2
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+#  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+#  See the Mulan PSL v2 for more details.
 from ..model.analog import Analog
 from ..model.type.analog_enum import ElectricalUnit, PsType
 from ..model.type.phase_code import PhaseCode
@@ -7,19 +17,18 @@ from ..model.type.phase_code import PhaseCode
 
 def analog_parser(line):
     line = line.strip().split(",")
-    index = line[0]
-    name = line[1]
-    phase = PhaseCode.from_string(line[2])
-    ccbm = line[3]
-    unit = ElectricalUnit.from_string(line[4])
-    a = line[5]
-    b = line[6]
-    skew = line[7]
-    min_val = line[8]
-    max_val = line[9]
-    analog = Analog(index, name, phase, ccbm, unit, a, b, skew, min_val, max_val)
+    analog = Analog(cfg_index=int(line[0]),
+                    name=line[1],
+                    phase=PhaseCode.from_string(line[2]),
+                    ccbm=line[3],
+                    unit=ElectricalUnit.from_string(line[4]),
+                    a=float(line[5]),
+                    b=float(line[6]),
+                    skew=float(line[7]),
+                    min_val=float(line[8]),
+                    max_val=float(line[9]))
     if len(line) > 11:
-        analog.primary = line[10]
-        analog.secondary = line[11]
+        analog.primary = float(line[10])
+        analog.secondary = float(line[11])
         analog.ps = PsType.from_string(line[12])
     return analog

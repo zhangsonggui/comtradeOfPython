@@ -1,11 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+#  Copyright (c) [2019] [name of copyright holder]
+#  [py3comtrade] is licensed under Mulan PSL v2.
+#  You can use this software according to the terms and conditions of the Mulan
+#  PSL v2.
+#  You may obtain a copy of Mulan PSL v2 at:
+#           http://license.coscl.org.cn/MulanPSL2
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+#  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+#  See the Mulan PSL v2 for more details.
 
-import os
 import struct
 
 import numpy as np
 import pandas as pd
+from pydantic import BaseModel, Field, ConfigDict
 
 from py3comtrade.model.config_sample import ConfigSample
 from py3comtrade.model.type.data_file_type import DataFileType
@@ -25,30 +35,29 @@ def digital_split(datas: tuple) -> list:
     return digitals
 
 
-class DataReader:
+class DataReader(BaseModel):
     """
     读取文件
     """
+    file_path: str = Field(description="文件路径")
+    sample: ConfigSample = Field(description="采样信息")
+    size: int = Field(default=0, description="文件大小")
+    sample_time: np.ndarray = Field(default=None, description="采样时间")
+    analog_value: np.ndarray = Field(default=None, description="模拟量值")
+    digital_value: np.ndarray = Field(default=None, description="开关量值")
 
-    def __init__(self, file_path, sample: ConfigSample):
-        self.__file_path = file_path
-        self.__sample = sample
-        self.__size = os.path.getsize(self.file_path)
-        self.__sample_time: np.ndarray = np.zeros((self.sample.count, 2), dtype=np.int32)
-        self.__analog_value: np.ndarray = np.zeros((self.sample.count, self.sample.channel_num.analog_num),
-                                                   dtype=np.float32)
-        self.__digital_value: np.ndarray = np.zeros((self.sample.count, self.sample.channel_num.digital_num),
-                                                    dtype=np.int32)
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    def clear(self):
-        self.__file_path = None
-        self.__sample = None
+    def __init__(self, **data):
+        super().__init__(**data)
         self.size = 0
-        self.__sample_time = np.zeros((self.sample.count, 2), dtype=np.int32)
-        self.__analog_value = np.zeros((self.sample.count, self.sample.channel_num.analog_num), dtype=np.float32)
-        self.__digital_value = np.zeros((self.sample.count, self.sample.channel_num.digital_num), dtype=np.int32)
+        self.sample_time = np.zeros((self.sample.count, 2), dtype=np.int32)
+        self.analog_value = np.zeros((self.sample.count, self.sample.channel_num.analog_num),
+                                     dtype=np.float32)
+        self.digital_value = np.zeros((self.sample.count, self.sample.channel_num.digital_num),
+                                      dtype=np.int32)
 
-    def read_file(self):
+    def read(self):
         if DataFileType.ASCII == self.sample.data_file_type.value:
             self.read_ascii()
         else:
@@ -75,51 +84,11 @@ class DataReader:
                 self.analog_value[i:] = sample_struct[2:2 + self.sample.channel_num.analog_num]
                 self.digital_value[i:] = digital_split(sample_struct[2 + self.sample.channel_num.analog_num:])
 
-    @property
-    def sample(self):
-        return self.__sample
-
-    @property
-    def file_path(self):
-        return self.__file_path
-
-    @property
-    def size(self):
-        return self.__size
-
-    @size.setter
-    def size(self, value):
-        self.__size = value
-
-    @property
-    def analog_value(self) -> np.ndarray:
-        return self.__analog_value
-
-    @analog_value.setter
-    def analog_value(self, value: np.ndarray):
-        self.__analog_value = value
-
-    @property
-    def digital_value(self) -> np.ndarray:
-        return self.__digital_value
-
-    @digital_value.setter
-    def digital_value(self, value: np.ndarray):
-        self.__digital_value = value
-
-    @property
-    def sample_time(self) -> np.ndarray:
-        return self.__sample_time
-
-    @sample_time.setter
-    def sample_time(self, value: np.ndarray):
-        self.__sample_time = value
-
 
 if __name__ == '__main__':
-    cfg_file_name = r'/tests/data/xtz.cfg'
-    dat_file_name = r'/tests/data/xtz.dat'
+    cfg_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.cfg'
+    dat_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.dat'
     configure = config_reader(cfg_file_name)
-    dat_content = DataReader(dat_file_name, configure.sample)
-    dat_content.read_file()
+    dat_content = DataReader(file_path=dat_file_name, sample=configure.sample)
+    dat_content.read()
     print('解析完毕')

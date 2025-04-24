@@ -136,14 +136,14 @@ pip install py3comtrade
 > 使用示例
 
 ```python
-from py3comtrade.comtrade import Comtrade
-from py3comtrade.comtrade import ReadFileMode
+from py3comtrade.model.comtrade import Comtrade
+from py3comtrade.model.comtrade import ReadMode
 
 # 获取comtrade对象
 comtrade_file_path = 'comtrade_file_path'
 record = Comtrade(comtrade_file_path)
 # 读取数据
-record.read(read_mode=ReadFileMode.FULL)
+record.read(read_mode=ReadMode.FULL)
 # 获取变电站名称
 station_name = record.cfg.header.station_name
 # cfg为Configura对象，具体的方法可以查看帮助文档
