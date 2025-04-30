@@ -84,7 +84,7 @@ class MergeComtrade:
             if idx == 0:
                 merge_ssz.append(samp_times)
             # 获取所有通道信息，后续通过界面获取
-            ssz = fr.get_instant_samples_by_analog(fr.analog_channels, primary=True)
+            ssz = fr.get_instant_by_analog(fr.analog_channels, primary=True)
             merge_ssz.append(ssz)
         merge_ssz = np.concatenate(merge_ssz)
         return merge_ssz.T

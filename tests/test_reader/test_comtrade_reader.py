@@ -64,31 +64,31 @@ class TestComtrade(unittest.TestCase):
             self.comtrade.sample_point_validate(20, 10)
 
     def test_get_raw_samples_by_index(self):
-        ch1_ysz = self.comtrade.get_raw_samples_by_index(1)
+        ch1_ysz = self.comtrade.get_analog_raw_by_index(1)
         self.assertEqual(3077, len(ch1_ysz[0]))
-        ch2_ysz = self.comtrade.get_raw_samples_by_index(2, 0, 3076)
+        ch2_ysz = self.comtrade.get_analog_raw_by_index(2, 0, 3076)
         self.assertEqual(3077, len(ch2_ysz[0]))
 
     def test_get_instant_samples_by_analog(self):
         analog = self.comtrade.configure.get_analog_by_an(1)
-        ch1_ssz = self.comtrade.get_instant_samples_by_analog(analog, primary=False)
+        ch1_ssz = self.comtrade.get_instant_by_analog(analog, primary=False)
         self.assertEqual(-84.691, ch1_ssz[0])
         self.assertEqual(65.465, ch1_ssz[602])
         self.assertEqual(85.316, ch1_ssz[1282])
 
         analog = self.comtrade.configure.get_analog_by_an(11)
-        ch11_ssz = self.comtrade.get_instant_samples_by_analog(analog, primary=False)
+        ch11_ssz = self.comtrade.get_instant_by_analog(analog, primary=False)
         self.assertEqual(0.136, ch11_ssz[0])
         self.assertEqual(0.327, ch11_ssz[600])
         self.assertEqual(0.682, ch11_ssz[1281])
 
     def test_get_instant_samples_by_index(self):
-        ch1_ssz = self.comtrade.get_instant_samples_by_index(0, primary=False)
+        ch1_ssz = self.comtrade.get_instant_by_index(0, primary=False)
         self.assertEqual(-84.691, ch1_ssz[0])
         self.assertEqual(65.465, ch1_ssz[602])
         self.assertEqual(85.316, ch1_ssz[1282])
 
-        ch11_ssz = self.comtrade.get_instant_samples_by_index(10, primary=False)
+        ch11_ssz = self.comtrade.get_instant_by_index(10, primary=False)
         self.assertEqual(0.136, ch11_ssz[0])
         self.assertEqual(0.327, ch11_ssz[600])
         self.assertEqual(0.682, ch11_ssz[1281])

@@ -73,8 +73,6 @@ class DataReader(BaseModel):
     def read_binary(self):
         str_struct = f"ii{self.sample.analog_sampe_word // 2}h{self.sample.digital_sampe_word // 2}H"
         with open(self.file_path, 'rb') as f:
-            # if self.size != (self.sample.total_sampe_word + self.sample.digital_sampe_word) * self.sample.count:
-            #     raise ValueError("文件长度错误")
             for i in range(self.sample.count):
                 byte_str = f.read(self.sample.total_sampe_word)
                 if len(byte_str) != self.sample.total_sampe_word:
