@@ -26,7 +26,7 @@ class Comtrade(BaseModel):
     file_path: dict = Field(default=None, description="录波文件路径")
     configure: Configure = Field(default=None, description="Comtrade配置对象")
     data: DataReader = Field(default=None, description="Comtrade数据对象")
-    digital_change: list = Field(default=[], description="变位开关量通道记录")
+    digital_change: list = Field(default_factory=[], description="变位开关量通道记录")
 
     def get_raw_by_index(self, index: int, start_point: int = 0,
                          end_point: int = None) -> np.ndarray:

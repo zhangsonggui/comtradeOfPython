@@ -22,7 +22,7 @@ class Digital(Channel):
     开关量通道类
     """
     contact: Contact = Field(default=Contact.NORMALLYOPEN, description="状态通道正常状态")
-    change_status: dict = Field(default={}, description="变位记录")
+    change_status: dict = Field(default_factory={}, description="变位记录")
 
     def __init__(self,
                  cfg_index: int,
