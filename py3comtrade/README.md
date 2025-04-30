@@ -34,11 +34,11 @@
 
 - **read**：初始化comtrade对象，根据读取文件参数解析解析cfg、dat、dmf文件，返回Comtrade对象
 
-- **get_raw_samples_by_index**：获取指定通道、指定采样点的原始采样值，返回numpy数组。
+- **get_analog_raw_by_index**：获取指定通道、指定采样点的原始采样值，返回numpy数组。
 
-- **get_instant_samples_by_analog**：获取指定单个通道、指定采样点或周波数的瞬时值，返回numpy数组。
+- **get_instant_by_analog**：获取指定单个通道、指定采样点或周波数的瞬时值，返回numpy数组。
 
-- **get_instant_samples_by_analogs**：获取指定多个通道、指定采样点或周波数的瞬时值，返回numpy数组。
+- **get_instant_by_analogs**：获取指定多个通道、指定采样点或周波数的瞬时值，返回numpy数组。
 
 - **get_instant_samples_by_segment**：获取指定通道、指定采样段的瞬时值，返回numpy数组。
 
@@ -150,7 +150,7 @@ station_name = record.cfg.header.station_name
 # 获取通道对象，可以通过模拟量通道的an标识或索引顺序号获取模拟量通道对象
 analog = record.cfg.get_analog_by_an(1)
 # 根据模拟量通道获取瞬时值，默认获取改通道全部采样点的数据
-record.get_instant_samples_by_analog(analog)
+record.get_instant_by_analog(analog)
 ```
 
 ## 五、参与贡献

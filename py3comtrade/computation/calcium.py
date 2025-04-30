@@ -1,75 +1,54 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import numpy as np
+from pydantic import Field, BaseModel
 
-from py3comtrade.computation.fourier import dft_rx
 from py3comtrade.utils import math_polar_rect
 
 
-class Calcium:
-    __instants: np.ndarray  # 瞬时值数组
-    __instant: float  # 当前采样位置的瞬时值
-    __phasor: complex  # 相量值
-    __angle: float  # 角度
-    __effective: float  # 有效值
+class Calcium(BaseModel):
+    instant: list[float] = Field(description="瞬时值数组")
+    effective: float = Field(default=None, description="有效值")
+    vector: complex = Field(default=None, description="相量值")
+    angle: float = Field(default=None, description="相角值")
 
-    def __init__(self, value: np.ndarray):
-        self.clear()
-        if isinstance(value, np.ndarray) and value.ndim == 1:
-            self.__instants = value
-            self.instant = value[0]
-            self.phasor = dft_rx(value, value.shape[0], 1)
-            self.angle = self.calc_angle(self.phasor)
-            self.effective = self.calc_effective(self.phasor)
-        else:
-            raise ValueError("输入的瞬时值数组必须是一维非空的numpy数组")
+    def calc_vector(self, k: int):
+        v = self.dft_rx(self.instant, k)
+        self.vector = complex(round(v.real, 3), round(v.imag, 3))
 
-    def clear(self):
-        self.__instants = None
-        self.__phasor = complex(0.0, 0.0)
-        self.__angle = 0.0
-        self.__effective = 0.0
+    def calc_angle(self):
+        self.angle = math_polar_rect.complex_to_polar(self.vector)[1]
 
-    def calc_angle(self, phasor: complex):
-        self.angle = math_polar_rect.complex_to_polar(phasor)[1]
-        return self.angle
+    def calc_effective(self):
+        self.effective = round(abs(self.vector), 3)
 
-    def calc_effective(self, phasor: complex):
-        self.effective = abs(phasor)
-        return self.effective
+    def calc_value(self):
+        self.calc_vector(k=1)
+        self.calc_angle()
+        self.calc_effective()
 
-    @property
-    def instants(self) -> np.ndarray:
-        return self.__instants
+    @staticmethod
+    def dft_rx(vs: list[float], k: int) -> complex:
+        """
+        离散傅里叶变换实部和虚部
+        @param vs: 瞬时值数组
+        @param k: 获取的频率
+        @return: 相量值，虚部和虚部元组
+        """
+        # 参数校验
+        size = len(vs)
+        if not isinstance(vs, list) and size > 2:
+            raise ValueError(f"输入的瞬时值数组长度要大于2，现在长度为{size}")
+        if not isinstance(k, int) or k < 0 or k >= size:
+            raise ValueError(f"频率k必须是非负整数且小于采样点数")
+        # 计算中点值，明确使用二进制除法
+        m = size // 2
+        real = 0.0
+        imag = 0.0
+        for i in range(size):
+            real += vs[i] * np.sin(i * k * np.pi / m)
+            imag += vs[i] * np.cos(i * k * np.pi / m)
 
-    @property
-    def instant(self) -> float:
-        return self.__instant
-
-    @instant.setter
-    def instant(self, value: float) -> None:
-        self.__instant = value
-
-    @property
-    def phasor(self) -> complex:
-        return np.around(self.__phasor, 3)
-
-    @phasor.setter
-    def phasor(self, value: complex) -> None:
-        self.__phasor = value
-
-    @property
-    def angle(self) -> float:
-        return np.around(self.__angle, 3)
-
-    @angle.setter
-    def angle(self, value: float) -> None:
-        self.__angle = value
-
-    @property
-    def effective(self) -> float:
-        return np.around(self.__effective, 3)
-
-    @effective.setter
-    def effective(self, value: float) -> None:
-        self.__effective = value
+        real /= m
+        imag /= m
+        return complex(real, imag) / np.sqrt(2)

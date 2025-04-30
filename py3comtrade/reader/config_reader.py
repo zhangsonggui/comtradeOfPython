@@ -48,8 +48,8 @@ def read_file(file_path):
 def config_reader(cfg_file_name):
     cfg_content = read_file(cfg_file_name)
     _configure = Configure(cfg_file_name)
-    _configure.header = header_parser(cfg_content[0])
-    _configure.channel_num = channel_num_parser(cfg_content[1])
+    _configure.header = header_parser(cfg_content[0])  # 解析cfg文件头
+    _configure.channel_num = channel_num_parser(cfg_content[1])  # 解析通道数量
     analog_num = _configure.channel_num.analog_num
     for i in range(2, _cl := analog_num + 2):
         _configure.add_analog(analog_parser(cfg_content[i]))

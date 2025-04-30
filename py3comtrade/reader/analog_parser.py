@@ -31,4 +31,5 @@ def analog_parser(line):
         analog.primary = float(line[10])
         analog.secondary = float(line[11])
         analog.ps = PsType.from_string(line[12])
+        analog.ratio = float(line[10]) / float(line[11]) if float(line[11]) != 0 else 1.0
     return analog
