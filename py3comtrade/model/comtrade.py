@@ -26,7 +26,7 @@ class Comtrade(BaseModel):
     file_path: dict = Field(default=None, description="录波文件路径")
     configure: Configure = Field(default=None, description="Comtrade配置对象")
     data: DataReader = Field(default=None, description="Comtrade数据对象")
-    digital_change: list = Field(default_factory=lambda:[], description="变位开关量通道记录")
+    digital_change: list = Field(default=[], description="变位开关量通道记录")
 
     def get_raw_by_index(self, index: int, start_point: int = 0,
                          end_point: int = None) -> np.ndarray:
@@ -158,6 +158,7 @@ class Comtrade(BaseModel):
             col = self.data.digital_value[:, ch]
             if col.min() != col.max():
                 digital = self.configure.digitals[ch]
+                self.digital_change.append(self.configure.digitals[ch])
                 # 找出变化点：当前值与前一个值不同
                 change_indices = np.where(col[:-1] != col[1:])[0] + 1
                 # 获取变化后的值

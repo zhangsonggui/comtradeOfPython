@@ -84,8 +84,9 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.CFG):
 
 
 if __name__ == '__main__':
-    file_path = r'../../tests/data/xtz.cfg'
+    file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.cfg'
     comtrade = comtrade_reader(file_path, ReadMode.DAT)
     comtrade.analyze_digital_change_status()
     for dc in comtrade.digital_change:
         print(dc)
+        print(dc.get("change_status"))
