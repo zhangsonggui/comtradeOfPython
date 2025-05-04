@@ -26,7 +26,7 @@ class Comtrade(BaseModel):
     file_path: dict = Field(default=None, description="录波文件路径")
     configure: Configure = Field(default=None, description="Comtrade配置对象")
     data: DataReader = Field(default=None, description="Comtrade数据对象")
-    digital_change: list = Field(default_factory=[], description="变位开关量通道记录")
+    digital_change: list = Field(default_factory=list, description="变位开关量通道记录")
 
     def get_raw_by_index(self, index: int, start_point: int = 0,
                          end_point: int = None) -> np.ndarray:
@@ -215,10 +215,9 @@ class Comtrade(BaseModel):
         """
         if not isinstance(index, int):
             raise TypeError(f"模拟通道索引值类型错误！需要 int 类型，但收到 {type(index).__name__}。")
-        channel_num = self.configure.channel_num
-        max_index = channel_num.total_num
-        if not (0 <= index < max_index):
-            raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {max_index})")
+        analog_num = self.configure.channel_num.analog_num
+        if not (0 <= index < analog_num):
+            raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {analog_num})")
         return index
 
     def sample_point_validate(self, start_point: int, end_point: Optional[int]) -> tuple[int, int]:
