@@ -37,7 +37,7 @@ class Digital(Channel):
     def clear(self) -> None:
         """清除模型中所有字段"""
         super().clear()
-        for field in self.__fields__.keys():
+        for field in self.model_fields.keys():
             setattr(self, field, None)
 
     def __str__(self):

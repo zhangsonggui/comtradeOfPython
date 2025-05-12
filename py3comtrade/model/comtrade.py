@@ -20,6 +20,7 @@ from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.reader.data_reader import DataReader
+from py3comtrade.model.type.types import FloatArray32
 
 
 class Comtrade(BaseModel):
@@ -28,23 +29,13 @@ class Comtrade(BaseModel):
     data: DataReader = Field(default=None, description="Comtrade数据对象")
     digital_change: list = Field(default_factory=list, description="变位开关量通道记录")
 
-    def get_raw_by_index(self, index: int, start_point: int = 0,
-                         end_point: int = None) -> np.ndarray:
+    def read_data(self):
         """
-        获取指定通道、指定采样点的原始采样值
-        :param index: 通道索引值
-        :param start_point: 采样点开始位置
-        :param end_point: 采样点结束位置
-        :return: 原始采样值numpy数组
+        获取dat数据
         """
-        if index < self.configure.channel_num.analog_num:
-            return self.get_analog_raw_by_index(index, start_point, end_point)
-        elif index < self.configure.channel_num.digital_num:
-            return self.get_digital_raw_by_index(index, start_point, end_point)
-        else:
-            return self.get_digital_raw_by_index(index - self.configure.channel_num.analog_num, start_point, end_point)
-
-    def get_analog_raw_by_index(self, index: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
+        self.data = DataReader(file_path=self.file_path.get("dat_path"), sample=self.configure.sample)
+        self.data.read()
+    def get_raw_by_analog_index(self, index: int, start_point: int = 0, end_point: int = None) -> FloatArray32:
         """
         获取指定模拟量通道、指定采样点的原始采样值
         :param index: 模拟量通道索引值
@@ -55,6 +46,63 @@ class Comtrade(BaseModel):
         index = self.index_validate(index)
         start_point, end_point = self.sample_point_validate(start_point, end_point)
         return self.data.analog_value.T[index:index + 1, start_point:end_point + 1]
+
+    def get_raws_by_analog_index(self, index: list[int] = None, start_point: int = 0,
+                                 end_point: int = None) -> FloatArray32:
+        """
+        获取指定模拟量通道、指定采样点的原始采样值
+        :param index: 模拟量通道索引值数组
+        :param start_point: 采样点开始位置
+        :param end_point: 采样点结束位置
+        :return: 原始采样值numpy数组
+        """
+        index = list(range(self.configure.channel_num.analog_num)) if index is None else index
+        if 0 <= max(index) < (analog_num_max := self.configure.channel_num.analog_num):
+            start_point, end_point = self.sample_point_validate(start_point, end_point)
+            return self.data.analog_value.T[index, start_point:end_point + 1]
+        raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {analog_num_max})")
+
+
+    def get_instant_by_analog(self, analog: Analog, start_point: int = 0, end_point: int = None,
+                              cycle_num: float = None, mode: int = 1, primary: bool = False) -> FloatArray32:
+        """
+        获取指定通道、指定采样点的瞬时采样值
+        :param analog: 通道对象
+        :param start_point: 采样点开始位置,默认为0
+        :param end_point: 采样点结束位置,默认为None,代表全部采样点
+        :param cycle_num: 采样周期数,默认为None,代表全部采样周期
+        :param mode: 模式,默认为1,代表向后取值,0为前后取值,1为向前取值
+        :param primary: 是否输出主变比值,默认为False,代表输出变比值
+        :return: 瞬时值采样值numpy数组
+        """
+        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+        # 获取原始值
+        values = self.get_raw_by_analog_index(analog.index, start_point, end_point)
+        values = values[0] * analog.a + analog.b
+        if primary:
+            values = values if analog.ps == PsType.P else values * analog.ratio
+        else:
+            values = values / analog.ratio if analog.ps == PsType.P else values
+        return np.around(values, 3)
+
+    def get_instants_by_analog(self, analogs: list[Analog] = None, start_point: int = 0, end_point: int = None,
+                               cycle_num: float = None, mode: int = 1, primary: bool = False) -> FloatArray32:
+        """
+        获取指定通道列表、指定采样点的瞬时采样值
+        :param analogs: 通道对象列表
+        :param start_point: 采样点开始位置,默认为0
+        :param end_point: 采样点结束位置,默认为None,代表全部采样点
+        :param cycle_num: 采样周期数,默认为None,代表全部采样周期
+        :param mode: 模式,默认为1,代表向后取值,0为前后取值,1为向前取值
+        :param primary: 是否输出主变比值,默认为False,代表输出变比值
+        """
+        if analogs is None:
+            analogs = self.configure.analogs
+        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+        values = []
+        for analog in analogs:
+            values.append(self.get_instant_by_analog(analog, start_point, end_point, cycle_num, mode, primary))
+        return np.around(values, 3)
 
     def get_digital_raw_by_index(self, index: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
         """
@@ -91,28 +139,6 @@ class Comtrade(BaseModel):
             return self.get_instant_by_digital(channel, start_point, end_point, cycle_num, mode)
         else:
             raise TypeError("channel must be Analog or Digital")
-
-    def get_instant_by_analog(self, analog: Analog, start_point: int = 0, end_point: int = None,
-                              cycle_num: float = None, mode: int = 1, primary: bool = False) -> np.ndarray:
-        """
-        获取指定通道、指定采样点的瞬时采样值
-        :param analog: 通道对象
-        :param start_point: 采样点开始位置,默认为0
-        :param end_point: 采样点结束位置,默认为None,代表全部采样点
-        :param cycle_num: 采样周期数,默认为None,代表全部采样周期
-        :param mode: 模式,默认为1,代表向后取值,0为前后取值,1为向前取值
-        :param primary: 是否输出主变比值,默认为False,代表输出变比值
-        :return: 瞬时值采样值numpy数组
-        """
-        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
-        # 获取原始值
-        values = self.get_analog_raw_by_index(analog.index, start_point, end_point)
-        values = values[0] * analog.a + analog.b
-        if primary:
-            values = values if analog.ps == PsType.P else values * analog.ratio
-        else:
-            values = values / analog.ratio if analog.ps == PsType.P else values
-        return np.around(values, 3)
 
     def get_instant_by_digital(self, digital: Digital, start_point: int = 0, end_point: int = None,
                                cycle_num: float = None, mode: int = 1) -> np.ndarray:
@@ -168,28 +194,6 @@ class Comtrade(BaseModel):
                     "values": change_values
                 }
                 self.digital_change.append(digital)
-
-    def get_instant_by_analogs(self, analogs: list[Analog], start_point: int = 0, end_point: int = None,
-                               cycle_num: float = None, mode: int = 1, primary: bool = False) -> np.ndarray:
-        """
-        获取指定通道列表、指定采样点的瞬时采样值
-        :param analogs: 通道对象列表
-        :param start_point: 采样点开始位置,默认为0
-        :param end_point: 采样点结束位置,默认为None,代表全部采样点
-        :param cycle_num: 采样周期数,默认为None,代表全部采样周期
-        :param mode: 模式,默认为1,代表向后取值,0为前后取值,1为向前取值
-        :param primary: 是否输出主变比值,默认为False,代表输出变比值
-        """
-        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
-        instant_samples = []
-        for analog in analogs:
-            values = self.get_analog_raw_by_index(analog.index, start_point, end_point)
-            values = values * analog.a + analog.b
-            if primary:
-                instant_samples.append(values if analog.ps == PsType.P else values * analog.ratio)
-            else:
-                instant_samples.append(values / analog.ratio if analog.ps == PsType.P else values)
-        return np.array(instant_samples)
 
     def get_instant_samples_by_segment(self, segment_index, primary: bool = False,
                                        analog: Union[Analog, list[Analog]] = None):

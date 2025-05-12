@@ -20,130 +20,106 @@
 | 4  |    utils    | 工具模块，提供文件工具、角度计算、数据保存等工具                                  |                 
 | 5  |    merge    | 合并comtrade文件，仅实现相同采样频率的多个文件合并，后续增加频率归一化和采样点裁剪功            |  
 
-## 1.comtrade读取模块（comtrade_reader）
+## 1.模型（model）
 
-提供解析后的comtrade对象
+提供解析后的comtrade对象、配置文件对象、数据对象
+
+### 1.1 Comtrade对象
 
 > 属性
 
 - **配置信息对象（Configure）**：故障头、通道数量、模拟量通道、开关量通道、采样信息、故障时间和变比因子
-
 - **数据数组对象（DataReader）**：采样时间数组、模拟量数据列表、开关量数据列表
+- **变位开关量通道记录**：发生变位的开关量对象列表及变位采样点号和状态
 
 > 方法
 
-- **read**：初始化comtrade对象，根据读取文件参数解析解析cfg、dat、dmf文件，返回Comtrade对象
-
-- **get_analog_raw_by_index**：获取指定通道、指定采样点的原始采样值，返回numpy数组。
-
+- **get_raw_by_analog_index**：根据模拟量索引位置获取原始采样值，返回numpy数组。
+- **get_raws_by_analog_index**:根据模拟量所以你位置数组获取原始采样值，返回numpy数组。
 - **get_instant_by_analog**：获取指定单个通道、指定采样点或周波数的瞬时值，返回numpy数组。
-
-- **get_instant_by_analogs**：获取指定多个通道、指定采样点或周波数的瞬时值，返回numpy数组。
-
+- **get_instants_by_analog**：获取指定多个通道、指定采样点或周波数的瞬时值，返回numpy数组。
 - **get_instant_samples_by_segment**：获取指定通道、指定采样段的瞬时值，返回numpy数组。
 
-- **save**：将comtrade数据保存为二进制、文本、CSV、Excel等格式文件
+## 2. 读取模块（reader）
 
-## 2.数值计算模块（computation）
+根据文件名读取comtrade文件，返回Comtrade对象，具体子模块如下：
 
-### 2.1 单通道计算类（calcius）
+| 序号 |       文件名       |                 方法名                 |                 描述                  |
+|:--:|:---------------:|:-----------------------------------:|:-----------------------------------:|
+| 1  | comtrade_reader |           comtrade_reader           | 根据文件名和读取方式读取comtrade文件，返回Comtrade对象 |
+| 2  | comtrade_reader | get_files_with_different_extensions |        根据文件名获取同名所有文件，返回文件列表。        |
+| 3  |  config_reader  |            config_reader            |       根据文件名获取configuration对象        |
+| 4  |   dat_reader    |             DataReader              |   根据文件名和读取方式读取dat文件，返回Comtrade对象    |
+
+## 3.数值计算模块（computation）
+
+### 3.1 单通道计算类（calcius）
 
 通过传入一个或一个半周波的瞬时值数据，可进行快速傅里叶计算，提供向量值（复数形式）、有效值、角度等数值，同时提供消除直流分量的向量值复数（实部、虚部）。
 
-### 2.2 序分量计算模块（sequence）
+### 3.2 序分量计算模块（sequence）
 
 通过传入一组通道向量值，计算正序、负序、零序分量
 
-### 2.3 impedance阻抗计算
+### 3.3 impedance阻抗计算
 
 计算线路阻抗
 
-### 2.4 功率计算模块（power）
+### 3.4 功率计算模块（power）
 
 待完成
 
-## 3.工具模块
 
-### 3.1cfg_to_file
+
+## 4. 故障分析模块
+
+提供故障时刻分析、保护动作行为分析等。
+
+## 5.工具模块
+
+### 5.1cfg_to_file
 
 - generate_cfg_str：根据对象生成文本字符串
 
 - cfg_to_file：cfg对象保存为cfg文件
 
-### 3.2dat_to_file
+### 5.2dat_to_file
 
 - write_dat_ascii：生成ASCII格式dat文件
 - write_dat_binary：生成binary格式dat文件
 - write_dat_binary32：生成binary32格式dat文件
 
-### 3.3file_tools
+### 5.3file_tools
 
 - file_finder：扫描指定目录、指定后缀的所有文件，是否递归查找
 - split_path：分割文件路径为目录、文件名和后缀名
 - verify_file_validity：验证文件是否存在且非空
 - read_file_adaptive_encoding：尝试以GBK和UTF-8两种编码读取文件，以适应不确定的编码情况。
 
-## 4. 故障分析模块
+## 三、使用教程
+- python版本要求3.9以上，推荐使用3.11
+- 本项目采用uv进行项目管理，也可以使用其他工具进行管理，具体的依赖包见pyproject.toml
 
-提供故障时刻分析、保护动作行为分析等。
-
-## 三、安装教程
-
-### 3.1 Python版本要求
-
-3.8以上推荐3.11
-
-### 3.2 whl包安装
-
-> 本项目采用poetry管理，建议拉取项目后先生成whl二进制安装包,在安装新建项目的python环境中
-
-1. 克隆代码到本地
-2. 进入comtradeOfPython目录
-3. 安装poetry，打包项目whl包，目录为comtradeOfPython目录下dist
-4. 新建项目并创建虚拟环境，在虚拟环境中安装comtradeParser包
-5. 在新建项目下创建数据文件和main.py文件，直接实例化ComtradeParser类
+> 获取源代码
+ - github仓库  https://github.com/zhangsonggui/comtradeOfPython.git
+ - gitee仓库  https://gitee.com/zhangsonggui/comtradeOfPython.git
+> 获取安装包
 
 ```shell
-   git clone https://github.com/zhangyongjian/comtradeOfPython.git
-   cd comtradeOfPython
-   pip install poetry  # 安装poetry
-   python -m build  # 打包为whl包，或poetry build
-   
+    pip install py3comtrade
 ```
 
-### 3.3 源码安装
-
-> 本项目为独立模块，如不对源代码进行修改，建议使用3.2whl包安装方式
-
-1. 克隆代码到本地
-2. 安装依赖
-3. 在comtradeOfPython目录下创建数据文件和main.py文件，直接实例化ComtradeParser类
-
-```shell
-git clone https://github.com/zhangsonggui/comtradeOfPython.git
-cd comtradeOfPython
-pip install -r requirements.txt
-```
-
-### 3.4 pip仓库安装
-
-```shell
-pip install py3comtrade
-```
-
-## 四、使用说明
 
 > 使用示例
 
 ```python
-from py3comtrade.model.comtrade import Comtrade
-from py3comtrade.model.comtrade import ReadMode
+from py3comtrade.reader.comtrade_reader import comtrade_reader
 
 # 获取comtrade对象
 comtrade_file_path = 'comtrade_file_path'
-record = Comtrade(comtrade_file_path)
-# 读取数据
-record.read(read_mode=ReadMode.FULL)
+# 默认读取comtrade所有类型的文件，如果只读取cfg文件，可以使用read_mode参数ReadMode.CFG
+record = comtrade_reader(comtrade_file_path)
+
 # 获取变电站名称
 station_name = record.cfg.header.station_name
 # cfg为Configura对象，具体的方法可以查看帮助文档
@@ -159,5 +135,3 @@ record.get_instant_by_analog(analog)
 2. 新建 Feat_xxx 分支
 3. 提交代码
 4. 新建 Pull Request
-
-

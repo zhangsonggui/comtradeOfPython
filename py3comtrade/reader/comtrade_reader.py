@@ -11,18 +11,11 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import os
-from enum import Enum
 
 from py3comtrade.model.comtrade import Comtrade
+from py3comtrade.model.type.read_mode import ReadMode
 from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import DataReader
-
-
-class ReadMode(Enum):
-    FULL = (0, "comtrade所有文件")
-    CFG = (1, "仅读取cfg文件")
-    DAT = (2, "读取cfg和dat文件")
-    DMF = (3, "读取cfg和dmf文件")
 
 
 def get_files_with_different_extensions(_file_path: str) -> dict:
@@ -71,7 +64,13 @@ def get_files_with_different_extensions(_file_path: str) -> dict:
         }
 
 
-def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.CFG):
+def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL):
+    """
+    读取Comtrade数据
+    :param _file_path: 文件路径
+    :param read_mode: 读取模式
+    :return: Comtrade对象
+    """
     files = get_files_with_different_extensions(_file_path)
     _comtrade: Comtrade = Comtrade(file_path=files)
     _comtrade.configure = config_reader(files.get("cfg_path"))
@@ -89,4 +88,3 @@ if __name__ == '__main__':
     comtrade.analyze_digital_change_status()
     for dc in comtrade.digital_change:
         print(dc)
-        print(dc.get("change_status"))

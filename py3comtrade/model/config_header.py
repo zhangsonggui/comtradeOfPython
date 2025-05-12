@@ -26,7 +26,7 @@ class ConfigHeader(BaseModel):
 
     def clear(self):
         """清除模型中所有字段"""
-        for field in self.__fields__.keys():
+        for field in self.model_fields.keys():
             setattr(self, field, None)
 
     def __str__(self):
