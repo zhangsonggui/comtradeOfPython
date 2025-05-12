@@ -14,6 +14,7 @@ import chardet
 
 from py3comtrade.model.configure import Configure
 from py3comtrade.model.precision_time import PrecisionTime
+from py3comtrade.model.timemult import TimeMult
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.reader.analog_parser import analog_parser
 from py3comtrade.reader.channel_num_parser import channel_num_parser
@@ -67,7 +68,7 @@ def config_reader(cfg_file_name):
     _configure.sample.data_file_type = DataFileType.from_string(cfg_content[_cl + 2])
     _configure.sample.calc_sampling()
     if len(cfg_content) >= _cl + 3:
-        _configure.timemult = cfg_content[_cl + 3]
+        _configure.timemult = TimeMult(timemult=float(cfg_content[_cl + 3]))
     return _configure
 
 

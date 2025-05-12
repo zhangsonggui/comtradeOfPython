@@ -39,4 +39,4 @@ class PrecisionTime(BaseModel):
         self.time = datetime.now()
 
     def __str__(self):
-        return f"{self.time.strftime(time_format)}\n"
+        return f"{self.time.strftime(time_format)}"

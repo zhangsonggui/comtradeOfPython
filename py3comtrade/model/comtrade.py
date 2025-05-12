@@ -19,12 +19,13 @@ from py3comtrade.model.analog import Analog
 from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
 from py3comtrade.model.type.analog_enum import PsType
+from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.reader.data_reader import DataReader
-from py3comtrade.model.type.types import FloatArray32
+from py3comtrade.model.type.types import FilePath, FloatArray32, IntArray32
 
 
 class Comtrade(BaseModel):
-    file_path: dict = Field(default=None, description="录波文件路径")
+    file_path: FilePath = Field(default=None, description="录波文件路径")
     configure: Configure = Field(default=None, description="Comtrade配置对象")
     data: DataReader = Field(default=None, description="Comtrade数据对象")
     digital_change: list = Field(default_factory=list, description="变位开关量通道记录")
@@ -35,6 +36,7 @@ class Comtrade(BaseModel):
         """
         self.data = DataReader(file_path=self.file_path.get("dat_path"), sample=self.configure.sample)
         self.data.read()
+
     def get_raw_by_analog_index(self, index: int, start_point: int = 0, end_point: int = None) -> FloatArray32:
         """
         获取指定模拟量通道、指定采样点的原始采样值
@@ -43,8 +45,8 @@ class Comtrade(BaseModel):
         :param end_point: 采样点结束位置
         :return: 原始采样值numpy数组
         """
-        index = self.index_validate(index)
-        start_point, end_point = self.sample_point_validate(start_point, end_point)
+        index = self._validate_index(index)
+        start_point, end_point,_ = self.configure.get_cursor_sample_range(start_point, end_point)
         return self.data.analog_value.T[index:index + 1, start_point:end_point + 1]
 
     def get_raws_by_analog_index(self, index: list[int] = None, start_point: int = 0,
@@ -58,13 +60,12 @@ class Comtrade(BaseModel):
         """
         index = list(range(self.configure.channel_num.analog_num)) if index is None else index
         if 0 <= max(index) < (analog_num_max := self.configure.channel_num.analog_num):
-            start_point, end_point = self.sample_point_validate(start_point, end_point)
+            start_point, end_point,_ = self.configure.get_cursor_sample_range(start_point, end_point)
             return self.data.analog_value.T[index, start_point:end_point + 1]
         raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {analog_num_max})")
 
-
     def get_instant_by_analog(self, analog: Analog, start_point: int = 0, end_point: int = None,
-                              cycle_num: float = None, mode: int = 1, primary: bool = False) -> FloatArray32:
+                              cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD, primary: bool = False) -> FloatArray32:
         """
         获取指定通道、指定采样点的瞬时采样值
         :param analog: 通道对象
@@ -86,7 +87,7 @@ class Comtrade(BaseModel):
         return np.around(values, 3)
 
     def get_instants_by_analog(self, analogs: list[Analog] = None, start_point: int = 0, end_point: int = None,
-                               cycle_num: float = None, mode: int = 1, primary: bool = False) -> FloatArray32:
+                               cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD, primary: bool = False) -> FloatArray32:
         """
         获取指定通道列表、指定采样点的瞬时采样值
         :param analogs: 通道对象列表
@@ -104,7 +105,7 @@ class Comtrade(BaseModel):
             values.append(self.get_instant_by_analog(analog, start_point, end_point, cycle_num, mode, primary))
         return np.around(values, 3)
 
-    def get_digital_raw_by_index(self, index: int, start_point: int = 0, end_point: int = None) -> np.ndarray:
+    def get_digital_raw_by_index(self, index: int, start_point: int = 0, end_point: int = None) -> IntArray32:
         """
         获取指定开关量、指定采样点的原始采样值
         :param index: 开关量通道索引值
@@ -112,12 +113,12 @@ class Comtrade(BaseModel):
         :param end_point: 采样点结束位置,默认为None,代表全部采样点
         :return: 原始采样numpy数组
         """
-        index = self.index_validate(index)
+        index = self._validate_index(index)
         start_point, end_point = self.sample_point_validate(start_point, end_point)
         return self.data.digital_value.T[index:index + 1, start_point:end_point + 1]
 
     def get_instant_by_channel(self, channel: Union[Analog, Digital], start_point: int = 0,
-                               end_point: int = None, cycle_num: float = None, mode: int = 1,
+                               end_point: int = None, cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD,
                                primary: bool = False) -> np.ndarray:
         """
         获取指定通道、指定采样点的瞬时采样值
@@ -141,7 +142,7 @@ class Comtrade(BaseModel):
             raise TypeError("channel must be Analog or Digital")
 
     def get_instant_by_digital(self, digital: Digital, start_point: int = 0, end_point: int = None,
-                               cycle_num: float = None, mode: int = 1) -> np.ndarray:
+                               cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD) -> np.ndarray:
         """
         获取指定通道、指定采样点的瞬时采样值
         :param digital: 通道对象
@@ -154,7 +155,7 @@ class Comtrade(BaseModel):
         return self.get_digital_raw_by_index(digital.index, start_point, end_point)
 
     def get_instant_by_index(self, index: int, start_point: int = 0, end_point: int = None,
-                             cycle_num: float = None, mode: int = 1, primary: bool = False) -> np.ndarray:
+                             cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD, primary: bool = False) -> np.ndarray:
         """
         获取指定通道索引、指定采样点的瞬时采样值
         :param index: 通道索引值
@@ -213,7 +214,7 @@ class Comtrade(BaseModel):
             return self.get_instant_by_analogs(self.configure.analogs, segment.start_point, segment.end_point,
                                                primary)
 
-    def index_validate(self, index: int) -> int:
+    def _validate_index(self, index: int) -> int:
         """
         模拟量通道索引值合法性检测
         """
@@ -223,21 +224,3 @@ class Comtrade(BaseModel):
         if not (0 <= index < analog_num):
             raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {analog_num})")
         return index
-
-    def sample_point_validate(self, start_point: int, end_point: Optional[int]) -> tuple[int, int]:
-        """
-        采样点选取合法性检测
-        """
-        count = self.configure.sample.count
-        if not isinstance(start_point, int):
-            raise TypeError(f"采样点开始位置类型错误！需要 int 类型，但收到 {type(start_point).__name__}。")
-        if not (0 <= start_point < count):
-            raise ValueError(f"采样点开始位置超出录波采样范围！当前采样点位置: {start_point}, 允许范围: [0, {count})")
-        if end_point is not None:
-            if not isinstance(end_point, int):
-                raise TypeError(f"采样点结束位置类型错误！需要 int 类型，但收到 {type(end_point).__name__}。")
-            if not (start_point < end_point < count):
-                raise ValueError(
-                    f"采样点结束位置超出录波采样范围！当前采样点位置: {end_point}, 允许范围: ({start_point}, {count})")
-        end_point = self.configure.sample.count - 1 if end_point is None else end_point
-        return start_point, end_point

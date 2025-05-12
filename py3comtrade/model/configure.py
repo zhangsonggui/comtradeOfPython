@@ -21,6 +21,7 @@ from py3comtrade.model.digital import Digital
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
+from py3comtrade.model.type.mode_enum import SampleMode
 
 
 class Configure(BaseModel):
@@ -43,7 +44,7 @@ class Configure(BaseModel):
 
     def clear(self):
         """清除模型中所有字段"""
-        for field in self.__fields__.keys():
+        for field in self.model_fields.keys():
             setattr(self, field, None)
 
     def get_cursor_in_segment(self, cursor_site: int) -> int:
@@ -93,7 +94,7 @@ class Configure(BaseModel):
         return -1
 
     def get_cursor_sample_range(self, point1: int = 0, point2: int = None,
-                                cycle_num: float = None, mode: int = 1) -> tuple:
+                                cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD) -> tuple:
         """
         获取游标采样点位置开始、结束采样取值范围、采样点个数\n
         当end_point不为空且大于开始采样点，以end_point采样点为准，
@@ -102,30 +103,30 @@ class Configure(BaseModel):
         :param point1: 采样起始点，默认为0
         :param point2: 采样终止点，不含终止点，默认为None 代表全部采样点
         :param cycle_num: 采样周波数量，当end_point为空时生效
-        :param mode: 取值模式，仅在按周波取值时生效，默认为1：代表向采样点后方取值，-1：代表向采样点前方取值，0：代表向采样点两边取值
+        :param mode: 取值模式，仅在按周波取值时生效，默认为FORWARD向后取值
         :return: 返回一个元祖，分别代表开始采样点、结束采样点、采样点数量
         """
-        # 检查mode的有效性
-        if mode not in [-1, 0, 1]:
-            raise ValueError("mode参数错误,必须是-1,0,1")
-        if point1 < 0:
-            raise ValueError("point1参数错误,不能小于0")
-        if point2 is not None and point1 > point2:
-            raise ValueError("point2参数错误,不能小于point1")
+        if not isinstance(point1, int):
+            raise TypeError(f"采样点开始位置类型错误！需要 int 类型，但收到 {type(point1).__name__}。")
+        if not (0<=point1 < self.sample.count):
+            raise ValueError(f"采样点开始位置超出录波采样范围！当前采样点位置: {point1}, 允许范围: [0, {self.sample.count})")
         start_point = point1
-        # 当end_point不为空时，且end_point大于start_point时，以end_point为最后采样点
-        if point2 is not None and point2 > start_point:
-            end_point = point2
-        # 当point2不合法，且cycle_num都为空时，获取全部采样点
-        elif cycle_num is None:
-            end_point = self.sample.count - 1
-        # 当cycle_num不为空时，优先按周波计算采样点范围，当跨采样段取该段的最后一个值，如果向前取值开始采样点为该段的第一个值
-        else:
+        if cycle_num is not None:   # 当采样周波不为空时，直接按照周波数计算出采样点位置
             start_point, end_point = self.get_cursor_cycle_sample_range(point1, cycle_num, mode)
+        elif point2 is None:    # 当采样点结束位置为空时，默认采样点结束位置为采样点总数减1
+            end_point = self.sample.count - 1
+        else:
+            if not isinstance(point2, int):
+                raise TypeError(f"采样点结束位置类型错误！需要 int 类型，但收到 {type(point2).__name__}。")
+            if not (0<=point2 < self.sample.count):
+                raise ValueError(f"采样点结束位置超出录波采样范围！当前采样点位置: {point2}, 允许范围: [0, {self.sample.count})")
+            if point2 < point1:
+                raise ValueError("采样点结束位置小于采样点开始位置！")
+            end_point = point2
         samp_num = end_point - start_point
         return start_point, end_point, samp_num + 1
 
-    def get_cursor_cycle_sample_range(self, point1: int, cycle_num: float = 1, mode: int = 1):
+    def get_cursor_cycle_sample_range(self, point1: int, cycle_num: float = 1, mode: SampleMode = SampleMode.FORWARD):
         """
         获取游标采样点所在周波获取采样取值范围
         :param point1:游标位置
@@ -143,10 +144,10 @@ class Configure(BaseModel):
         else:  # 当每周波采样数为奇数时，取周波数的倍数
             samp_num = int(cycle_num * point1_cycle_samp)
         # 根据取值模式，计算采样点
-        if mode == -1:
+        if mode == SampleMode.BACKWARD:
             point1 = point1 - samp_num if point1 >= samp_num else 0
             point2 = point1 + samp_num
-        elif mode == 0:
+        elif mode == SampleMode.CENTERED:
             offset_point = samp_num // 2
             point1 = point1 - offset_point if point1 >= offset_point else 0
             point2 = point1 + samp_num
@@ -154,7 +155,7 @@ class Configure(BaseModel):
             point2 = point1 + samp_num
         # 判断两点采样频率是否相等
         if not self.equal_two_point_samp_rate(point1, point2):
-            if mode == 1:
+            if mode == SampleMode.FORWARD:
                 point2 = self.sample.nrates[point1_segment].end_point - 1
                 point1 = point2 - samp_num
             else:

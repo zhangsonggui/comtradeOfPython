@@ -9,21 +9,24 @@ def generate_cfg_str(cfg_obj: Configure):
     @param cfg_obj: cfg对象
     @return: cfg文件字符串
     """
-    header = cfg_obj.header.__str__() + "\n"
-    channel_num = cfg_obj.channel_num.__str__() + "\n"
-    analog_channels_str = ''
+    cfg_content = ''
+    cfg_content += str(cfg_obj.header) + "\n"
+    cfg_content += str(cfg_obj.channel_num) + "\n"
     for ac in cfg_obj.analogs:
-        analog_channels_str += ac.__str__() + '\n'
-    digital_channels_str = ''
+        cfg_content += str(ac) + '\n'
     for dc in cfg_obj.digitals:
-        digital_channels_str += dc.__str__ + '\n'
+        cfg_content += str(dc) + '\n'
+    cfg_content += str(cfg_obj.sample) + "\n"
+    cfg_content += str(cfg_obj.file_start_time) + "\n"
+    cfg_content += str(cfg_obj.fault_time) + "\n"
+    cfg_content += str(cfg_obj.timemult)
 
-    return header + channel_num + analog_channels_str + digital_channels_str
+    return cfg_content
 
 
-def cfg_to_file(cfg: Configure, filename: str):
+def configure_to_file(cfg: Configure, filename: str):
     """
-    将cfg文件写入文件
+    将cfg对象写入文件
     :param cfg: cfg文件对象
     :param filename: 文件名
     """

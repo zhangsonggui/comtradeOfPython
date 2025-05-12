@@ -58,14 +58,11 @@ class ConfigSample(BaseModel):
     def __len__(self):
         return len(self.nrates)
 
-    def __sample_to_string(self):
-        samplt_str = ""
-        for nrate in self.nrates:
-            samplt_str += nrate.__str__() + "\n"
-        return samplt_str
-
     def __str__(self):
-        return f"{self.freg}\n{str(self.nrates)}\n{self.__sample_to_string}"
+        sample_str = f"{str(self.freg)}\n{str(self.nrate_num)}"
+        for nrate in self.nrates:
+            sample_str += "\n" + nrate.__str__()
+        return sample_str
 
     def calc_sampling(self):
         # 计算各采样段隐含信息

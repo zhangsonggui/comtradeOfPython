@@ -18,3 +18,9 @@ class ReadMode(Enum):
     CFG = (1, "仅读取cfg文件")
     DAT = (2, "读取cfg和dat文件")
     DMF = (3, "读取cfg和dmf文件")
+
+
+class SampleMode(Enum):
+    CENTERED = (0, "以当前点为中心，前后各取数据。")  # 表示以当前点为中心，前后各取数据。
+    FORWARD = (1, "表示从起点向后取数据。")
+    BACKWARD = (-1, "表示从终点向前取数据。")

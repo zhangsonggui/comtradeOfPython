@@ -18,3 +18,6 @@ class TimeMult(BaseModel):
 
     def clear(self):
         self.timemult = 1.0
+
+    def __str__(self):
+        return str(self.timemult)

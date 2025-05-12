@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.reader.config_reader import config_reader
 
 
@@ -39,11 +40,11 @@ class TestConfigReader(unittest.TestCase):
         self.assertEqual((0, 127, 128), self.xtz.get_cursor_sample_range(0, cycle_num=2))
         # 测试传递游标位置和周波位置，超越游标位置所在段的最后一个和点和第一个点
         self.assertEqual((1, 64, 64), self.xtz.get_cursor_sample_range(1, cycle_num=1))
-        self.assertEqual((1216, 1279, 64), self.xtz.get_cursor_sample_range(1270, cycle_num=1, mode=1))
-        self.assertEqual((0, 63, 64), self.xtz.get_cursor_sample_range(10, cycle_num=1, mode=-1))
-        self.assertEqual((64, 127, 64), self.xtz.get_cursor_sample_range(127, cycle_num=1, mode=-1))
-        self.assertEqual((0, 63, 64), self.xtz.get_cursor_sample_range(10, cycle_num=1, mode=0))
-        self.assertEqual((69, 132, 64), self.xtz.get_cursor_sample_range(100, cycle_num=1, mode=0))
+        self.assertEqual((1216, 1279, 64), self.xtz.get_cursor_sample_range(1270, cycle_num=1, mode=SampleMode.FORWARD))
+        self.assertEqual((0, 63, 64), self.xtz.get_cursor_sample_range(10, cycle_num=1, mode=SampleMode.BACKWARD))
+        self.assertEqual((64, 127, 64), self.xtz.get_cursor_sample_range(127, cycle_num=1, mode=SampleMode.BACKWARD))
+        self.assertEqual((0, 63, 64), self.xtz.get_cursor_sample_range(10, cycle_num=1, mode=SampleMode.CENTERED))
+        self.assertEqual((69, 132, 64), self.xtz.get_cursor_sample_range(100, cycle_num=1, mode=SampleMode.CENTERED))
 
     def test_get_analog_by_index(self):
         analog = self.xtz.get_analog_by_index(0)

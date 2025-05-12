@@ -13,12 +13,12 @@
 import os
 
 from py3comtrade.model.comtrade import Comtrade
-from py3comtrade.model.type.read_mode import ReadMode
+from py3comtrade.model.type.mode_enum import ReadMode
 from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import DataReader
+from py3comtrade.model.type.types import FilePath
 
-
-def get_files_with_different_extensions(_file_path: str) -> dict:
+def get_files_with_different_extensions(_file_path: str) -> FilePath:
     """
     获取指定路径下的所有文件，并返回具有不同后缀的文件列表。
     :param _file_path: 指定路径
@@ -50,18 +50,10 @@ def get_files_with_different_extensions(_file_path: str) -> dict:
             cfg_path = os.path.join(dir_path, f"{name}.cfg")
             dat_path = os.path.join(dir_path, f"{name}.dat")
             dmf_path = os.path.join(dir_path, f"{name}.dmf")
-        return {
-            "cfg_path": cfg_path if os.path.exists(cfg_path) else None,
-            "dat_path": dat_path if os.path.exists(dat_path) else None,
-            "dmf_path": dmf_path if os.path.exists(dmf_path) else None
-        }
+        return FilePath(cfg_path=cfg_path, dat_path=dat_path, dmf_path=dmf_path)
     except (TypeError, ValueError) as e:
         print(f"文件名解析失败!!!", e)
-        return {
-            "cfg_path": None,
-            "dat_path": None,
-            "dmf_path": None
-        }
+        return FilePath(cfg_path="", dat_path="", dmf_path="")
 
 
 def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL):

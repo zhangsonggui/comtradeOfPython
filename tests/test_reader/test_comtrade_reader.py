@@ -13,60 +13,29 @@ class TestComtrade(unittest.TestCase):
 
     def test_index_validate_ValidIndex_ReturnsIndex(self):
         index = 3
-        result = self.comtrade.index_validate(index)
+        result = self.comtrade._validate_index(index)
         self.assertEqual(result, index)
 
     def test_index_validate_NonIntIndex_RaisesTypeError(self):
         with self.assertRaises(TypeError):
-            self.comtrade.index_validate("3")  # 非整数索引
+            self.comtrade._validate_index("3")  # 非整数索引
 
     def test_index_validate_IndexLessThanZero_RaisesValueError(self):
         with self.assertRaises(ValueError):
-            self.comtrade.index_validate(-1)
+            self.comtrade._validate_index(-1)
 
     def test_index_validate_IndexEqualToAnalogNum_RaisesValueError(self):
         with self.assertRaises(ValueError):
-            self.comtrade.index_validate(48)  # 等于analog_num
+            self.comtrade._validate_index(48)  # 等于analog_num
 
     def test_index_validate_IndexGreaterThanAnalogNum_RaisesValueError(self):
         with self.assertRaises(ValueError):
-            self.comtrade.index_validate(49)
-
-    def test_sample_point_validate_ValidStartAndEndPoints_ReturnsPoints(self):
-        start_point = 10
-        end_point = 20
-        result = self.comtrade.sample_point_validate(start_point, end_point)
-        self.assertEqual(result, (start_point, end_point))
-
-    def test_sample_point_validate_ValidStartPointAndNoneEnd_ReturnsPoints(self):
-        start_point = 10
-        result = self.comtrade.sample_point_validate(start_point, None)
-        self.assertEqual(result, (start_point, self.comtrade.configure.sample.count - 1))
-
-    def test_sample_point_validate_NonIntegerStartPoint_RaisesTypeError(self):
-        with self.assertRaises(TypeError):
-            self.comtrade.sample_point_validate("not an int", 20)
-
-    def test_sample_point_validate_NonIntegerEndPoint_RaisesTypeError(self):
-        with self.assertRaises(TypeError):
-            self.comtrade.sample_point_validate(10, "not an int")
-
-    def test_sample_point_validate_StartPointOutOfRange_RaisesValueError(self):
-        with self.assertRaises(ValueError):
-            self.comtrade.sample_point_validate(-1, 20)
-
-    def test_sample_point_validate_EndPointOutOfRange_RaisesValueError(self):
-        with self.assertRaises(ValueError):
-            self.comtrade.sample_point_validate(0, 3077)
-
-    def test_sample_point_validate_EndPointLessThanOrEqualToStartPoint_RaisesValueError(self):
-        with self.assertRaises(ValueError):
-            self.comtrade.sample_point_validate(20, 10)
+            self.comtrade._validate_index(49)
 
     def test_get_raw_samples_by_index(self):
-        ch1_ysz = self.comtrade.get_analog_raw_by_index(1)
+        ch1_ysz = self.comtrade.get_raw_by_analog_index(1)
         self.assertEqual(3077, len(ch1_ysz[0]))
-        ch2_ysz = self.comtrade.get_analog_raw_by_index(2, 0, 3076)
+        ch2_ysz = self.comtrade.get_raw_by_analog_index(2, 0, 3076)
         self.assertEqual(3077, len(ch2_ysz[0]))
 
     def test_get_instant_samples_by_analog(self):
