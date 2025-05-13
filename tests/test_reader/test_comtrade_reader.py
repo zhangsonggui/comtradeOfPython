@@ -50,22 +50,3 @@ class TestComtrade(unittest.TestCase):
         self.assertEqual(0.136, ch11_ssz[0])
         self.assertEqual(0.327, ch11_ssz[600])
         self.assertEqual(0.682, ch11_ssz[1281])
-
-    def test_get_instant_samples_by_index(self):
-        ch1_ssz = self.comtrade.get_instant_by_index(0, primary=False)
-        self.assertEqual(-84.691, ch1_ssz[0])
-        self.assertEqual(65.465, ch1_ssz[602])
-        self.assertEqual(85.316, ch1_ssz[1282])
-
-        ch11_ssz = self.comtrade.get_instant_by_index(10, primary=False)
-        self.assertEqual(0.136, ch11_ssz[0])
-        self.assertEqual(0.327, ch11_ssz[600])
-        self.assertEqual(0.682, ch11_ssz[1281])
-    #
-    # def test_calcius(self):
-    #     self.comtrade.read(ReadMode.DAT)
-    #     analog = self.comtrade.cfg.get_analog_by_an(1)
-    #     calcius = self.comtrade.calc_channel_data(analog, site_point=0, cycle_num=1, mode=1)
-    #     self.assertEqual(complex(-5.93, -59.897), calcius.phasor)
-    #     self.assertEqual(60.19, calcius.effective)
-    #     self.assertEqual(-95.654, calcius.angle)

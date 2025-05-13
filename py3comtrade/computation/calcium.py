@@ -3,7 +3,7 @@
 import numpy as np
 from pydantic import Field, BaseModel
 
-from py3comtrade.utils import math_polar_rect
+from py3comtrade.computation import math_polar_rect
 
 
 class Calcium(BaseModel):

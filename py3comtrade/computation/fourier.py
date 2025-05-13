@@ -28,15 +28,24 @@ def dft_rx(vs: np.ndarray, num_samples: int, k: int) -> complex:
         raise ValueError("频率k必须是非负整数且小于采样点数")
     # 计算中点值，明确使用二进制除法
     m = num_samples // 2
-    real = 0.0
-    imag = 0.0
-    for i in range(num_samples):
-        real += vs[i] * np.sin(i * k * np.pi / m)
-        imag += vs[i] * np.cos(i * k * np.pi / m)
+    # 生成索引数组i
+    i_values = np.arange(num_samples)
 
-    real /= m
-    imag /= m
-    return complex(real, imag)/np.sqrt(2)
+    # 计算角度theta
+    theta = (i_values * k) * np.pi / m
+
+    # 向量化的sin和cos计算，并与vs做点积
+    real_part = vs.dot(np.sin(theta)) / m
+    imag_part = vs.dot(np.cos(theta)) / m
+    # real = 0.0
+    # imag = 0.0
+    # for i in range(num_samples):
+    #     real += vs[i] * np.sin(i * k * np.pi / m)
+    #     imag += vs[i] * np.cos(i * k * np.pi / m)
+    #
+    # real /= m
+    # imag /= m
+    return complex(real_part, imag_part)/np.sqrt(2)
 
 
 def dft_exp_decay(vs: np.ndarray, sample_rate: int = None):
