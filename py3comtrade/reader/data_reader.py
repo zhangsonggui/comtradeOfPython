@@ -61,7 +61,7 @@ class DataReader(BaseModel):
         if DataFileType.ASCII == self.sample.data_file_type.value:
             self.read_ascii()
         else:
-            self.read_binary()
+            self.parse_binary()
 
     def read_ascii(self):
         with open(self.file_path, 'r') as f:
@@ -82,11 +82,31 @@ class DataReader(BaseModel):
                 self.analog_value[i:] = sample_struct[2:2 + self.sample.channel_num.analog_num]
                 self.digital_value[i:] = digital_split(sample_struct[2 + self.sample.channel_num.analog_num:])
 
+    def parse_binary(self):
+        # 自定义 dtype 结构
+        dt = np.dtype([
+            ('timestamp', np.int32, 2),  # 2个int作为时间戳
+            ('analog', np.int16, self.sample.channel_num.analog_num),  # 96个short作为模拟量
+            ('digital', np.uint16, self.sample.channel_num.digital_num//16),  # 12个unsigned short作为开关量
+        ])
+
+        # 一次性读取并解析
+        with open(self.file_path, 'rb') as f:
+            buffer = f.read()
+
+        data = np.frombuffer(buffer, dtype=dt)
+
+        # 提取各部分
+        self.sample_time = data['timestamp']
+        self.analog_value = data['analog']
+        self.digital_value = np.unpackbits(data['digital'].view(np.uint8), bitorder='little',axis=-1)
+
 
 if __name__ == '__main__':
-    cfg_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.cfg'
-    dat_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.dat'
+    cfg_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\hjz.cfg'
+    dat_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\hjz.dat'
     configure = config_reader(cfg_file_name)
     dat_content = DataReader(file_path=dat_file_name, sample=configure.sample)
+    dat_content.parse_binary()
     dat_content.read()
     print('解析完毕')

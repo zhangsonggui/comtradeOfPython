@@ -26,6 +26,7 @@ class Channel(BaseModel):
                              description="通道相别标识，可选，字母、数字，最小0个字符，最大长度2个字符")
     ccbm: str = Field(default="", description="被监视的电路元件，可选，字母、数字，最小0个字符，最大长度64个字符")
     index: int = Field(default=0, description="通道索引号")
+    instants: list[float] = Field(default=list, description="通道数值")
 
     def clear(self) -> None:
         """清除模型中所有字段"""
