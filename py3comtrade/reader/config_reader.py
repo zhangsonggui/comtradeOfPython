@@ -46,7 +46,7 @@ def read_file(file_path):
         return content
 
 
-def config_reader(cfg_file_name):
+def config_reader(cfg_file_name)->Configure:
     cfg_content = read_file(cfg_file_name)
     _configure = Configure(cfg_file_name)
     _configure.header = header_parser(cfg_content[0])  # 解析cfg文件头
@@ -67,7 +67,7 @@ def config_reader(cfg_file_name):
     _configure.fault_time = PrecisionTime(cfg_content[_cl + 1])
     _configure.sample.data_file_type = DataFileType.from_string(cfg_content[_cl + 2])
     _configure.sample.calc_sampling()
-    if len(cfg_content) >= _cl + 3:
+    if len(cfg_content) > _cl + 3:
         _configure.timemult = TimeMult(timemult=float(cfg_content[_cl + 3]))
     return _configure
 
