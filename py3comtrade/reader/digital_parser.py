@@ -12,10 +12,21 @@ def digital_parser(_line_str):
     :param _line_str: 配置文件中一行数字通道字符串
     :return: 数字通道对象
     """
-    _line_str = _line_str.strip().split(",")
-    index = _line_str[0]
-    name = _line_str[1]
-    phase = PhaseCode.from_string(_line_str[2])
-    ccbm = _line_str[3]
-    status = Contact.from_string(_line_str[4])
-    return Digital(index, name, phase, ccbm, status)
+    line = _line_str.strip()
+    if not line:
+        raise ValueError("开关量信息为空")
+    parts = line.split(",")
+
+    if len(parts) ==3:
+        index = parts[0]
+        name = parts[1]
+        status = Contact.from_string(parts[2])
+        return Digital(cfg_index=index, name=name, contact=status)
+    if len(parts) == 5:
+        index = parts[0]
+        name = parts[1]
+        phase = PhaseCode.from_string(parts[2])
+        ccbm = parts[3]
+        status = Contact.from_string(parts[4])
+        return Digital(cfg_index=index, name=name, phase=phase, ccbm=ccbm, contact=status)
+    raise ValueError("数字通道信息格式错误")

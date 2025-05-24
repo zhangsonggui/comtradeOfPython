@@ -23,16 +23,8 @@ class Digital(Channel):
     开关量通道类
     """
     contact: Contact = Field(default=Contact.NORMALLYOPEN, description="状态通道正常状态")
-    change_status: DigitalChangeStatus = Field(default=DigitalChangeStatus(timestamp=[],  status=[]), description="变位记录")
-
-    def __init__(self,
-                 cfg_index: int,
-                 name: str,
-                 phase: str = None,
-                 ccbm: str = None,
-                 contact: Contact = Contact.NORMALLYOPEN):
-        super().__init__(cfg_index=cfg_index, name=name, phase=phase, ccbm=ccbm)
-        self.contact = contact
+    change_status: DigitalChangeStatus = Field(default=DigitalChangeStatus(timestamp=[], status=[]),
+                                               description="变位记录")
 
     def clear(self) -> None:
         """清除模型中所有字段"""
