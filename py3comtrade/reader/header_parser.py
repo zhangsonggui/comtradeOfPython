@@ -15,6 +15,14 @@
 from py3comtrade.model.config_header import ConfigHeader
 
 
-def header_parser(line):
-    line = line.strip().split(",")
-    return ConfigHeader(station_name=line[0], recorder_name=line[1], version=line[2])
+def header_parser(line) -> ConfigHeader:
+    """解析配置头信息"""
+    line = line.strip()
+    if not line:
+        raise ValueError("配置头信息为空")
+    parts = line.split(",")
+    if len(parts) < 2:
+        raise ValueError("配置头信息格式错误")
+    if len(parts) == 3:
+        return ConfigHeader(station_name=parts[0], recorder_name=parts[1], version=parts[2])
+    return ConfigHeader(station_name=parts[0], recorder_name=parts[1])
