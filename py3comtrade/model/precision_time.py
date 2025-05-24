@@ -14,18 +14,25 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-time_format = "%d/%m/%Y,%H:%M:%S.%f"  # 时间格式字符串
 
+time_formats = [
+    "%d/%m/%Y,%H:%M:%S.%f",  # 四位年
+    "%m/%d/%y,%H:%M:%S.%f",  # 两位年
+    "%Y-%m-%d %H:%M:%S",     # 另一种常见格式
+]
 
 def format_time(time):
     if isinstance(time, datetime):
         return time
 
-    try:
-        str_time = time.strip()
-        return datetime.strptime(str_time, time_format)
-    except ValueError as e:
-        raise ValueError(f"时间格式错误:{e}")
+    str_time = time.strip()
+    for fmt in time_formats:
+        try:
+            return datetime.strptime(str_time, fmt)
+        except ValueError:
+            continue
+    raise ValueError(f"时间格式错误")
+
 
 
 class PrecisionTime(BaseModel):
@@ -39,4 +46,4 @@ class PrecisionTime(BaseModel):
         self.time = datetime.now()
 
     def __str__(self):
-        return f"{self.time.strftime(time_format)}"
+        return f"{self.time.strftime(time_formats[0])}"
