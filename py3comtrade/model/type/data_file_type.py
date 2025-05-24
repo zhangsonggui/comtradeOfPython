@@ -29,6 +29,6 @@ class DataFileType(BaseEnum):
         """
         string = string.strip().upper()
         for ft in cls:
-            if string == ft.get_code:
+            if string == ft.get_code():
                 return ft
         return cls.BINARY
