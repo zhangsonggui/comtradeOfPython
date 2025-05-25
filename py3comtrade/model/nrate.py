@@ -11,7 +11,7 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class Nrate(BaseModel):
@@ -27,7 +27,7 @@ class Nrate(BaseModel):
     waste_time: int = Field(default=0, description="该采样段时间")
     end_time: int = Field(default=0, description="该段结束时间")
 
-    @validator('count')
+    @field_validator('count')
     def validate_count(cls, v, values):
         if 'end_point' in values and 'start_point' in values:
             return values['end_point'] - values['start_point']
