@@ -38,9 +38,6 @@ class Configure(BaseModel):
     fault_time: PrecisionTime = Field(default=None, description="故障时间")
     timemult: TimeMult = TimeMult(timemult=1)
 
-    def __init__(self, file_path):
-        super().__init__()
-        self.__file_path = file_path
 
     def clear(self):
         """清除模型中所有字段"""

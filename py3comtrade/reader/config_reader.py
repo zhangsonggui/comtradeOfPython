@@ -20,7 +20,7 @@ from py3comtrade.reader.analog_parser import analog_parser
 from py3comtrade.reader.channel_num_parser import channel_num_parser
 from py3comtrade.reader.digital_parser import digital_parser
 from py3comtrade.reader.header_parser import header_parser
-from py3comtrade.reader.nrates_parser import create_nrates, create_nrate
+from py3comtrade.reader.nrates_parser import create_nrate, create_nrates
 
 
 def detect_file_encoding(file_path):
@@ -48,27 +48,28 @@ def read_file(file_path):
 
 def config_reader(cfg_file_name)->Configure:
     cfg_content = read_file(cfg_file_name)
-    _configure = Configure(cfg_file_name)
-    _configure.header = header_parser(cfg_content[0])  # 解析cfg文件头
-    _configure.channel_num = channel_num_parser(cfg_content[1])  # 解析通道数量
-    analog_num = _configure.channel_num.analog_num
-    for i in range(2, _cl := analog_num + 2):
-        _configure.add_analog(analog_parser(cfg_content[i]))
-    for i in range(_cl, _configure.channel_num.total_num + 2):
-        _configure.add_digital(digital_parser(cfg_content[i]))
-    _configure.sample = create_nrates(cfg_content[_configure.channel_num.total_num + 2],
-                                      cfg_content[_configure.channel_num.total_num + 3])
-    for i in range(_cl := _configure.channel_num.total_num + 4, _configure.sample.nrate_num + _cl):
-        _configure.sample.add_nrate(create_nrate(cfg_content[i]))
-    _configure.sample.channel_num = _configure.channel_num
-    _configure.sample.calc_sampling()
-    _cl = _configure.sample.nrate_num + _cl
-    _configure.file_start_time = PrecisionTime(cfg_content[_cl])
-    _configure.fault_time = PrecisionTime(cfg_content[_cl + 1])
-    _configure.sample.data_file_type = DataFileType.from_string(cfg_content[_cl + 2])
-    _configure.sample.calc_sampling()
-    if len(cfg_content) > _cl + 3:
-        _configure.timemult = TimeMult(timemult=float(cfg_content[_cl + 3]))
+    _configure = Configure()
+    try:
+        _configure.header = header_parser(cfg_content.pop(0))  # 解析cfg文件头
+        _configure.channel_num = channel_num_parser(cfg_content.pop(0))  # 解析通道数量
+        for i in range(_configure.channel_num.analog_num):
+            _configure.add_analog(analog_parser(cfg_content.pop(0)))
+        for i in range(_configure.channel_num.digital_num):
+            _configure.add_digital(digital_parser(cfg_content.pop(0)))
+        _configure.sample = create_nrates(cfg_content.pop(0),
+                                          cfg_content.pop(0))
+        for i in range(_configure.sample.nrate_num):
+            _configure.sample.add_nrate(create_nrate(cfg_content.pop(0)))
+        _configure.sample.channel_num = _configure.channel_num
+        _configure.sample.calc_sampling()
+        _configure.file_start_time = PrecisionTime(cfg_content.pop(0))
+        _configure.fault_time = PrecisionTime(cfg_content.pop(0))
+        _configure.sample.data_file_type = DataFileType.from_string(cfg_content.pop(0))
+        _configure.sample.calc_sampling()
+        if cfg_content:
+            _configure.timemult = TimeMult(timemult=float(cfg_content.pop(0)))
+    except IndexError:
+        raise ValueError("cfg文件格式错误")
     return _configure
 
 

@@ -10,7 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from typing import Union, Optional
+from typing import Union
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -20,8 +20,8 @@ from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.mode_enum import SampleMode
-from py3comtrade.reader.data_reader import DataReader
 from py3comtrade.model.type.types import FilePath, FloatArray32, IntArray32
+from py3comtrade.reader.data_reader import DataReader
 
 
 class Comtrade(BaseModel):
@@ -155,7 +155,7 @@ class Comtrade(BaseModel):
         :param cycle_num: 采样周期数,默认为None,代表全部采样周期
         :param mode: 模式,默认为1,代表向后取值,0为前后取值,1为向前取值
         """
-        return self.get_instant_by_digital_index(digital.index, start_point, end_point,cycle_num,mode)
+        return self.get_instant_by_digital_index(digital.index, start_point, end_point, cycle_num, mode)
 
     def get_instant_by_multi_digital(self, digitals: list[Digital] = None, start_point: int = 0, end_point: int = None,
                                      cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD) -> IntArray32:
@@ -170,7 +170,7 @@ class Comtrade(BaseModel):
         digital_num_max = self.configure.channel_num.digital_num
         index = list(range(digital_num_max)) if digitals is None else [d.index for d in digitals if hasattr(d, 'index')]
         if 0 <= max(index) < digital_num_max:
-            start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point,cycle_num, mode)
+            start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
             return self.data.digital_value.T[index, start_point:end_point + 1]
         raise ValueError(f"开关量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {digital_num_max})")
 
@@ -193,7 +193,7 @@ class Comtrade(BaseModel):
                 self.digital_change.append(digital)
 
     def get_instant_by_segment(self, segment_index, primary: bool = False,
-                                       analog: Union[Analog, list[Analog]] = None):
+                               analog: Union[Analog, list[Analog]] = None):
         """
         获取指定采样段、指定通道的瞬时采样值
         :param segment_index: 分段索引
@@ -205,10 +205,10 @@ class Comtrade(BaseModel):
         if isinstance(analog, Analog):
             return self.get_instant_by_analog(analog, segment.start_point, segment.end_point, primary)
         if isinstance(analog, list):
-            return self.get_instant_by_analogs(analog, segment.start_point, segment.end_point, primary)
+            return self.get_instant_by_multi_analog(analog, segment.start_point, segment.end_point, primary)
         if analog is None:
-            return self.get_instant_by_analogs(self.configure.analogs, segment.start_point, segment.end_point,
-                                               primary)
+            return self.get_instant_by_multi_analog(self.configure.analogs, segment.start_point, segment.end_point,
+                                                    primary)
 
     def _validate_index(self, index: int, is_analog: bool = True) -> int:
         """

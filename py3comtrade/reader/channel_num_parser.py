@@ -15,4 +15,10 @@ from py3comtrade.model.channel_num import ChannelNum
 
 def channel_num_parser(line):
     total_num, analog_num, digital_num = line.strip().split(",")
-    return ChannelNum(total_num, analog_num, digital_num)
+    analog_num = str_to_int(analog_num)
+    digital_num = str_to_int(digital_num)
+    return ChannelNum(total_num=total_num, analog_num=analog_num, digital_num=digital_num)
+
+
+def str_to_int(string):
+    return int("".join(filter(str.isdigit, string)))

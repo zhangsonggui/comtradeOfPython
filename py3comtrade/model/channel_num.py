@@ -11,8 +11,6 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 
-from typing import Union
-
 from pydantic import BaseModel, Field
 
 
@@ -25,23 +23,10 @@ class ChannelNum(BaseModel):
     analog_num: int = Field(default=0, description="模拟量通道数")
     digital_num: int = Field(default=0, description="开关量通道数")
 
-    def __init__(self, total_num: Union[str, int], analog_num: Union[str, int], digital_num: Union[str, int]):
-        super().__init__()
-        self.total_num = self.__format_channel_num(total_num)
-        self.analog_num = self.__format_channel_num(analog_num)
-        self.digital_num = self.__format_channel_num(digital_num)
-
     def clear(self):
         """清除模型中所有字段"""
         for field in self.model_fields.keys():
-            setattr(self, field, None)
-
-    def __format_channel_num(self, value: Union[str, int]) -> int:
-        if isinstance(value, str):
-            return int("".join(filter(str.isdigit, value)))
-        if isinstance(value, int):
-            return self.__total_num
-        return 0
+            setattr(self, field, 0)
 
     def __str__(self):
         return f"{self.total_num},{self.analog_num}A,{self.digital_num}D"

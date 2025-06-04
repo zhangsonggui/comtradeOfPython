@@ -14,9 +14,10 @@ import os
 
 from py3comtrade.model.comtrade import Comtrade
 from py3comtrade.model.type.mode_enum import ReadMode
+from py3comtrade.model.type.types import FilePath
 from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import DataReader
-from py3comtrade.model.type.types import FilePath
+
 
 def get_files_with_different_extensions(_file_path: str) -> FilePath:
     """
@@ -68,7 +69,7 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL):
     _comtrade.configure = config_reader(files.get("cfg_path"))
     if read_mode in [ReadMode.DAT, ReadMode.FULL]:
         _comtrade.data = DataReader(file_path=files.get("dat_path"), sample=_comtrade.configure.sample)
-        _comtrade.data.read()
+        _comtrade.read_data()
     if read_mode in [ReadMode.DMF, ReadMode.FULL]:
         pass
     return _comtrade

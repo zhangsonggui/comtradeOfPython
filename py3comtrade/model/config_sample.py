@@ -65,9 +65,14 @@ class ConfigSample(BaseModel):
         return sample_str
 
     def calc_sampling(self):
+        """
+        计算采样段信息
+        """
+        if self.freg == 0:
+            raise ValueError("电网频率不能为0")
+        time_per_cycle = 20  # 每个周波的时间，单位为毫秒
         # 计算各采样段隐含信息
-        for i in range(0, self.nrate_num):
-            nrate: Nrate = self.nrates[i]
+        for i, nrate in enumerate(self.nrates):
             nrate.index = i
             # 更新每个周波采多少个点数
             nrate.cycle_point = int(nrate.samp / self.freg)
@@ -81,7 +86,7 @@ class ConfigSample(BaseModel):
             nrate.start_point = 0 if i == 0 else self.nrates[i - 1].end_point
 
             # 计算采样段一共用了多少时间
-            nrate.waste_time = int(nrate.count / nrate.cycle_point * 20)
+            nrate.waste_time = int(nrate.count / nrate.cycle_point * time_per_cycle)
             # 计算每个采样段结束是的时间
             nrate.end_time = (
                 nrate.waste_time

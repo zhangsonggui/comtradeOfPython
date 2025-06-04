@@ -16,7 +16,9 @@ from ..model.type.phase_code import PhaseCode
 
 
 def analog_parser(line):
+    # 去除字符串两端的空格，并按照逗号分割字符串
     line = line.strip().split(",")
+    # 创建Analog对象，传入参数
     analog = Analog(cfg_index=int(line[0]),
                     name=line[1],
                     phase=PhaseCode.from_string(line[2]),
@@ -27,9 +29,11 @@ def analog_parser(line):
                     skew=float(line[7]),
                     min_val=float(line[8]),
                     max_val=float(line[9]))
+    # 如果分割后的字符串长度大于11，则传入更多参数
     if len(line) > 11:
         analog.primary = float(line[10])
         analog.secondary = float(line[11])
         analog.ps = PsType.from_string(line[12])
         analog.ratio = float(line[10]) / float(line[11]) if float(line[11]) != 0 else 1.0
+    # 返回Analog对象
     return analog
