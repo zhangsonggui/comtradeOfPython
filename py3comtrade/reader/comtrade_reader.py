@@ -19,10 +19,10 @@ from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import DataReader
 
 
-def get_files_with_different_extensions(_file_path: str) -> FilePath:
+def get_comtrade_path(_file_path: str) -> FilePath:
     """
-    获取指定路径下的所有文件，并返回具有不同后缀的文件列表。
-    :param _file_path: 指定路径
+    根据传入的文件路径获取不同后缀名的一组文件。
+    :param _file_path: 指定文件路径
     :return: 具有不同后缀的文件列表
     """
     try:
@@ -64,12 +64,13 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL):
     :param read_mode: 读取模式
     :return: Comtrade对象
     """
-    files = get_files_with_different_extensions(_file_path)
+    files = get_comtrade_path(_file_path)
     _comtrade: Comtrade = Comtrade(file_path=files)
     _comtrade.configure = config_reader(files.get("cfg_path"))
     if read_mode in [ReadMode.DAT, ReadMode.FULL]:
         _comtrade.data = DataReader(file_path=files.get("dat_path"), sample=_comtrade.configure.sample)
         _comtrade.read_data()
+        _comtrade.analyze_digital_change_status()
     if read_mode in [ReadMode.DMF, ReadMode.FULL]:
         pass
     return _comtrade
@@ -78,6 +79,7 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL):
 if __name__ == '__main__':
     file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.cfg'
     comtrade = comtrade_reader(file_path, ReadMode.DAT)
-    comtrade.analyze_digital_change_status()
+    raw_a = comtrade.get_raw_by_analog_indices()
+    raw_d = comtrade.get_instant_by_digital_indices()
     for dc in comtrade.digital_change:
         print(dc)

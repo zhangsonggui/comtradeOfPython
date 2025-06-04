@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 from py3comtrade.model.analog import Analog
 from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
+from py3comtrade.model.digital_change_status import StatusRecord
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import FilePath, FloatArray32, IntArray32
@@ -36,7 +37,6 @@ class Comtrade(BaseModel):
         """
         self.data = DataReader(file_path=self.file_path.get("dat_path"), sample=self.configure.sample)
         self.data.read()
-        self.analyze_digital_change_status()
 
     def get_raw_by_analog_index(self, index: int, start_point: int = 0, end_point: int = None) -> FloatArray32:
         """
@@ -178,18 +178,22 @@ class Comtrade(BaseModel):
         """
         获取发生变位的开关量对象列表\n
         """
+        self.digital_change = []
         for ch in range(self.data.digital_value.shape[1]):
             col = self.data.digital_value[:, ch]
             digital = self.configure.digitals[ch]
-            digital.change_status.timestamp.append(0)
-            digital.change_status.status.append(col[0].item())
+            status_record = StatusRecord(timestamp=0, status=col[0].item())
+            digital.change_status.append(status_record)
             if col.min() != col.max():
                 # 找出变化点：当前值与前一个值不同
                 change_indices = np.where(col[:-1] != col[1:])[0] + 1
                 # 获取变化后的值
                 change_vs = col[change_indices]
-                digital.change_status.timestamp.extend(change_indices.tolist())
-                digital.change_status.status.extend(change_vs.tolist())
+                for i in range(len(change_vs)):
+                    status_record = StatusRecord(timestamp=change_indices[i].item(), status=change_vs[i].item())
+                    digital.change_status.append(status_record)
+                # digital.change_status.timestamp.extend(change_indices.tolist())
+                # digital.change_status.status.extend(change_vs.tolist())
                 self.digital_change.append(digital)
 
     def get_instant_by_segment(self, segment_index, primary: bool = False,
