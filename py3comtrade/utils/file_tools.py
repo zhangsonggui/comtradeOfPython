@@ -10,6 +10,9 @@
 import os
 import zipfile
 
+# 定义读取字节数的常量
+READ_BYTES_FOR_ENCODING = 10 * 1024  # 10KB
+
 
 def file_finder(directory: str, extension: str, recursive: bool = False):
     """

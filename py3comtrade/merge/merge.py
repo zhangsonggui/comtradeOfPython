@@ -10,8 +10,8 @@ import logging
 import os
 
 from py3comtrade.merge.merge_comtrade import MergeComtrade
-from py3comtrade.utils.cfg_to_file import cfg_to_file
-from py3comtrade.utils.dat_to_file import write_dat_ascii
+from py3comtrade.utils.configure_write import configure_to_file
+from py3comtrade.utils.data_write import data_to_ascii_file
 
 
 def check_directory(path: str):
@@ -51,9 +51,9 @@ def main():
         return
     mc = MergeComtrade(directory)
     cfg = mc.merge_cfg_data()
-    cfg_to_file(cfg, dist_name + '.reader')
+    configure_to_file(cfg, dist_name + '.reader')
     dat = mc.merge_dat_data()
-    write_dat_ascii(dat, dist_name + '.dat')
+    data_to_ascii_file(dat, dist_name + '.dat')
     print(f'{dist_name}文件生成成功！')
 
 

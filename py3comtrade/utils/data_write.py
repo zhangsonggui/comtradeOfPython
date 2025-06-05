@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from py3comtrade.model.configure import Configure
-from py3comtrade.model.type.analog_enum import ElectricalUnit
-from py3comtrade.model.type.types import FloatArray32, IntArray32
 import numpy as np
 import pandas as pd
+
+from py3comtrade.model.configure import Configure
+from py3comtrade.model.type.types import FloatArray32, IntArray32
 
 
 def validate_data(configure: Configure, sample_time: IntArray32, analog_values: FloatArray32,
@@ -18,26 +18,17 @@ def validate_data(configure: Configure, sample_time: IntArray32, analog_values: 
     return True
 
 
-def np_concatenate(configure: Configure, sample_time: IntArray32, analog_values: FloatArray32,
+def np_concatenate(sample_time: IntArray32, analog_values: FloatArray32,
                    digital_values: IntArray32) -> FloatArray32:
-    if len(configure.analogs) == analog_values.shape[1]:
-        self
-        for idx, analog in enumerate(configure.analogs):
-            if analog.unit == ElectricalUnit.VOLT:
-                analog_values[idx] = analog_values[idx] / 1000
-
-    assert len(configure.digitals) == digital_values.shape[1]
-    assert sample_time.shape[0] == analog_values.shape[0] == digital_values.shape[0]
-    for i in range(len(configure.analogs)):
-        if configure.analogs[i].unit == 'V':
-            analog_values[i] = analog_values[i] / 1000
-    combined_array = np.concatenate((sample_time, analog_values, digital_values), axis=1)
-    return combined_array
+    assert sample_time.shape[1] == analog_values.shape[1] == digital_values.shape[1]
+    combined_array = np.concatenate((sample_time, analog_values, digital_values), axis=0)
+    return combined_array.T
 
 
 def data_to_ascii(configure: Configure, data: FloatArray32, filename: str):
     assert len(configure.analogs) + len(configure.digitals) + 2 == data.shape[1]
     df = pd.DataFrame(data)
+    df.iloc[:, 0] = pd.to_numeric(df.iloc[:, 0], errors='coerce').fillna(0).astype(int)
     df.to_csv(filename, index=False, header=False, sep=',')
 
 
