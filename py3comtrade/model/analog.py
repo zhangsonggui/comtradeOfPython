@@ -13,8 +13,8 @@
 
 from pydantic import Field
 
-from py3comtrade.model.channel import Channel
-from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType
+from .channel import Channel
+from .type import ElectricalUnit, PsType
 
 
 class Analog(Channel):

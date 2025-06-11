@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from py3comtrade.model.digital import Digital
-from py3comtrade.model.type.digital_enum import Contact
-from py3comtrade.model.type.phase_code import PhaseCode
+from ..model import Digital
+from ..model.type import Contact
+from ..model.type import PhaseCode
 
 
 def digital_parser(_line_str):

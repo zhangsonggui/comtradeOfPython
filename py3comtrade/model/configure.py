@@ -13,15 +13,15 @@
 
 from pydantic import BaseModel, Field
 
-from py3comtrade.model.analog import Analog
-from py3comtrade.model.channel_num import ChannelNum
-from py3comtrade.model.config_header import ConfigHeader
-from py3comtrade.model.config_sample import ConfigSample
-from py3comtrade.model.digital import Digital
-from py3comtrade.model.nrate import Nrate
-from py3comtrade.model.precision_time import PrecisionTime
-from py3comtrade.model.timemult import TimeMult
-from py3comtrade.model.type.mode_enum import SampleMode
+from .analog import Analog
+from .channel_num import ChannelNum
+from .config_header import ConfigHeader
+from .config_sample import ConfigSample
+from .digital import Digital
+from .nrate import Nrate
+from .precision_time import PrecisionTime
+from .timemult import TimeMult
+from .type import SampleMode
 
 
 class Configure(BaseModel):

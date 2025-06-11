@@ -10,9 +10,8 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from ..model.analog import Analog
-from ..model.type.analog_enum import ElectricalUnit, PsType
-from ..model.type.phase_code import PhaseCode
+from ..model import Analog
+from ..model.type import ElectricalUnit, PsType,PhaseCode
 
 
 def analog_parser(line):

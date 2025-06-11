@@ -13,9 +13,9 @@
 
 from pydantic import Field
 
-from py3comtrade.model.channel import Channel
-from py3comtrade.model.digital_change_status import DigitalChangeStatus
-from py3comtrade.model.type.digital_enum import Contact
+from .channel import Channel
+from .digital_change_status import DigitalChangeStatus
+from .type import Contact
 
 
 class Digital(Channel):

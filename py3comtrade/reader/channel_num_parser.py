@@ -10,7 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from py3comtrade.model.channel_num import ChannelNum
+from ..model import ChannelNum
 
 
 def channel_num_parser(line):

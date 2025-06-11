@@ -13,7 +13,7 @@
 
 from pydantic import BaseModel, Field
 
-from py3comtrade.model.type.phase_code import PhaseCode
+from .type import PhaseCode
 
 
 class Channel(BaseModel):

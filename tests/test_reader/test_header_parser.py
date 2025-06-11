@@ -13,3 +13,9 @@ class TestHeaderParser(unittest.TestCase):
         self.assertEqual('测试变电站', header.station_name)
         self.assertEqual('测试录波器', header.recorder_name)
         self.assertEqual(1999, header.version)
+
+        header_str = "测试变电站,测试录波器"
+        header = header_parser(header_str)
+        self.assertEqual('测试变电站', header.station_name)
+        self.assertEqual('测试录波器', header.recorder_name)
+        self.assertEqual(1991, header.version)

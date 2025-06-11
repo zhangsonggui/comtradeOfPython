@@ -15,14 +15,14 @@ from typing import Union
 import numpy as np
 from pydantic import BaseModel, Field
 
-from py3comtrade.model.analog import Analog
-from py3comtrade.model.configure import Configure
-from py3comtrade.model.digital import Digital
-from py3comtrade.model.digital_change_status import StatusRecord
-from py3comtrade.model.type.analog_enum import PsType
-from py3comtrade.model.type.mode_enum import SampleMode
-from py3comtrade.model.type.types import FilePath, FloatArray32, IntArray32
-from py3comtrade.reader.data_reader import DataReader
+from .analog import Analog
+from .configure import Configure
+from .digital import Digital
+from .digital_change_status import StatusRecord
+from .type import PsType
+from .type import SampleMode
+from .type import FilePath, FloatArray32, IntArray32
+from ..reader.data_reader import DataReader
 
 
 class Comtrade(BaseModel):

@@ -17,9 +17,8 @@ import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field, ConfigDict
 
-from py3comtrade.model.config_sample import ConfigSample
-from py3comtrade.model.type.data_file_type import DataFileType
-from py3comtrade.reader.config_reader import config_reader
+from ..model.config_sample import ConfigSample
+from ..model.type import DataFileType
 
 
 def digital_split(datas: tuple) -> list:
@@ -87,7 +86,7 @@ class DataReader(BaseModel):
         dt = np.dtype([
             ('timestamp', np.int32, 2),  # 2个int作为时间戳
             ('analog', np.int16, self.sample.channel_num.analog_num),  # 96个short作为模拟量
-            ('digital', np.uint16, self.sample.channel_num.digital_num//16),  # 12个unsigned short作为开关量
+            ('digital', np.uint16, self.sample.channel_num.digital_num // 16),  # 12个unsigned short作为开关量
         ])
 
         # 一次性读取并解析
@@ -99,14 +98,4 @@ class DataReader(BaseModel):
         # 提取各部分
         self.sample_time = data['timestamp']
         self.analog_value = data['analog']
-        self.digital_value = np.unpackbits(data['digital'].view(np.uint8), bitorder='little',axis=-1)
-
-
-if __name__ == '__main__':
-    cfg_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\hjz.cfg'
-    dat_file_name = r'D:\codeArea\gitee\comtradeOfPython\tests\data\hjz.dat'
-    configure = config_reader(cfg_file_name)
-    dat_content = DataReader(file_path=dat_file_name, sample=configure.sample)
-    dat_content.parse_binary()
-    dat_content.read()
-    print('解析完毕')
+        self.digital_value = np.unpackbits(data['digital'].view(np.uint8), bitorder='little', axis=-1)
