@@ -62,5 +62,5 @@ class WarningFlag(BaseEnum):
 
 
 class Contact(BaseEnum):
-    NORMALLY_OPEN = (0, "常开节点")
-    NORMALLY_CLOSED = (1, "常闭节点")
+    NORMALLY_OPEN = ("NormallyOpen", "常开节点")
+    NORMALLY_CLOSED = ("NormallyClosed", "常闭节点")
