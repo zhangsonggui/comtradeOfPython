@@ -21,10 +21,44 @@ class BaseEnum(Enum):
 
     def __init__(self, code, description):
         self.code = code
-        self.descripton = description
+        self.description = description
 
     def get_code(self) -> str:
         return self.code
 
     def get_description(self) -> str:
-        return self.descripton
+        return self.description
+
+    @classmethod
+    def from_string(cls, string: str, fuzzy: bool = True,default=None):
+        """
+        尝试将给定的字符串转换为对应的枚举成员。
+
+        :param string: 要解析的字符串
+        :param fuzzy: 是否启用模糊匹配（如结尾匹配），默认开启
+        :param default: 默认枚举值
+        :return: 对应的枚举成员
+        :raises ValueError: 如果找不到匹配项且未启用 fuzzy 或 fuzzy 也失败
+        """
+        # 处理空字符串或空白字符串
+        if not string or string.strip() == '':
+            if default is not None:
+                return default
+            raise ValueError(f"{cls.__name__} 未提供字符串且未设置默认值")
+
+        string = string.strip().upper()
+
+        # 精确匹配
+        for member in cls:
+            code = str(member.get_code()).upper()
+            if code == string:
+                return member
+
+        # 模糊匹配（结尾匹配）
+        if fuzzy:
+            for member in cls:
+                code = member.get_code().upper()
+                if string.endswith(code):
+                    return member
+
+        raise ValueError(f"无法将 '{string}' 映射到 {cls.__name__} 枚举类型中")

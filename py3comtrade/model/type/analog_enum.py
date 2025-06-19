@@ -20,56 +20,22 @@ class ElectricalUnit(BaseEnum):
     AMPERE = ('A', '安培')
     NO_UNIT = ('', '无')  # 表示无单位的情况
 
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
 
-        :param string: 需要被解析的字符串
-        :return: 对应的枚举成员或 None 如果没有匹配
-        """
-        string = string.upper()
-        for unit in cls:
-            if unit == cls.NO_UNIT:
-                continue
-            if string.endswith(unit.get_code().upper()):
-                return unit
-        return cls.NO_UNIT
-
+class Multiplier(BaseEnum):
+    K = ('k', "千")
+    M = ('m', "百万")
+    N = ('n', "无")
 
 class PsType(BaseEnum):
     P = ('P', "一次值")
     S = ('S', "二次值")
 
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-        :param string: 需要被解析的字符串
-        """
-        string = string.upper()
-        for ps in cls:
-            if string.endswith(ps.get_code()):
-                return ps
-        return cls.P
 
 
 class AnalogType(BaseEnum):
     AC = ('A', "交流通道")
     DC = ('D', "直流通道")
     OTHER = ('O', "其他通道")
-
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-        :param string: 需要被解析的字符串
-        """
-        string = string.upper()
-        for analog in cls:
-            if string.endswith(analog.get_code()):
-                return analog
-        return cls.OTHER
 
 
 class AnalogFlag(BaseEnum):
@@ -83,14 +49,31 @@ class AnalogFlag(BaseEnum):
     ZX = ('ZX', "阻抗")
     CONST = ('CONST', "常量")
 
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-        :param string: 需要被解析的字符串
-        """
-        string = string.upper()
-        for analog in cls:
-            if string.endswith(analog.get_code()):
-                return analog
-        return cls.CONST
+
+
+class BranNum(BaseEnum):
+    B1 = (1, "普通线路或3/2接线和电流测量模式")
+    B2 = (2, "2/3接线分电流测量模式")
+
+
+class TvInstallation(BaseEnum):
+    BUS = (1, "母线侧")
+    LINE = (2, "线路侧")
+
+
+class CtDirection(BaseEnum):
+    POS = (1, "正向")
+    NEG = (2, "反向")
+    UNC = (3, "未知")
+
+
+class TransWindLocation(BaseEnum):
+    HIGH = (1, "高压侧")
+    MEDIUM = (2, "中压侧")
+    LOW = (3, "低压侧")
+    COMMON = (4, "公共绕组")
+
+class WGFlag(BaseEnum):
+    Y = ('y', "星形")
+    YN = ('yn', "星形接地")
+    D = ('d', "三角形")

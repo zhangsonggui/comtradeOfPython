@@ -20,156 +20,47 @@ class SignalType(BaseEnum):
     WARNING = ("Warning", "装置告警出口")
     OTHER = ("Other", "其他")
 
-    @classmethod
-    def from_string(cls, string: str):
-        string = string.upper()
-        for _type in cls:
-            if _type == cls.OTHER:
-                continue
-            if _type.get_code() == string:
-                return _type
-        return cls.OTHER
-
-    @staticmethod
-    def get_flag_enum(_signal_type):
-        if _signal_type == SignalType.RELAY:
-            return RelayFlag
-        elif _signal_type == SignalType.BREAKER:
-            return BreakerFlag
-        elif _signal_type == SignalType.WARNING:
-            return WarningFlag
-        else:
-            return ChannelFlag
-
 
 class ChannelFlag(BaseEnum):
     GENERAL = ("general", "一般开关量")
 
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-
-        :param string: 需要被解析的字符串
-        :return: 对应的枚举成员或 None 如果没有匹配
-        """
-        string = string.upper()
-        for _type in cls:
-            if _type.get_code() == string:
-                return _type
-        return ''
-
 
 class RelayFlag(BaseEnum):
     TR = ("Tr", "保护跳闸")
-    TRPHSA = ("TrPhsA", "跳A")
-    TRPHSB = ("TrPhsB", "跳B")
-    TRPHSC = ("TrPhsC", "跳C")
-    OPTP = ("OPTP", "三跳信号")
-    RECOPCLS = ("RecOpCls", "重合闸")
-    BLKREC = ("BlkRec", "永跳信号")
-    PROTTX = ("ProtTx", "发信")
-    PROTRV = ("ProtRv", "收信")
-
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-
-        :param string: 需要被解析的字符串
-        :return: 对应的枚举成员或 None 如果没有匹配
-        """
-        string = string.upper()
-        for _type in cls:
-            if _type.get_code() == string:
-                return _type
-        return ''
+    TR_PHS_A = ("TrPhsA", "跳A")
+    TR_PHS_B = ("TrPhsB", "跳B")
+    TR_PHS_C = ("TrPhsC", "跳C")
+    OP_TP = ("OPTP", "三跳信号")
+    REC_OP_CLS = ("RecOpCls", "重合闸")
+    BLK_REC = ("BlkRec", "永跳信号")
+    PROT_TX = ("ProtTx", "发信")
+    PROT_RV = ("ProtRv", "收信")
 
 
 class BreakerFlag(BaseEnum):
     HWJ = ("HWJ", "不分相断路器合位")
     TWJ = ("TWJ", "不分相断路器跳位")
-    HWJPHSA = ("HWJPhsA", "断路器A相合位")
-    HWJPHSB = ("HWJPhsB", "断路器B相合位")
-    HWJPHSC = ("HWJPhsC", "断路器C相合位")
-    TWJPHSA = ("TWJPhsA", "断路器A相跳位")
-    TWJPHSB = ("TWJPhsB", "断路器B相跳位")
-    TWJPHSC = ("TWJPhsC", "断路器C相跳位")
-    HWJHIGHT = ("HWJHight", "变压器高压侧断路器合位")
-    HWJMEDIUM = ("HWJMedium", "变压器中压侧断路器合位")
-    HWJLOW = ("HWJLow", "变压器低压侧断路器合位")
-    TWJHIGHT = ("TWJHight", "变压器高压侧断路器跳位")
-    TWJMEDIUM = ("TWJMedium", "变压器中压侧断路器跳位")
-    TWJLOW = ("TWJLow", "变压器低压侧断路器跳位")
-
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-
-        :param string: 需要被解析的字符串
-        :return: 对应的枚举成员或 None 如果没有匹配
-        """
-        string = string.upper()
-        for _type in cls:
-            if _type.get_code() == string:
-                return _type
-        return ''
+    HWJ_PHS_A = ("HWJPhsA", "断路器A相合位")
+    HWJ_PHS_B = ("HWJPhsB", "断路器B相合位")
+    HWJ_PHS_C = ("HWJPhsC", "断路器C相合位")
+    TWJ_PHS_A = ("TWJPhsA", "断路器A相跳位")
+    TWJ_PHS_B = ("TWJPhsB", "断路器B相跳位")
+    TWJ_PHS_C = ("TWJPhsC", "断路器C相跳位")
+    HWJ_HIGHT = ("HWJHight", "变压器高压侧断路器合位")
+    HWJ_MEDIUM = ("HWJMedium", "变压器中压侧断路器合位")
+    HWJ_LOW = ("HWJLow", "变压器低压侧断路器合位")
+    TWJ_HIGHT = ("TWJHight", "变压器高压侧断路器跳位")
+    TWJ_MEDIUM = ("TWJMedium", "变压器中压侧断路器跳位")
+    TWJ_LOW = ("TWJLow", "变压器低压侧断路器跳位")
 
 
 class WarningFlag(BaseEnum):
-    WARNVT = ("WarnVt", "TV断线")
-    WARNCT = ("WarnCt", "CT断线")
-    WARNCOMM = ("WarnComm", "通道告警")
-    WARNGENERAL = ("WarnGeneral", "其他告警")
-
-    def __init__(self, code, descripton):
-        self.code = code
-        self.descripton = descripton
-
-    def get_code(self) -> str:
-        return self.code
-
-    def get_description(self) -> str:
-        return self.descripton
-
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-
-        :param string: 需要被解析的字符串
-        :return: 对应的枚举成员或 None 如果没有匹配
-        """
-        string = string.upper()
-        for _type in cls:
-            if _type.get_code() == string:
-                return _type
-        return ''
+    WARN_VT = ("WarnVt", "TV断线")
+    WARN_CT = ("WarnCt", "CT断线")
+    WARN_COMM = ("WarnComm", "通道告警")
+    WARN_GENERAL = ("WarnGeneral", "其他告警")
 
 
 class Contact(BaseEnum):
-    NORMALLYOPEN = (0, "常开节点")
-    NORMALLYCLOSED = (1, "常闭节点")
-
-    @classmethod
-    def from_string(cls, string: str):
-        """
-        尝试将给定的字符串转换为对应的枚举成员。
-
-        :param string: 需要被解析的字符串
-        :return: 对应的枚举成员或 None 如果没有匹配
-        """
-        string = string.upper()
-        for _type in cls:
-            if _type.get_code() == string:
-                return _type
-        return cls.NORMALLYOPEN
-
-
-if __name__ == '__main__':
-    signal_type = SignalType.RELAY
-    flag_enum = SignalType.get_flag_enum(signal_type)
-    if flag_enum:
-        for flag in flag_enum:
-            print(flag.name, flag.value[1])
+    NORMALLY_OPEN = (0, "常开节点")
+    NORMALLY_CLOSED = (1, "常闭节点")
