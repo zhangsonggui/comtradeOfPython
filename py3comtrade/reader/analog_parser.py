@@ -18,7 +18,7 @@ def analog_parser(line):
     # 去除字符串两端的空格，并按照逗号分割字符串
     line = line.strip().split(",")
     # 创建Analog对象，传入参数
-    analog = Analog(cfg_index=int(line[0]),
+    analog = Analog(idx_cfg=int(line[0]),
                     name=line[1],
                     phase=PhaseCode.from_string(line[2]),
                     ccbm=line[3],

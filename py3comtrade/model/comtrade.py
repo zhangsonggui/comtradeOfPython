@@ -10,7 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from typing import Union
+from typing import Any, Optional, Union
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -66,6 +66,34 @@ class Comtrade(BaseModel):
             start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
             return self.data.analog_value.T[index, start_point:end_point + 1]
         raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {analog_num_max})")
+
+    def get_raw_by_digital_index(self, index: int, start_point: int = 0, end_point: int = None) -> IntArray32:
+        """
+        获取指定开关量通道、指定采样点的原始采样值\n
+        :param index: 开关量通道索引值
+        :param start_point: 采样点开始位置
+        :param end_point: 采样点结束位置
+        :return: 原始采样值numpy数组
+        """
+        index = self._validate_index(index, is_analog=False)
+        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
+        return self.data.digital_value.T[index:index + 1, start_point:end_point + 1]
+
+    def get_raw_by_digital_indices(self, index: list[int] = None, start_point: int = 0,
+                                    end_point: int = None) -> IntArray32:
+        """
+        获取指定开关量通道、指定采样点的原始采样值\n
+        :param index: 开关量通道索引值数组，当index为空时，默认为所有模拟量通道
+        :param start_point: 采样点开始位置
+        :param end_point: 采样点结束位置
+        :return: 原始采样值numpy数组
+        """
+        digital_num_max = self.configure.channel_num.digital_num
+        index = list(range(digital_num_max)) if index is None else index
+        if 0 <= max(index) < digital_num_max:
+            start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
+            return self.data.digital_value.T[index, start_point:end_point + 1]
+        raise ValueError(f"开关量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {digital_num_max})")
 
     def get_instant_by_analog(self, analog: Analog, start_point: int = 0, end_point: int = None,
                               cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD,
@@ -192,8 +220,6 @@ class Comtrade(BaseModel):
                 for i in range(len(change_vs)):
                     status_record = StatusRecord(timestamp=change_indices[i].item(), status=change_vs[i].item())
                     digital.change_status.append(status_record)
-                # digital.change_status.timestamp.extend(change_indices.tolist())
-                # digital.change_status.status.extend(change_vs.tolist())
                 self.digital_change.append(digital)
 
     def get_instant_by_segment(self, segment_index, primary: bool = False,
@@ -221,7 +247,7 @@ class Comtrade(BaseModel):
         :param is_analog: 检查模拟量类型
         """
         if not isinstance(index, int):
-            raise TypeError(f"模拟通道索引值类型错误！需要 int 类型，但收到 {type(index).__name__}。")
+            raise TypeError(f"通道索引值类型错误！需要 int 类型，但收到 {type(index).__name__}。")
         index_max = self.configure.channel_num.analog_num if is_analog else self.configure.channel_num.digital_num
         if not (0 <= index < index_max):
             raise ValueError(f"通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {index_max})")

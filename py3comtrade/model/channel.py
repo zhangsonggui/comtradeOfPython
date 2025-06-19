@@ -16,11 +16,20 @@ from pydantic import BaseModel, Field
 from .type import PhaseCode
 
 
-class Channel(BaseModel):
+class ChannelIdx(BaseModel):
+    """
+    通道索引类
+    """
+    idx_cfg: int = Field(..., description="模拟通道索引号，必选，数字，整数")
+
+    def __str__(self):
+        return f"{self.idx_cfg}"
+
+
+class Channel(ChannelIdx):
     """
     通道类
     """
-    cfg_index: int = Field(..., description="模拟通道索引号，必选，数字，整数")
     name: str = Field(..., description="通道标识符，必选，字符串，最大长度128个字符")
     phase: PhaseCode = Field(default=PhaseCode.NO_PHASE,
                              description="通道相别标识，可选，字母、数字，最小0个字符，最大长度2个字符")
@@ -34,4 +43,4 @@ class Channel(BaseModel):
             setattr(self, field, None)
 
     def __str__(self):
-        return f"{self.cfg_index},{self.name},{self.phase.code},{self.ccbm}"
+        return super().__str__() + f",{self.name},{self.phase.code},{self.ccbm}"

@@ -185,7 +185,7 @@ class Configure(BaseModel):
         :return: 模拟量对象
         """
         for analog in self.analogs:
-            if analog.cfg_index == an:
+            if analog.idx_cfg == an:
                 return analog
 
     def add_analog(self, analog: Analog, index: int = None):
@@ -217,7 +217,7 @@ class Configure(BaseModel):
         :return: 开关量对象
         """
         for digital in self.digitals:
-            if digital.cfg_index == dn:
+            if digital.idx_cfg == dn:
                 return digital
 
     def add_digital(self, digital: Digital, index: int = None):
