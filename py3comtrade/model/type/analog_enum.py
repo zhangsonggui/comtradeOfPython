@@ -26,10 +26,10 @@ class Multiplier(BaseEnum):
     M = ('m', "百万")
     N = ('n', "无")
 
+
 class PsType(BaseEnum):
     P = ('P', "一次值")
     S = ('S', "二次值")
-
 
 
 class AnalogType(BaseEnum):
@@ -50,28 +50,28 @@ class AnalogFlag(BaseEnum):
     CONST = ('CONST', "常量")
 
 
-
 class BranNum(BaseEnum):
     B1 = (1, "普通线路或3/2接线和电流测量模式")
     B2 = (2, "2/3接线分电流测量模式")
 
 
 class TvInstallation(BaseEnum):
-    BUS = (1, "母线侧")
-    LINE = (2, "线路侧")
+    BUS = ("bus", "母线侧")
+    LINE = ("line", "线路侧")
 
 
 class CtDirection(BaseEnum):
-    POS = (1, "正向")
-    NEG = (2, "反向")
-    UNC = (3, "未知")
+    POS = ("pos", "正向")
+    NEG = ("neg", "反向")
+    UNC = ("unc", "未知")
 
 
 class TransWindLocation(BaseEnum):
-    HIGH = (1, "高压侧")
-    MEDIUM = (2, "中压侧")
-    LOW = (3, "低压侧")
-    COMMON = (4, "公共绕组")
+    HIGH = ("high", "高压侧")
+    MEDIUM = ("medium", "中压侧")
+    LOW = ("low", "低压侧")
+    COMMON = ("common", "公共绕组")
+
 
 class WGFlag(BaseEnum):
     Y = ('y', "星形")

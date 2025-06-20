@@ -10,10 +10,9 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from enum import Enum
-from typing import List, Optional
+from typing import List
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from .channel import ChannelIdx
 from .primary_equipments import ACVBranch, PrimaryEquipments
@@ -26,11 +25,11 @@ class Bus(PrimaryEquipments):
     """
     v_rtg: float = Field(default=0.0, description="一次额定电压")
     v_rtg_snd: float = Field(default=100.0, description="二次额定电压")
-    v_rtg_snd_pos:TvInstallation = Field(default=TvInstallation.BUS, description="TV安装位置")
-    bus_uuid:str = Field(default="", description="母线标识")
-    acv_chn:ACVBranch = Field(default=ACVBranch(), description="交流电压通道")
-    analog_chn:List[ChannelIdx] = Field(default_factory=list, description="模拟量通道")
-    digital_chn:List[ChannelIdx] = Field(default_factory=list, description="开关量通道")
+    v_rtg_snd_pos: TvInstallation = Field(default=TvInstallation.BUS, description="TV安装位置")
+    bus_uuid: str = Field(default="", description="母线标识")
+    acv_chn: ACVBranch = Field(default=ACVBranch(), description="交流电压通道")
+    analog_chn: List[ChannelIdx] = Field(default_factory=list, description="模拟量通道")
+    digital_chn: List[ChannelIdx] = Field(default_factory=list, description="开关量通道")
 
     def __str__(self):
         xml = f"<scl:Bus idx={self.idx} bus_name={self.name} srcRef={self.reference} VRtg={self.v_rtg} VRtgSnd={self.v_rtg_snd} VRtgSnd_Pos={self.v_rtg_snd_pos.get_code()} bus_uuid="">"

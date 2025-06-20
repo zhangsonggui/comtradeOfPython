@@ -30,7 +30,7 @@ class BaseEnum(Enum):
         return self.description
 
     @classmethod
-    def from_string(cls, string: str, fuzzy: bool = True,default=None):
+    def from_string(cls, string: str, fuzzy: bool = True, default=None):
         """
         尝试将给定的字符串转换为对应的枚举成员。
 
@@ -57,7 +57,7 @@ class BaseEnum(Enum):
         # 模糊匹配（结尾匹配）
         if fuzzy:
             for member in cls:
-                code = member.get_code().upper()
+                code = str(member.get_code()).upper()
                 if string.endswith(code):
                     return member
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<scl:ComtradeModel xmlns:scl="http://www.iec.ch/61850/2003/SCL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" station_name="东营学堂变220kV线路改造工程" version="1.0" reference="0" rec_dev_name="东营学堂变220kV线路改造工程" xsi:schemaLocation="http://www.iec.ch/61850/2003/SCLcomtrade_mdl_v1.1.xsd">
+<scl:ComtradeModel xmlns:scl="http://www.iec.ch/61850/2003/SCL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" station_name="XX变220kV线路改造工程" version="1.0" reference="0" rec_dev_name="东营学堂变220kV线路改造工程" xsi:schemaLocation="http://www.iec.ch/61850/2003/SCLcomtrade_mdl_v1.1.xsd">
     <scl:AnalogChannel idx_cfg="1" idx_org="1" type="A" flag="ACV" freq="50" au="1" bu="0" sIUnit="" multiplier="" primary="127017" secondary="57.7" ps="" ph="A"/>
     <scl:AnalogChannel idx_cfg="2" idx_org="2" type="A" flag="ACV" freq="50" au="1" bu="0" sIUnit="" multiplier="" primary="127017" secondary="57.7" ps="" ph="B"/>
     <scl:AnalogChannel idx_cfg="3" idx_org="3" type="A" flag="ACV" freq="50" au="1" bu="0" sIUnit="" multiplier="" primary="127017" secondary="57.7" ps="" ph="C"/>
