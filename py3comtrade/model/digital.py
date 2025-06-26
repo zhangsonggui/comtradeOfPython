@@ -32,4 +32,7 @@ class Digital(Channel):
             setattr(self, field, None)
 
     def __str__(self):
-        return super().__str__() + f",{self.contact.code}"
+        contact_code = 0
+        if self.contact == Contact.NORMALLY_CLOSED:
+            contact_code = 1
+        return super().__str__() + f",{contact_code}"
