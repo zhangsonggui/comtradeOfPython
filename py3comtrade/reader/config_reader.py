@@ -12,15 +12,15 @@
 #  See the Mulan PSL v2 for more details.
 import chardet
 
-from ..model import Configure
-from ..model import PrecisionTime
-from ..model import TimeMult
-from ..model.type import DataFileType
 from .analog_parser import analog_parser
 from .channel_num_parser import channel_num_parser
 from .digital_parser import digital_parser
 from .header_parser import header_parser
 from .nrates_parser import create_nrate, create_nrates
+from ..model import Configure
+from ..model import PrecisionTime
+from ..model import TimeMult
+from ..model.type import DataFileType
 
 
 def detect_file_encoding(file_path):
@@ -42,7 +42,7 @@ def read_file(file_path):
     if encoding is None:
         raise ValueError("无法确定文件编码格式")
     with open(file_path, "r", encoding=encoding) as f:
-        content = f.readlines()
+        content = [line.strip() for line in f.readlines() if line.strip()]
         return content
 
 
