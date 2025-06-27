@@ -18,8 +18,8 @@ from .type import CtDirection
 
 
 class PrimaryEquipments(BaseModel):
-    idx: int = Field(..., description="内部索引号")
-    name: str = Field(..., description="名称，站内唯一")
+    idx: int = Field(default=None, description="内部索引号")
+    name: str = Field(default=None, description="名称，站内唯一")
     reference: Optional[str] = Field(default=None, description="IEC61850参引")
 
 
@@ -65,11 +65,11 @@ class ACVBranch(BaseModel):
 
 
 class ACCBranch(BaseModel):
-    idx: int = Field(..., description="分支序号")
-    ia_idx: int = Field(..., description="A相电流通道索引号")
-    ib_idx: int = Field(..., description="B相电流通道索引号")
-    ic_idx: int = Field(..., description="C相电流通道索引号")
-    in_idx: int = Field(..., description="N相电流通道索引号")
+    idx: int = Field(default=None, description="分支序号")
+    ia_idx: int = Field(default=None, description="A相电流通道索引号")
+    ib_idx: int = Field(default=None, description="B相电流通道索引号")
+    ic_idx: int = Field(default=None, description="C相电流通道索引号")
+    in_idx: int = Field(default=None, description="N相电流通道索引号")
     dir: CtDirection = Field(default=CtDirection.POS, description="电流方向")
 
     def __str__(self):

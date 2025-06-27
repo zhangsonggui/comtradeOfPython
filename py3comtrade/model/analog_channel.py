@@ -30,7 +30,7 @@ class AnalogChannel(ChannelIdx):
     freq:float = Field(default=50.0, description="通道频率")
     au:float = Field(default=1.0, description="直流通道实际物理值的斜率")
     bu:float = Field(default=0.0, description="直流通道实际物理值的截距")
-    s_i_unit: ElectricalUnit = Field(default=ElectricalUnit.NO_UNIT, description="基本单位")
+    s_i_unit: ElectricalUnit = Field(default=ElectricalUnit.NONE, description="基本单位")
     multiplier:Multiplier = Field(default=Multiplier.N, description="单位量级")
     primary:float = Field(default=1.0, description="一次系数")
     secondary:float = Field(default=1.0, description="二次系数")

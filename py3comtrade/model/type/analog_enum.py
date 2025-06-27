@@ -14,11 +14,11 @@ from py3comtrade.model.type.base_enum import BaseEnum
 
 
 class ElectricalUnit(BaseEnum):
-    KILOVOLT = ('kV', '千伏')
-    VOLT = ('V', '伏特')
-    KILOAMPERE = ('kA', '千安')
-    AMPERE = ('A', '安培')
-    NO_UNIT = ('', '无')  # 表示无单位的情况
+    KV = ('kV', '千伏')
+    V = ('V', '伏特')
+    KA = ('kA', '千安')
+    A = ('A', '安培')
+    NONE = ('', '无')  # 表示无单位的情况
 
 
 class Multiplier(BaseEnum):

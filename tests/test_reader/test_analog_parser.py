@@ -14,7 +14,7 @@ class TestAnalogParser(unittest.TestCase):
                          "57.735000000,S")
         analog_a = analog_parser(line_analog_a)
         self.assertEqual('220kV母线_Ua', analog_a.name)
-        self.assertEqual(ElectricalUnit.VOLT, analog_a.unit)
+        self.assertEqual(ElectricalUnit.V, analog_a.unit)
         self.assertEqual(PhaseCode.A_PHASE, analog_a.phase)
         self.assertEqual(PsType.S, analog_a.ps)
 
@@ -22,6 +22,6 @@ class TestAnalogParser(unittest.TestCase):
                          "57.735000000,S")
         analog_c = analog_parser(line_analog_c)
         self.assertEqual('220kV母线_Uc', analog_c.name)
-        self.assertEqual(ElectricalUnit.VOLT, analog_c.unit)
+        self.assertEqual(ElectricalUnit.V, analog_c.unit)
         self.assertEqual(PhaseCode.C_PHASE, analog_c.phase)
         self.assertEqual(PsType.S, analog_c.ps)

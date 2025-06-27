@@ -18,7 +18,7 @@ from .type import ElectricalUnit, PsType
 
 
 class Analog(Channel):
-    unit: ElectricalUnit = Field(default=ElectricalUnit.NO_UNIT, description="通道单位")
+    unit: ElectricalUnit = Field(default=ElectricalUnit.NONE, description="通道单位")
     a: float = Field(default=1.0, description="通道增益系数")
     b: float = Field(default=0.0, description="通道偏移系数")
     skew: float = Field(default=0.0, description="通道时滞（us）")
