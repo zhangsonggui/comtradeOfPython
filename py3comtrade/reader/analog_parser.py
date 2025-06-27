@@ -25,7 +25,7 @@ def analog_parser(line):
                     unit=ElectricalUnit.from_string(line[4], default=ElectricalUnit.NONE),
                     a=float(line[5]),
                     b=float(line[6]),
-                    skew=float(line[7]),
+                    skew=float(line[7]) if line[7] else 0.0,
                     min_val=float(line[8]),
                     max_val=float(line[9]))
     # 如果分割后的字符串长度大于11，则传入更多参数
