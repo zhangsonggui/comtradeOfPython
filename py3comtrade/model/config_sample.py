@@ -75,7 +75,7 @@ class ConfigSample(BaseModel):
         for i, nrate in enumerate(self.nrates):
             nrate.index = i
             # 更新每个周波采多少个点数
-            nrate.cycle_point = int(nrate.samp / self.freg)
+            nrate.cycle_point = float(nrate.samp / self.freg)
             # 每段包含多少个采样点数
             nrate.count = (
                 nrate.end_point
@@ -86,7 +86,7 @@ class ConfigSample(BaseModel):
             nrate.start_point = 0 if i == 0 else self.nrates[i - 1].end_point
 
             # 计算采样段一共用了多少时间
-            nrate.waste_time = int(nrate.count / nrate.cycle_point * time_per_cycle)
+            nrate.waste_time = float(nrate.count / nrate.cycle_point * time_per_cycle)
             # 计算每个采样段结束是的时间
             nrate.end_time = (
                 nrate.waste_time
