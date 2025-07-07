@@ -38,7 +38,6 @@ class Configure(BaseModel):
     fault_time: PrecisionTime = Field(default=None, description="故障时间")
     timemult: TimeMult = TimeMult(timemult=1)
 
-
     def clear(self):
         """清除模型中所有字段"""
         for field in self.model_fields.keys():
@@ -105,18 +104,20 @@ class Configure(BaseModel):
         """
         if not isinstance(point1, int):
             raise TypeError(f"采样点开始位置类型错误！需要 int 类型，但收到 {type(point1).__name__}。")
-        if not (0<=point1 < self.sample.count):
-            raise ValueError(f"采样点开始位置超出录波采样范围！当前采样点位置: {point1}, 允许范围: [0, {self.sample.count})")
+        if not (0 <= point1 < self.sample.count):
+            raise ValueError(
+                f"采样点开始位置超出录波采样范围！当前采样点位置: {point1}, 允许范围: [0, {self.sample.count})")
         start_point = point1
-        if cycle_num is not None:   # 当采样周波不为空时，直接按照周波数计算出采样点位置
+        if cycle_num is not None:  # 当采样周波不为空时，直接按照周波数计算出采样点位置
             start_point, end_point = self.get_cursor_cycle_sample_range(point1, cycle_num, mode)
-        elif point2 is None:    # 当采样点结束位置为空时，默认采样点结束位置为采样点总数减1
+        elif point2 is None:  # 当采样点结束位置为空时，默认采样点结束位置为采样点总数减1
             end_point = self.sample.count - 1
         else:
             if not isinstance(point2, int):
                 raise TypeError(f"采样点结束位置类型错误！需要 int 类型，但收到 {type(point2).__name__}。")
-            if not (0<=point2 < self.sample.count):
-                raise ValueError(f"采样点结束位置超出录波采样范围！当前采样点位置: {point2}, 允许范围: [0, {self.sample.count})")
+            if not (0 <= point2 < self.sample.count):
+                raise ValueError(
+                    f"采样点结束位置超出录波采样范围！当前采样点位置: {point2}, 允许范围: [0, {self.sample.count})")
             if point2 < point1:
                 raise ValueError("采样点结束位置小于采样点开始位置！")
             end_point = point2

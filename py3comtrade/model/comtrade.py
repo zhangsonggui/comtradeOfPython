@@ -10,25 +10,29 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from typing import Any, Optional, Union
+from typing import Union
 
 import numpy as np
 from pydantic import BaseModel, Field
 
+from . import DMF
 from .analog import Analog
 from .configure import Configure
 from .digital import Digital
 from .digital_change_status import StatusRecord
+from .type import FilePath, FloatArray32, IntArray32
 from .type import PsType
 from .type import SampleMode
-from .type import FilePath, FloatArray32, IntArray32
 from ..reader.data_reader import DataReader
+from ..reader.dmf_reader import dmf_parser
+from ..utils.cfg_to_dmf import CfgToDmf
 
 
 class Comtrade(BaseModel):
     file_path: FilePath = Field(default=None, description="录波文件路径")
     configure: Configure = Field(default=None, description="Comtrade配置对象")
     data: DataReader = Field(default=None, description="Comtrade数据对象")
+    dmf: DMF = Field(default=None, description="Comtrade数据对象")
     digital_change: list = Field(default_factory=list, description="变位开关量通道记录")
 
     def read_data(self):
@@ -37,6 +41,15 @@ class Comtrade(BaseModel):
         """
         self.data = DataReader(file_path=self.file_path.get("dat_path"), sample=self.configure.sample)
         self.data.read()
+
+    def read_dmf(self):
+        """
+        获取dmf数据
+        """
+        if self.file_path.get("dmf_path") is None:
+            self.dmf = CfgToDmf(self.configure)
+        else:
+            self.dmf = dmf_parser(self.file_path.get("dmf_path"))
 
     def get_raw_by_analog_index(self, index: int, start_point: int = 0, end_point: int = None) -> FloatArray32:
         """
@@ -80,7 +93,7 @@ class Comtrade(BaseModel):
         return self.data.digital_value.T[index:index + 1, start_point:end_point + 1]
 
     def get_raw_by_digital_indices(self, index: list[int] = None, start_point: int = 0,
-                                    end_point: int = None) -> IntArray32:
+                                   end_point: int = None) -> IntArray32:
         """
         获取指定开关量通道、指定采样点的原始采样值\n
         :param index: 开关量通道索引值数组，当index为空时，默认为所有模拟量通道

@@ -8,6 +8,7 @@ FloatArray32 = NDArray[np.float32]
 IntArray64 = NDArray[np.int64]
 IntArray32 = NDArray[np.int32]
 
+
 class FilePath(TypedDict):
     # 配置文件路径
     cfg_path: str
