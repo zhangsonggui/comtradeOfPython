@@ -13,8 +13,8 @@
 import xml.etree.ElementTree as ET
 
 from py3comtrade.model import AnalogChannel, ChannelIdx
-from py3comtrade.model import DMF
-from py3comtrade.model import StatusChannel
+from py3comtrade.model.dmf import DMF
+from py3comtrade.model.status_channel import StatusChannel
 from py3comtrade.model.bus import Bus
 from py3comtrade.model.line import Line
 from py3comtrade.model.primary_equipments import ACVBranch, CG, MR, RX, ACCBranch
@@ -213,5 +213,6 @@ def dmf_parser(_file_path) -> DMF:
 if __name__ == '__main__':
     file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\hjz.dmf'
     dmf = dmf_parser(file_path)
+    bus = dmf.find_bus_by_name("220kV母线U")
     for line in dmf.lines:
         print(line.name)

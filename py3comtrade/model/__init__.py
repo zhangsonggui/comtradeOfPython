@@ -12,7 +12,7 @@ from .digital import Digital
 from .digital_change_status import DigitalChangeStatus
 from .dmf import DMF
 from .nrate import Nrate
-from .status_channel import StatusChannel
+from py3comtrade.model.status_channel import StatusChannel
 from .timemult import TimeMult
 from .precision_time import PrecisionTime
 

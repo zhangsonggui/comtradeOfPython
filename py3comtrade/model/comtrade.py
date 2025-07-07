@@ -15,7 +15,7 @@ from typing import Union
 import numpy as np
 from pydantic import BaseModel, Field
 
-from . import DMF
+from py3comtrade.model.dmf import DMF
 from .analog import Analog
 from .configure import Configure
 from .digital import Digital

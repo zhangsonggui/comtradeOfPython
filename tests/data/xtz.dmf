@@ -163,7 +163,7 @@
         <scl:RX r1="0.0893" x1="0.3074" r0="0.2717" x0="0.6384"/>
         <scl:CG c1="0.0" c0="0.0" g1="0.0" g0="0.0"/>
         <scl:MR idx="0" mr0="0.0" mx0="0.0"/>
-        <scl:ACC_Bran bran_idx="1" ia_idx="13" ib_idx="14" ic_idx="15" in_idx="16" dir="POS"/>
+        <scl:ACC_Bran ="1" ia_idx="13" ib_idx="14" ic_idx="15" in_idx="16" dir="POS"/>
         <scl:StaChn idx_cfg="33"/>
         <scl:StaChn idx_cfg="34"/>
         <scl:StaChn idx_cfg="35"/>
