@@ -77,7 +77,7 @@ class Comtrade(BaseModel):
         ids = list(range(analog_num_max)) if index is None else index
         if 0 <= max(ids) < analog_num_max:
             start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
-            return self.data.analog_value.T[index, start_point:end_point + 1]
+            return self.data.analog_value.T[ids, start_point:end_point + 1]
         raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {analog_num_max})")
 
     def get_raw_by_digital_index(self, index: int, start_point: int = 0, end_point: int = None) -> IntArray32:
@@ -214,6 +214,10 @@ class Comtrade(BaseModel):
             start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
             return self.data.digital_value.T[index, start_point:end_point + 1]
         raise ValueError(f"开关量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {digital_num_max})")
+
+    def get_instant_digital_change_digital(self):
+        self.analyze_digital_change_status()
+        return self.get_instant_by_multi_digital(self.digital_change)
 
     def analyze_digital_change_status(self):
         """

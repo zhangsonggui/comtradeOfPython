@@ -12,11 +12,11 @@
 #  See the Mulan PSL v2 for more details.
 import os
 
-from ..model import Comtrade
-from ..model.type import ReadMode
-from ..model.type import FilePath
-from .config_reader import config_reader
-from .data_reader import DataReader
+from py3comtrade.model import Comtrade
+from py3comtrade.model.type import ReadMode
+from py3comtrade.model.type import FilePath
+from py3comtrade.reader.config_reader import config_reader
+from py3comtrade.reader.data_reader import DataReader
 
 
 def get_comtrade_path(_file_path: str) -> FilePath:
