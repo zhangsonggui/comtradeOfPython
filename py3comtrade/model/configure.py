@@ -43,6 +43,25 @@ class Configure(BaseModel):
         for field in self.model_fields.keys():
             setattr(self, field, None)
 
+    def __str__(self):
+        """
+        生成cfg文件字符串
+        @return: cfg文件字符串
+        """
+        cfg_content = ''
+        cfg_content += str(self.header) + "\n"
+        cfg_content += str(self.channel_num) + "\n"
+        for ac in self.analogs:
+            cfg_content += str(ac) + '\n'
+        for dc in self.digitals:
+            cfg_content += str(dc) + '\n'
+        cfg_content += str(self.sample) + "\n"
+        cfg_content += str(self.file_start_time) + "\n"
+        cfg_content += str(self.fault_time) + "\n"
+        cfg_content += str(self.timemult)
+
+        return cfg_content
+
     def get_cursor_in_segment(self, cursor_site: int) -> int:
         """
         获取游标位置所在的采样段
