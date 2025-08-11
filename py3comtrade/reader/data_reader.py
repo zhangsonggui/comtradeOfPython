@@ -15,16 +15,16 @@ import struct
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, Field, ConfigDict
 
 from ..model.config_sample import ConfigSample
+from ..model.data import Data
 from ..model.type import DataFileType
 
 
 def digital_split(datas: tuple) -> list:
     """
     将开关量整数数组拆分成数组
-    :return: data
+    :return: dat
     """
     digitals = []
     for data in datas:
@@ -34,68 +34,102 @@ def digital_split(datas: tuple) -> list:
     return digitals
 
 
-class DataReader(BaseModel):
+def read_ascii_file(file_path: str, _sample: ConfigSample):
     """
-    读取文件
+    读取ASCII格式的数据文件并解析为样本数据
+
+    参数:
+        file_path (str): 要读取的ASCII格式的comtrade文件路径
+        _sample (ConfigSample): 采样信息对象，包含采样频率、采样段信息
+
+    返回:
+        Data: 包含解析后数据的Data对象，包含以下属性：
+            - file_path: 文件路径
+            - sample_time: 采样时间数据（前2列）
+            - analog_value: 模拟量数据（第3列到模拟量通道数+2列）
+            - digital_value: 数字量数据（模拟量通道数+2列之后的所有列）
+
+    异常:
+        ValueError: 当文件数据格式与配置不匹配时抛出
     """
-    file_path: str = Field(description="文件路径")
-    sample: ConfigSample = Field(description="采样信息")
-    size: int = Field(default=0, description="文件大小")
-    sample_time: np.ndarray = Field(default=None, description="采样时间")
-    analog_value: np.ndarray = Field(default=None, description="模拟量值")
-    digital_value: np.ndarray = Field(default=None, description="开关量值")
+    # 读取CSV格式的ASCII文件内容
+    with open(file_path, 'r') as f:
+        content = pd.read_csv(f, header=None)
+        # 验证数据文件的行列数是否与配置匹配
+        if _sample.count != content.shape[0] or _sample.channel_num.total_num != content.shape[1]:
+            raise ValueError("数据文件格式错误")
 
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    # 按列分割数据：前2列为采样时间，中间为模拟量数据，剩余为数字量数据
+    sample_time = content[:, 0:2]
+    analog_value = content[:, 2:_sample.channel_num.analog_num + 2]
+    digital_value = content[:, _sample.channel_num.analog_num + 2:]
 
-    def __init__(self, **data):
-        super().__init__(**data)
-        self.size = 0
-        self.sample_time = np.zeros((self.sample.count, 2), dtype=np.int32)
-        self.analog_value = np.zeros((self.sample.count, self.sample.channel_num.analog_num),
-                                     dtype=np.float32)
-        self.digital_value = np.zeros((self.sample.count, self.sample.channel_num.digital_num),
-                                      dtype=np.int32)
+    # 构造并返回Data对象
+    return Data(file_path=file_path,
+                sample_time=sample_time,
+                analog_value=analog_value,
+                digital_value=digital_value)
 
-    def read(self):
-        if DataFileType.ASCII == self.sample.data_file_type.value:
-            self.read_ascii()
-        else:
-            self.parse_binary()
 
-    def read_ascii(self):
-        with open(self.file_path, 'r') as f:
-            content = pd.read_csv(f, header=None)
-        self.sample_time = content[:, 0:2]
-        self.analog_value = content[:, 2:self.sample.channel_num.analog_num + 2]
-        self.digital_value = content[:, self.sample.channel_num.analog_num + 2:]
+def read_binary_file(file_path: str, _sample: ConfigSample):
+    """
+    读取二进制文件并解析为结构化数据
 
-    def read_binary(self):
-        str_struct = f"ii{self.sample.analog_sampe_word // 2}h{self.sample.digital_sampe_word // 2}H"
-        with open(self.file_path, 'rb') as f:
-            for i in range(self.sample.count):
-                byte_str = f.read(self.sample.total_sampe_word)
-                if len(byte_str) != self.sample.total_sampe_word:
-                    raise ValueError("文件长度不足")
-                sample_struct = struct.unpack(str_struct, byte_str)
-                self.sample_time[i:] = sample_struct[0:2]
-                self.analog_value[i:] = sample_struct[2:2 + self.sample.channel_num.analog_num]
-                self.digital_value[i:] = digital_split(sample_struct[2 + self.sample.channel_num.analog_num:])
+    参数:
+        file_path (str): 二进制文件的路径
+        _sample (ConfigSample): 配置样本对象，包含通道数量等配置信息
 
-    def parse_binary(self):
-        # 自定义 dtype 结构
-        dt = np.dtype([
-            ('timestamp', np.int32, 2),  # 2个int作为时间戳
-            ('analog', np.int16, self.sample.channel_num.analog_num),  # 96个short作为模拟量
-            ('digital', np.uint16, self.sample.channel_num.digital_num // 16),  # 12个unsigned short作为开关量
-        ])
+    返回:
+        Data: 包含解析后数据的对象，包括时间戳、模拟量和开关量数据
+    """
+    # 定义数据结构类型，用于解析二进制数据
+    dt = np.dtype([
+        ('timestamp', np.int32, 2),  # 2个int作为时间戳
+        ('analog', np.int16, _sample.channel_num.analog_num),  # 模拟量
+        ('digital', np.uint16, _sample.channel_num.digital_num // 16),  # 开关量
+    ])
 
-        # 一次性读取并解析
-        with open(self.file_path, 'rb') as f:
-            buffer = f.read()
+    # 读取整个二进制文件到内存缓冲区
+    with open(file_path, 'rb') as f:
+        buffer = f.read()
 
-        data = np.frombuffer(buffer, dtype=dt)
+    # 将二进制数据按照定义的结构类型解析为numpy数组
+    data = np.frombuffer(buffer, dtype=dt)
 
-        # 提取各部分
-        self.sample_time = data['timestamp']
-        self.analog_value = data['analog']
-        self.digital_value = np.unpackbits(data['digital'].view(np.uint8), bitorder='little', axis=-1)
+    # 提取各部分
+    sample_time = data['timestamp']
+    analog_value = data['analog']
+    digital_value = np.unpackbits(data['digital'].view(np.uint8), bitorder='little', axis=-1)
+    return Data(file_path=file_path,
+                sample_time=sample_time,
+                analog_value=analog_value,
+                digital_value=digital_value)
+
+
+def read_binary(file_path: str, _sample: ConfigSample):
+    str_struct = f"ii{_sample.analog_sampe_word // 2}h{_sample.digital_sampe_word // 2}H"
+    sample_time = np.zeros((_sample.count, 2), dtype=np.int32)
+    analog_value = np.zeros((_sample.count, _sample.channel_num.analog_num),
+                            dtype=np.float32)
+    digital_value = np.zeros((_sample.count, _sample.channel_num.digital_num),
+                             dtype=np.int32)
+    with open(file_path, 'rb') as f:
+        for i in range(_sample.count):
+            byte_str = f.read(_sample.total_sampe_word)
+            if len(byte_str) != _sample.total_sampe_word:
+                raise ValueError("文件长度不足")
+            sample_struct = struct.unpack(str_struct, byte_str)
+            sample_time[i:] = sample_struct[0:2]
+            analog_value[i:] = sample_struct[2:2 + _sample.channel_num.analog_num]
+            digital_value[i:] = digital_split(sample_struct[2 + _sample.channel_num.analog_num:])
+    return Data(file_path=file_path,
+                sample_time=sample_time,
+                analog_value=analog_value,
+                digital_value=digital_value)
+
+
+def data_reader(file_path: str, _sample: ConfigSample) -> Data:
+    if _sample.data_file_type.value == DataFileType.ASCII.value:
+        return read_ascii_file(file_path, _sample)
+    else:
+        return read_binary_file(file_path, _sample)

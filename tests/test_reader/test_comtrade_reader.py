@@ -41,17 +41,18 @@ class TestComtrade(unittest.TestCase):
             self.comtrade.get_raw_by_analog_index(48)
 
     def test_get_raw_by_analog_indices(self):
-        ysz1 = self.comtrade.get_raw_by_analog_indices([0,1,2])
+        ysz1 = self.comtrade.get_raw_by_analog_indices([0, 1, 2])
         self.assertEqual(3077, len(ysz1[0]))
-        self.assertEqual(3,ysz1.shape[0])
+        self.assertEqual(3, ysz1.shape[0])
+
     def test_get_instant_by_analog(self):
-        analog = self.comtrade.configure.get_analog_by_an(1)
+        analog = self.comtrade.cfg.get_analog_by_an(1)
         ch1_ssz = self.comtrade.get_instant_by_analog(analog, primary=False)
         self.assertEqual(-84.691, ch1_ssz[0])
         self.assertEqual(65.465, ch1_ssz[602])
         self.assertEqual(85.316, ch1_ssz[1282])
 
-        analog = self.comtrade.configure.get_analog_by_an(11)
+        analog = self.comtrade.cfg.get_analog_by_an(11)
         ch11_ssz = self.comtrade.get_instant_by_analog(analog, primary=False)
         self.assertEqual(0.136, ch11_ssz[0])
         self.assertEqual(0.327, ch11_ssz[600])
@@ -73,7 +74,7 @@ class TestComtrade(unittest.TestCase):
         self.assertEqual(96, d1.shape[0])
 
     def test_get_instant_by_digital(self):
-        digital = self.comtrade.configure.get_digital_by_dn(1)
+        digital = self.comtrade.cfg.get_digital_by_dn(1)
         d1 = self.comtrade.get_instant_by_digital(digital)
         self.assertEqual(3077, len(d1[0]))
 

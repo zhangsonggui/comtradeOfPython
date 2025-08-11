@@ -13,10 +13,10 @@
 import os
 
 from py3comtrade.model import Comtrade
-from py3comtrade.model.type import ReadMode
 from py3comtrade.model.type import FilePath
+from py3comtrade.model.type import ReadMode
 from py3comtrade.reader.config_reader import config_reader
-from py3comtrade.reader.data_reader import DataReader
+from py3comtrade.reader.data_reader import data_reader
 
 
 def get_comtrade_path(_file_path: str) -> FilePath:
@@ -65,11 +65,10 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL):
     :return: Comtrade对象
     """
     files = get_comtrade_path(_file_path)
-    _comtrade: Comtrade = Comtrade(file_path=files)
-    _comtrade.configure = config_reader(files.get("cfg_path"))
+    cfg = config_reader(files.get("cfg_path"))
+    _comtrade: Comtrade = Comtrade(file_path=files, cfg=cfg)
     if read_mode in [ReadMode.DAT, ReadMode.FULL]:
-        _comtrade.data = DataReader(file_path=files.get("dat_path"), sample=_comtrade.configure.sample)
-        _comtrade.read_data()
+        _comtrade.dat = data_reader(files.get("dat_path"), cfg.sample)
         _comtrade.analyze_digital_change_status()
     if read_mode in [ReadMode.DMF, ReadMode.FULL]:
         pass
@@ -82,4 +81,4 @@ if __name__ == '__main__':
     raw_a = comtrade.get_raw_by_analog_indices()
     raw_d = comtrade.get_instant_by_digital_indices()
     for dc in comtrade.digital_change:
-        print(dc)
+        print(dc.name, dc.idx_cfg, dc.phase)

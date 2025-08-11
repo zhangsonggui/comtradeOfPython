@@ -49,16 +49,16 @@ class Configure(BaseModel):
         @return: cfg文件字符串
         """
         cfg_content = ''
-        cfg_content += str(self.header) + "\n"
-        cfg_content += str(self.channel_num) + "\n"
+        cfg_content += self.header.__str__() + "\n"
+        cfg_content += self.channel_num.__str__() + "\n"
         for ac in self.analogs:
-            cfg_content += str(ac) + '\n'
+            cfg_content += ac.__str__() + '\n'
         for dc in self.digitals:
-            cfg_content += str(dc) + '\n'
-        cfg_content += str(self.sample) + "\n"
-        cfg_content += str(self.file_start_time) + "\n"
-        cfg_content += str(self.fault_time) + "\n"
-        cfg_content += str(self.timemult)
+            cfg_content += dc.__str__() + '\n'
+        cfg_content += self.sample.__str__() + "\n"
+        cfg_content += self.file_start_time.__str__() + "\n"
+        cfg_content += self.fault_time.__str__() + "\n"
+        cfg_content += self.timemult.__str__()
 
         return cfg_content
 

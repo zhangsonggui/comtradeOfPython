@@ -18,20 +18,21 @@ from pydantic import BaseModel, Field
 from py3comtrade.model.dmf import DMF
 from .analog import Analog
 from .configure import Configure
+from .data import Data
 from .digital import Digital
 from .digital_change_status import StatusRecord
 from .type import FilePath, FloatArray32, IntArray32
 from .type import PsType
 from .type import SampleMode
-from ..reader.data_reader import DataReader
+from ..reader.data_reader import data_reader
 from ..reader.dmf_reader import dmf_parser
 from ..utils.cfg_to_dmf import CfgToDmf
 
 
 class Comtrade(BaseModel):
     file_path: FilePath = Field(default=None, description="录波文件路径")
-    configure: Configure = Field(default=None, description="Comtrade配置对象")
-    data: DataReader = Field(default=None, description="Comtrade数据对象")
+    cfg: Configure = Field(default=None, description="Comtrade配置对象")
+    dat: Data = Field(default=None, description="Comtrade数据对象")
     dmf: DMF = Field(default=None, description="Comtrade数据对象")
     digital_change: list = Field(default_factory=list, description="变位开关量通道记录")
 
@@ -39,15 +40,14 @@ class Comtrade(BaseModel):
         """
         获取dat数据
         """
-        self.data = DataReader(file_path=self.file_path.get("dat_path"), sample=self.configure.sample)
-        self.data.read()
+        self.dat = data_reader(self.files.get("dat_path"), self.configure.sample)
 
     def read_dmf(self):
         """
         获取dmf数据
         """
         if self.file_path.get("dmf_path") is None:
-            self.dmf = CfgToDmf(self.configure)
+            self.dmf = CfgToDmf(self.cfg)
         else:
             self.dmf = dmf_parser(self.file_path.get("dmf_path"))
 
@@ -60,8 +60,8 @@ class Comtrade(BaseModel):
         :return: 原始采样值numpy数组
         """
         index = self._validate_index(index)
-        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
-        return self.data.analog_value.T[index:index + 1, start_point:end_point + 1]
+        start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point)
+        return self.dat.analog_value.T[index:index + 1, start_point:end_point + 1]
 
     def get_raw_by_analog_indices(self, index: list[int] = None, start_point: int = 0,
                                   end_point: int = None) -> FloatArray32:
@@ -73,11 +73,11 @@ class Comtrade(BaseModel):
         :return: 原始采样值numpy数组
         """
         # 当index为空时，默认获取所有模拟量通道
-        analog_num_max = self.configure.channel_num.analog_num
+        analog_num_max = self.cfg.channel_num.analog_num
         ids = list(range(analog_num_max)) if index is None else index
         if 0 <= max(ids) < analog_num_max:
-            start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
-            return self.data.analog_value.T[ids, start_point:end_point + 1]
+            start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point)
+            return self.dat.analog_value.T[ids, start_point:end_point + 1]
         raise ValueError(f"模拟量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {analog_num_max})")
 
     def get_raw_by_digital_index(self, index: int, start_point: int = 0, end_point: int = None) -> IntArray32:
@@ -89,8 +89,8 @@ class Comtrade(BaseModel):
         :return: 原始采样值numpy数组
         """
         index = self._validate_index(index, is_analog=False)
-        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
-        return self.data.digital_value.T[index:index + 1, start_point:end_point + 1]
+        start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point)
+        return self.dat.digital_value.T[index:index + 1, start_point:end_point + 1]
 
     def get_raw_by_digital_indices(self, index: list[int] = None, start_point: int = 0,
                                    end_point: int = None) -> IntArray32:
@@ -101,11 +101,11 @@ class Comtrade(BaseModel):
         :param end_point: 采样点结束位置
         :return: 原始采样值numpy数组
         """
-        digital_num_max = self.configure.channel_num.digital_num
+        digital_num_max = self.cfg.channel_num.digital_num
         index = list(range(digital_num_max)) if index is None else index
         if 0 <= max(index) < digital_num_max:
-            start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point)
-            return self.data.digital_value.T[index, start_point:end_point + 1]
+            start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point)
+            return self.dat.digital_value.T[index, start_point:end_point + 1]
         raise ValueError(f"开关量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {digital_num_max})")
 
     def get_instant_by_analog(self, analog: Analog, start_point: int = 0, end_point: int = None,
@@ -121,7 +121,7 @@ class Comtrade(BaseModel):
         :param primary: 是否输出主变比值,默认为False,代表输出变比值
         :return: 瞬时值采样值numpy数组
         """
-        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+        start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
         # 获取原始值
         vs = self.get_raw_by_analog_index(analog.index, start_point, end_point)
         vs = vs[0] * analog.a + analog.b
@@ -145,8 +145,8 @@ class Comtrade(BaseModel):
         :return 返回二维数组，x轴为通道索引，y轴为采样点
         """
         if analogs is None:
-            analogs = self.configure.analogs
-        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+            analogs = self.cfg.analogs
+        start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
         vs = []
         for analog in analogs:
             vs.append(self.get_instant_by_analog(analog, start_point, end_point, cycle_num, mode, primary))
@@ -164,8 +164,8 @@ class Comtrade(BaseModel):
         :return: 原始采样numpy数组
         """
         index = self._validate_index(index, is_analog=False)
-        start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
-        return self.data.digital_value.T[index:index + 1, start_point:end_point + 1]
+        start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+        return self.dat.digital_value.T[index:index + 1, start_point:end_point + 1]
 
     def get_instant_by_digital_indices(self, index: list[int] = None, start_point: int = 0,
                                        end_point: int = None, cycle_num: float = None,
@@ -179,11 +179,11 @@ class Comtrade(BaseModel):
         :param mode: 模式,默认为1,代表向后取值,0为前后取值,1为向前取值
         :return: 原始采样numpy数组
         """
-        digital_num_max = self.configure.channel_num.digital_num
+        digital_num_max = self.cfg.channel_num.digital_num
         index = list(range(digital_num_max)) if index is None else index
         if 0 <= max(index) < digital_num_max:
-            start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
-            return self.data.digital_value.T[index, start_point:end_point + 1]
+            start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+            return self.dat.digital_value.T[index, start_point:end_point + 1]
         raise ValueError(f"开关量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {digital_num_max})")
 
     def get_instant_by_digital(self, digital: Digital, start_point: int = 0, end_point: int = None,
@@ -208,11 +208,11 @@ class Comtrade(BaseModel):
         :param cycle_num: 采样周波数量
         :param mode: 取值方式
         """
-        digital_num_max = self.configure.channel_num.digital_num
+        digital_num_max = self.cfg.channel_num.digital_num
         index = list(range(digital_num_max)) if digitals is None else [d.index for d in digitals if hasattr(d, 'index')]
         if 0 <= max(index) < digital_num_max:
-            start_point, end_point, _ = self.configure.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
-            return self.data.digital_value.T[index, start_point:end_point + 1]
+            start_point, end_point, _ = self.cfg.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
+            return self.dat.digital_value.T[index, start_point:end_point + 1]
         raise ValueError(f"开关量通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {digital_num_max})")
 
     def get_instant_digital_change_digital(self):
@@ -224,9 +224,9 @@ class Comtrade(BaseModel):
         获取发生变位的开关量对象列表\n
         """
         self.digital_change = []
-        for ch in range(self.data.digital_value.shape[1]):
-            col = self.data.digital_value[:, ch]
-            digital = self.configure.digitals[ch]
+        for ch in range(self.dat.digital_value.shape[1]):
+            col = self.dat.digital_value[:, ch]
+            digital = self.cfg.digitals[ch]
             status_record = StatusRecord(timestamp=0, status=col[0].item())
             digital.change_status.append(status_record)
             if col.min() != col.max():
@@ -248,14 +248,14 @@ class Comtrade(BaseModel):
         :param analog: 通道对象,默认为None,代表输出全部通道
         :return: 瞬时值采样值numpy数组
         """
-        segment = self.configure.sample.nrates[segment_index]
+        segment = self.cfg.sample.nrates[segment_index]
         if isinstance(analog, Analog):
             return self.get_instant_by_analog(analog, segment.start_point, segment.end_point, primary)
         if isinstance(analog, list):
             return self.get_instant_by_multi_analog(analog, segment.start_point, segment.end_point, primary)
-        if analog is None:
-            return self.get_instant_by_multi_analog(self.configure.analogs, segment.start_point, segment.end_point,
-                                                    primary)
+
+        return self.get_instant_by_multi_analog(self.cfg.analogs, segment.start_point, segment.end_point,
+                                                primary)
 
     def _validate_index(self, index: int, is_analog: bool = True) -> int:
         """
@@ -265,7 +265,7 @@ class Comtrade(BaseModel):
         """
         if not isinstance(index, int):
             raise TypeError(f"通道索引值类型错误！需要 int 类型，但收到 {type(index).__name__}。")
-        index_max = self.configure.channel_num.analog_num if is_analog else self.configure.channel_num.digital_num
+        index_max = self.cfg.channel_num.analog_num if is_analog else self.cfg.channel_num.digital_num
         if not (0 <= index < index_max):
             raise ValueError(f"通道索引值超出范围！当前索引值: {index}, 允许范围: [0, {index_max})")
         return index
