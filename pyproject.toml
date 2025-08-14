@@ -1,12 +1,12 @@
 [project]
 name = "py3comtrade"
-version = "4.0.0"
+version = "4.0.1"
 description = "解析comtrade中的cfg、dat、dmf等文件，提供配置文件中通道数量，的解析、数值计算和文件合并功能。"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "chardet>=5.2.0",
-    "numpy>=2.2.5",
+    "numpy==1.26.0",
     "openpyxl>=3.1.5",
     "pandas>=2.2.3",
     "pydantic>=2.11.4",
@@ -17,3 +17,5 @@ dependencies = [
 [[tool.uv.index]]
 url = "https://pypi.tuna.tsinghua.edu.cn/simple"
 default = true
+[tool.setuptools.packages.find]
+include = ["py3comtrade*"]
