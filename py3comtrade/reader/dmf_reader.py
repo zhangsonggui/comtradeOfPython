@@ -6,18 +6,18 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import xml.etree.ElementTree as ET
 
 from py3comtrade.model import AnalogChannel, ChannelIdx
-from py3comtrade.model.dmf import DMF
-from py3comtrade.model.status_channel import StatusChannel
 from py3comtrade.model.bus import Bus
+from py3comtrade.model.dmf import DMF
 from py3comtrade.model.line import Line
 from py3comtrade.model.primary_equipments import ACVBranch, CG, MR, RX, ACCBranch
+from py3comtrade.model.status_channel import StatusChannel
 from py3comtrade.model.transformer import Transformer, WG, TransformerWinding
 from py3comtrade.model.type import BreakerFlag, ChannelFlag, Contact, PsType, RelayFlag, SignalType, WarningFlag
 from py3comtrade.model.type.analog_enum import Multiplier, TvInstallation, BranNum, CtDirection, TransWindLocation, \

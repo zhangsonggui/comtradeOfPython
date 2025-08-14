@@ -6,10 +6,11 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+from typing import Union
 
 from pydantic import BaseModel, Field
 
@@ -22,6 +23,7 @@ from .nrate import Nrate
 from .precision_time import PrecisionTime
 from .timemult import TimeMult
 from .type import SampleMode
+from .type.types import ChannelType, IdxType
 
 
 class Configure(BaseModel):
@@ -58,9 +60,14 @@ class Configure(BaseModel):
         cfg_content += self.sample.__str__() + "\n"
         cfg_content += self.file_start_time.__str__() + "\n"
         cfg_content += self.fault_time.__str__() + "\n"
+        cfg_content += self.sample.data_file_type.value + "\n"
         cfg_content += self.timemult.__str__()
 
         return cfg_content
+
+    def write_file(self, output_file_path: str):
+        with open(output_file_path, 'w', encoding='gbk') as f:
+            f.write(self.__str__())
 
     def get_cursor_in_segment(self, cursor_site: int) -> int:
         """
@@ -188,57 +195,53 @@ class Configure(BaseModel):
         """
         return
 
-    def get_analog_by_index(self, index: int) -> Analog:
+    def get_channel(self, index: Union[int, list[int]] = None,
+                    channel_type: ChannelType = ChannelType.ANALOG,
+                    idx_type: IdxType = IdxType.INDEX) -> Union[Analog, Digital, list[Analog], list[Digital]]:
         """
-        根据索引获取模拟量
-        :param index: 索引
-        :return: 模拟量对象
-        """
-        if 0 <= index < len(self.analogs):
-            return self.analogs[index]
-        raise IndexError("索引超出范围")
+        根据通道索引获取通道类型
 
-    def get_analog_by_an(self, an: int) -> Analog:
+        参数:
+            index（int,list[int]）通道索引值
+            channel_type 通道类型
+            idx_type(IdxTyep)通道索引值类型，INDEX、CFGAN
+        返回值:
+            通道对象或通道对象数组（模拟量、开关量）
         """
-        根据an获取模拟量
-        :param an: 模拟量an
-        :return: 模拟量对象
-        """
-        for analog in self.analogs:
-            if analog.idx_cfg == an:
-                return analog
+        is_analog = channel_type == ChannelType.ANALOG
+        # 索引如果为None，返回模拟量或开关量的所有通道
+        if index is None:
+            return self.analogs if is_analog else self.digitals
+        # 根据通道类型获取该类型的最大通道数量
+        channel_num_max = self.channel_num.analog_num if is_analog else self.channel_num.digital_num
+        # 如果索引值为int，判断索引值是否合法，如果合法返回该索引的通道对象
+        if isinstance(index, int):
+            if not (0 <= index < channel_num_max):
+                raise ValueError(f"索引超出范围！当前索引: {index}, 允许范围: [0, {channel_num_max})")
+            # 如果是按照索引值查找，返回对应的通道对象
+            if idx_type == IdxType.INDEX:
+                return self.analogs[index] if is_analog else self.digitals[index]
+            # 如果按照通道标识符查找，返回对应的通道对象数组
+            else:
+                return next((analog for analog in self.analogs if analog.idx_cfg == index),
+                            None) if is_analog else next(
+                    (digital for digital in self.digitals if digital.idx_cfg == index), None)
+
+        # 如果索引值为list，判断索引值是否合法，如果合法返回该索引的通道对象数组
+        if isinstance(index, list):
+            if idx_type == IdxType.INDEX:
+                return [self.analogs[i] for i in index] if is_analog else [self.digitals[i] for i in index]
+            else:
+                return [self.analogs[i] for i in index if self.analogs[i].idx_cfg == index] if is_analog else [
+                    self.digitals[i] for i in index if self.digitals[i].idx_cfg == index]
+        raise TypeError("索引类型错误！需要 int 或 list 类型，但收到 {type(channel_idx).__name__}。")
 
     def add_analog(self, analog: Analog, index: int = None):
-        """
-        添加模拟量
-        :param analog: 模拟量通道对象
-        :param index: 添加的位置，当为空时从列表的尾部添加
-        """
         if index is not None:
             self.analogs.insert(index, analog)
         else:
             analog.index = len(self.analogs)
             self.analogs.append(analog)
-
-    def get_digital_by_index(self, index: int) -> Digital:
-        """
-        根据索引获取开关量
-        :param index: 索引
-        :return: 开关量对象
-        """
-        if 0 <= index < len(self.digitals):
-            return self.digitals[index]
-        raise IndexError("索引超出范围")
-
-    def get_digital_by_dn(self, dn: int) -> Digital:
-        """
-        根据dn获取开关量
-        :param dn: 开关量dn
-        :return: 开关量对象
-        """
-        for digital in self.digitals:
-            if digital.idx_cfg == dn:
-                return digital
 
     def add_digital(self, digital: Digital, index: int = None):
         """

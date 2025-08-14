@@ -6,14 +6,13 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from enum import Enum
 from typing import List
 
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from .channel import ChannelIdx
 from .primary_equipments import ACCBranch, CG, MR, PrimaryEquipments, RX
@@ -40,9 +39,9 @@ class Line(PrimaryEquipments):
               + f"VRtg={self.v_rtg} ARtg={self.a_rtg} ARtgSnd={self.a_rtg_snd} LinLen={self.lin_len} " \
               + f"bran_num={self.bran_num.get_code()} line_uuid="">"
         for acc_branch in self.acc_bran:
-            xml += "\n"+str(acc_branch)
+            xml += "\n" + str(acc_branch)
         for ana_chn in self.ana_chn:
-            xml += "\n"+str(ana_chn)
+            xml += "\n" + str(ana_chn)
         for sta_chn in self.sta_chn:
-            xml += "\n"+str(sta_chn)
+            xml += "\n" + str(sta_chn)
         return xml

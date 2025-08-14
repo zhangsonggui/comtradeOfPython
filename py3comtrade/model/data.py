@@ -6,13 +6,15 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import numpy as np
 import pandas as pd
 from pydantic import BaseModel, Field, ConfigDict
+
+from py3comtrade.model.config_sample import ConfigSample
 
 
 class Data(BaseModel):
@@ -26,9 +28,11 @@ class Data(BaseModel):
 
     def write_ascii(self, output_file_path: str):
         """
-                将数据写入ASCII格式文件
-                :param output_file_path: 输出文件路径
-                """
+        将数据写入ASCII格式文件
+
+        参数:
+            output_file_path: 输出文件路径
+        """
         # 组合数据
         data = np.column_stack((
             self.sample_time.reshape(-1, 2),
@@ -39,20 +43,23 @@ class Data(BaseModel):
         # 写入CSV文件
         pd.DataFrame(data).to_csv(output_file_path, header=False, index=False)
 
-    def write_binary(self, output_file_path: str):
+    def write_binary(self, output_file_path: str, sample: ConfigSample):
         """
         将数据写入二进制格式文件
-        :param output_file_path: 输出文件路径
+
+        参数:
+            output_file_path: 输出文件路径
+            sample: 采样信息
         """
         # 自定义dtype结构，与parse_binary方法兼容
         dt = np.dtype([
             ('timestamp', np.int32, 2),  # 2个int作为时间戳
-            ('analog', np.int16, self.sample.channel_num.analog_num),  # 模拟量
-            ('digital', np.uint16, self.sample.channel_num.digital_num // 16),  # 开关量
+            ('analog', np.int16, sample.channel_num.analog_num),  # 模拟量
+            ('digital', np.uint16, sample.channel_num.digital_num // 16),  # 开关量
         ])
 
         # 创建空数组
-        data = np.empty(self.sample.count, dtype=dt)
+        data = np.empty(sample.count, dtype=dt)
 
         # 填充数据
         data['timestamp'] = self.sample_time

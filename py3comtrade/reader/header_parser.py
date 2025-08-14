@@ -6,7 +6,7 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
@@ -24,7 +24,7 @@ def header_parser(line) -> ConfigHeader:
     station_name = ''
     recorder_name = ''
     version = 1991
-    if (l:=len(parts)) >= 1:
+    if (l := len(parts)) >= 1:
         station_name = parts[0]
     if l >= 2:
         recorder_name = parts[1]

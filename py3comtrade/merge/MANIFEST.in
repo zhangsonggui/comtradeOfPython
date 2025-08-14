@@ -1,5 +1,0 @@
-include comtradeParser *
-global-exclude *.pyc
-global-exclude __pycache__
-include README.md
-include LICENSE

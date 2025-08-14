@@ -6,7 +6,7 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
@@ -57,18 +57,38 @@ def get_comtrade_path(_file_path: str) -> FilePath:
         return FilePath(cfg_path="", dat_path="", dmf_path="")
 
 
-def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL):
+def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Comtrade:
     """
     读取Comtrade数据
-    :param _file_path: 文件路径
-    :param read_mode: 读取模式
-    :return: Comtrade对象
+
+    参数:
+        _file_path(str): 文件路径
+        read_mode: 读取模式
+    返回:
+        Comtrade对象
     """
     files = get_comtrade_path(_file_path)
     cfg = config_reader(files.get("cfg_path"))
-    _comtrade: Comtrade = Comtrade(file_path=files, cfg=cfg)
+    _comtrade: Comtrade = Comtrade(file_path=files,
+                                   header=cfg.header,
+                                   channel_num=cfg.channel_num,
+                                   analogs=cfg.analogs,
+                                   digitals=cfg.digitals,
+                                   sample=cfg.sample,
+                                   file_start_time=cfg.file_start_time,
+                                   fault_time=cfg.fault_time,
+                                   timemult=cfg.timemult)
     if read_mode in [ReadMode.DAT, ReadMode.FULL]:
-        _comtrade.dat = data_reader(files.get("dat_path"), cfg.sample)
+        try:
+            dat = data_reader(files.get("dat_path"), cfg.sample)
+            _comtrade.sample_time = dat.sample_time.tolist()
+            for analog in _comtrade.analogs:
+                analog.raw = dat.analog_value.T[analog.index, :].tolist()
+                # analog.instants = np.round(vs * analog.a + analog.b, 3).tolist()
+            for digital in _comtrade.digitals:
+                digital.raw = dat.digital_value.T[digital.index, :].tolist()
+        except ValueError as e:
+            raise f"{_file_path}文件解析失败：{e}"
         _comtrade.analyze_digital_change_status()
     if read_mode in [ReadMode.DMF, ReadMode.FULL]:
         pass

@@ -1,3 +1,5 @@
+from enum import Enum
+
 import numpy as np
 from numpy.typing import NDArray
 from typing_extensions import TypedDict
@@ -16,3 +18,13 @@ class FilePath(TypedDict):
     dat_path: str
     # 模型文件路径
     dmf_path: str
+
+
+class IdxType(Enum):
+    INDEX = (0, "index索引")
+    CFGAN = (1, "cfg_idx索引")
+
+
+class ChannelType(Enum):
+    ANALOG = (0, "模拟通道")
+    DIGITAL = (1, "开关量通道")

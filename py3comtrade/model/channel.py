@@ -6,10 +6,11 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
@@ -35,7 +36,7 @@ class Channel(ChannelIdx):
                              description="通道相别标识，可选，字母、数字，最小0个字符，最大长度2个字符")
     ccbm: str = Field(default="", description="被监视的电路元件，可选，字母、数字，最小0个字符，最大长度64个字符")
     index: int = Field(default=0, description="通道索引号")
-    instants: list[float] = Field(default=list, description="通道数值")
+    raw: Optional[List[int]] = Field(default=list, description="通道原始数据")
 
     def clear(self) -> None:
         """清除模型中所有字段"""
