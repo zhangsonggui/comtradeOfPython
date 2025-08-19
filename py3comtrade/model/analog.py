@@ -28,6 +28,7 @@ class Analog(Channel):
     secondary: float = Field(default=1.0, description="通道互感器变比二次系数")
     ps: PsType = Field(default=PsType.P, description="一次还是二次值标识")
     ratio: float = Field(default=1.0, description="通道比率")
+    is_current: bool = Field(default=True, description="是否电流通道")
     y: list[float] = Field(default_factory=list, description="通道数值")
 
     def clear(self) -> None:
