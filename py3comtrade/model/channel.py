@@ -15,6 +15,7 @@ from typing import List, Optional
 from pydantic import BaseModel, Field
 
 from .type import PhaseCode
+from ..utils.channel_dispose import match_channel_name
 
 
 class ChannelIdx(BaseModel):
@@ -42,6 +43,10 @@ class Channel(ChannelIdx):
         """清除模型中所有字段"""
         for field in self.model_fields.keys():
             setattr(self, field, None)
+
+    def is_enable(self):
+        """通过名称判定该通道是否使用"""
+        return False if match_channel_name(self.name) else True
 
     def __str__(self):
         return super().__str__() + f",{self.name},{self.phase.code},{self.ccbm}"

@@ -14,7 +14,8 @@
 from pydantic import Field
 
 from .channel import Channel
-from .type import ElectricalUnit, PsType
+from .type import ElectricalUnit, PsType, AnalogFlag
+from ..utils.channel_dispose import analog_channel_classification
 
 
 class Analog(Channel):
@@ -36,6 +37,14 @@ class Analog(Channel):
         super().clear()
         for field in self.model_fields.keys():
             setattr(self, field, None)
+
+    def is_enable(self) -> bool:
+        """根据通道名称和变比判断该通道是否使用"""
+        return super().is_enable() and self.ratio > 1
+
+    def analog_flag(self) -> AnalogFlag:
+        """根据通道名称和单位判断通道类型"""
+        return analog_channel_classification(self.name, self.unit)
 
     def __str__(self):
         return (

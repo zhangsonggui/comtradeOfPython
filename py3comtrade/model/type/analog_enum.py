@@ -39,8 +39,10 @@ class AnalogType(BaseEnum):
 
 
 class AnalogFlag(BaseEnum):
-    ACV = ('ACV', "电压")
-    ACC = ('ACC', "电流")
+    ACV = ('ACV', "交流电压")
+    DCV = ('DCV', "直流电压")
+    ACC = ('ACC', "交流电流")
+    DCC = ('DCC', "直流电流")
     HF = ('HF', "高频")
     FQ = ('FQ', "频率")
     AG = ('AG', "相位")
