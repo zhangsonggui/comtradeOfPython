@@ -14,8 +14,8 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from .type import PhaseCode
-from ..utils.channel_dispose import match_channel_name
+from .type import PhaseCode, AnalogFlag
+from ..utils.channel_dispose import match_channel_name, analog_channel_classification
 
 
 class ChannelIdx(BaseModel):
@@ -47,6 +47,10 @@ class Channel(ChannelIdx):
     def is_enable(self):
         """通过名称判定该通道是否使用"""
         return False if match_channel_name(self.name) else True
+
+    def analog_flag(self) -> AnalogFlag:
+        """根据通道名称和单位判断通道类型"""
+        return analog_channel_classification(self.name)
 
     def __str__(self):
         return super().__str__() + f",{self.name},{self.phase.code},{self.ccbm}"

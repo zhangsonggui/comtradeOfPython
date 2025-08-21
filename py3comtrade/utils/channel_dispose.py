@@ -1,8 +1,65 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import re
+from typing import List
 
 from py3comtrade.model.type import ElectricalUnit, AnalogFlag
+
+# 预编译名称启用规则正则表达式，提升性能
+_NAME_ENABLE_COMPILED_PATTERNS: List[re.Pattern] = [
+    re.compile(r'^\s*\d+\s*$'),  # 纯数字或数字前后有空格
+    re.compile(r'^模拟量$'),  # 仅模拟量三个字
+    re.compile(r'^模拟量\s*\d*$'),  # 模拟量加数字或数字前有空格
+    re.compile(r'^电压$'),  # 仅电压
+    re.compile(r'^电压\s*\d+$'),  # 电压加数字
+    re.compile(r'^电流\s*\d+$'),  # 电流加数字
+    re.compile(r'^电流'),  # 以电流开头（注意：可能需要进一步限制）
+    re.compile(r'^开关量\s*\d+$'),  # 开关量加数字
+    re.compile(r'^状态量\s*\d+$'),  # 状态量加数字
+    re.compile(r'^电压\d+\s*[Uu][abc]$', re.IGNORECASE),  # 电压+数字+Ua/Ub/Uc
+    re.compile(r'^电压\d+\s*[Uu]0$', re.IGNORECASE),  # 电压+数字+U0
+    re.compile(r'^电流\d+\s*[Ii][abc]$', re.IGNORECASE),  # 电流+数字+Ia/Ib/Ic
+    re.compile(r'^电流\d+\s*[Ii]0$', re.IGNORECASE),  # 电流+数字+I0
+    re.compile(r'^电压\d+\s*3[Uu]0$', re.IGNORECASE),  # 电压+数字+3U0
+    re.compile(r'^电流\d+\s*3[Ii]0$', re.IGNORECASE)  # 电流+数字+3I0
+]
+
+# 预编译名称判断电压规则正则表达式，提升性能
+_NAME_VOLTAGE_COMPILED_PATTERNS: List[re.Pattern] = [
+    re.compile(r'.*电压.*_[Uu][abc]$', re.IGNORECASE),  # 包含"电压"和相别如_Ua
+    re.compile(r'.*_[Uu][abc]$', re.IGNORECASE),  # 包含"电压"和相别如_Ua
+    re.compile(r'.*[Uu][abc]$', re.IGNORECASE),  # 包含"电压"和相别如_Ua
+    re.compile(r'.*[Uu]0$', re.IGNORECASE),  # 包含"电压"和相别如_Ua
+    re.compile(r'.*电压.* [Uu][abc]$', re.IGNORECASE),  # 包含"电压"和相别如Ua
+    re.compile(r'.*电压\d+\s*[Uu]0$', re.IGNORECASE),  # 包含"电压"和相别如Ua
+    re.compile(r'.*电压.*[abc]相电压$', re.IGNORECASE),  # 包含"电压"和相别如A相电压
+]
+
+# 预编译名称判断电流规则正则表达式，提升性能
+_NAME_CURRENT_COMPILED_PATTERNS: List[re.Pattern] = [
+    re.compile(r'.*电流.*_[Ii][abc]$', re.IGNORECASE),  # 包含"电流"和相别如_Ia
+    re.compile(r'.*电流.* [Ii][abc]$', re.IGNORECASE),  # 包含"电流"和相别如_Ia
+    re.compile(r'.*_[Ii][abc]$', re.IGNORECASE),  # 包含"电流"和相别如_Ia
+    re.compile(r'.*[Ii][abc]$', re.IGNORECASE),  # 包含"电流"和相别如_Ia
+    re.compile(r'.*[Ii]0$', re.IGNORECASE),  # 包含"电流"和相别如_Ia
+    re.compile(r'.*电流\d+\s.* [Ii][0]$', re.IGNORECASE),  # 包含"电流"和相别如_Ia
+    re.compile(r'.*电流.*[Ii]相电流$', re.IGNORECASE),  # 包含"电流"和相别如A相电流
+]
+
+# 预编译高频规则正则表达式
+_HF_COMPILED_PATTERN = [
+    re.compile(r'.*高频$'),
+    re.compile(r'.*高频通道'),
+    re.compile(r'.*高频\s*\d'),
+    re.compile(r'.*高频通道\s*\d')
+]
+
+# 预编译直流规则正则表达式
+_DC_COMPILED_PATTERN = [
+    re.compile(r'.*直流$'),
+    re.compile(r'.*直流通道'),
+    re.compile(r'.*直流电源')
+]
 
 
 def match_channel_name(_name_str: str) -> bool:
@@ -15,33 +72,28 @@ def match_channel_name(_name_str: str) -> bool:
     返回:
         bool: 符合规则返回 True，否则返回 False
     """
-    patterns = [
-        r'^\s*\d+\s*$',  # 纯数字或数字前后有空格
-        r'^模拟量$',  # 仅模拟量三个字
-        r'^模拟量\s*\d*$',  # 模拟量加数字或数字前有空格
-        r'^电压\s*\d+$',  # 电压加数字或数字前有空格
-        r'^电流\s*\d+$',  # 电流加数字或数字前有空格
-        r'^开关量\s*\d+$',  # 开关量加数字或数字前有空格
-        r'^状态量\s*\d+$'  # 状态量加数字或数字前有空格
-    ]
+    if not isinstance(_name_str, str):
+        return False
 
-    return any(re.match(pattern, _name_str) for pattern in patterns)
+    return any(re.match(pattern, _name_str) for pattern in _NAME_ENABLE_COMPILED_PATTERNS)
 
 
 def analog_channel_classification(_name_str: str, unit: ElectricalUnit = None) -> AnalogFlag | None:
     analog_flag = None
-    if unit == ElectricalUnit.V or unit == ElectricalUnit.KV:
+    is_voaltage = any(re.match(pattern, _name_str) for pattern in _NAME_VOLTAGE_COMPILED_PATTERNS)
+    is_current = any(re.match(pattern, _name_str) for pattern in _NAME_CURRENT_COMPILED_PATTERNS)
+    if unit == ElectricalUnit.V or unit == ElectricalUnit.KV or is_voaltage:
         analog_flag = AnalogFlag.ACV
-    elif unit == ElectricalUnit.A or unit == ElectricalUnit.KA:
+    elif unit == ElectricalUnit.A or unit == ElectricalUnit.KA or is_current:
         analog_flag = AnalogFlag.ACC
 
-    pattern = r'^(高频$|高频通道$|高频\s*\d+$|高频通道\s*\d+$)'
-    if bool(re.match(pattern, _name_str)) and _name_str in ["电压", "U"]:
+    if any(re.match(pattern, _name_str) for pattern in _HF_COMPILED_PATTERN) and is_voaltage:
         analog_flag = AnalogFlag.DCV
-    pattern = r'^(直流$|直流电源)'
-    if bool(re.match(pattern, _name_str)) and _name_str in ["电流", ]:
+    elif any(re.match(pattern, _name_str) for pattern in _DC_COMPILED_PATTERN) and is_current:
         analog_flag = AnalogFlag.DCC
-
+    elif analog_flag is None:
+        analog_flag = AnalogFlag.DCV
+    
     return analog_flag
 
 

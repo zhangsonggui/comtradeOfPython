@@ -18,14 +18,12 @@ from ..model.type import ElectricalUnit, PsType, PhaseCode
 def analog_parser(line):
     # 去除字符串两端的空格，并按照逗号分割字符串
     line = line.strip().split(",")
-    is_current = True if line[4].upper() in ["A", "KV"] else False
     # 创建Analog对象，传入参数
     analog = Analog(idx_cfg=int(line[0]),
                     name=line[1],
                     phase=PhaseCode.from_string(line[2], default=PhaseCode.NO_PHASE),
                     ccbm=line[3],
                     unit=ElectricalUnit.from_string(line[4], default=ElectricalUnit.NONE),
-                    is_current=is_current,
                     a=float(line[5]),
                     b=float(line[6]),
                     skew=float(line[7]) if line[7] else 0.0,
