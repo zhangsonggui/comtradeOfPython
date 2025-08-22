@@ -10,6 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+
 from pydantic import Field
 
 from .channel import Channel
@@ -30,9 +31,11 @@ class Digital(Channel):
         for field in self.model_fields.keys():
             setattr(self, field, None)
 
+    def is_change(self):
+        return len(self.change_status) > 1
+
     def is_enable(self):
-        """根据通道名称和变比判断该通道是否使用"""
-        super().is_enable() and len(self.change_status.records) > 1
+        return super().is_enable() or self.is_change()
 
     def __str__(self):
         contact_code = 1 if self.contact == Contact.NORMALLY_CLOSED else 0

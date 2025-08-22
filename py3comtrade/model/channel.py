@@ -46,9 +46,9 @@ class Channel(ChannelIdx):
 
     def is_enable(self):
         """通过名称判定该通道是否使用"""
-        return False if match_channel_name(self.name) else True
+        return not match_channel_name(self.name)
 
-    def analog_flag(self) -> AnalogFlag:
+    def channel_flag(self) -> AnalogFlag:
         """根据通道名称和单位判断通道类型"""
         return analog_channel_classification(self.name)
 

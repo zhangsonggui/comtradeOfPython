@@ -193,7 +193,14 @@ class Configure(BaseModel):
         使用零时刻相对时间除以每周波的时间，在乘以零时刻所在采样段每个周波的采样点
         @return: 零时刻采样点位置
         """
-        return
+        time_diff = (self.fault_time.time - self.file_start_time.time).total_seconds() * 1000
+        fault_point = 0
+        for nrate in self.sample.nrates:
+            if time_diff < nrate.end_time:
+                cycle_point = self.get_cursor_cycle_point(0)
+                return fault_point + int(time_diff / 20 * cycle_point)
+            fault_point += nrate.end_point
+        return fault_point
 
     def get_channel(self, index: Union[int, list[int]] = None,
                     channel_type: ChannelType = ChannelType.ANALOG,

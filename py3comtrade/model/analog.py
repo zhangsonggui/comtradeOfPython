@@ -41,7 +41,7 @@ class Analog(Channel):
         """根据通道名称和变比判断该通道是否使用"""
         return super().is_enable() and self.ratio > 1
 
-    def analog_flag(self) -> AnalogFlag:
+    def channel_flag(self) -> AnalogFlag:
         """根据通道名称和单位判断通道类型"""
         return analog_channel_classification(self.name, self.unit)
 

@@ -23,3 +23,6 @@ class StatusRecord(BaseModel):
 
 class DigitalChangeStatus(BaseModel):
     records: List[StatusRecord] = Field(default_factory=list, description="变位记录列表")
+
+    def __len__(self):
+        return len(self.records)
