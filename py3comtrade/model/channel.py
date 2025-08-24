@@ -22,7 +22,7 @@ class ChannelIdx(BaseModel):
     """
     通道索引类
     """
-    idx_cfg: int = Field(..., description="模拟通道索引号，必选，数字，整数")
+    idx_cfg: int = Field(..., description="通道索引号，必选，数字，整数")
 
     def __str__(self):
         return f"{self.idx_cfg}"
