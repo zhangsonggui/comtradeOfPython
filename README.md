@@ -14,12 +14,14 @@
 | 4  |    utils    | 工具模块：提供文件工具、角度计算、数据保存等工具                                  |                 
 
 ## 三、环境配置
+
 - python版本要求3.10以上，推荐使用3.12
 - 本项目采用uv进行项目管理，也可以使用其他工具进行管理，具体的依赖包见pyproject.toml
 
 > 源代码仓库
- - github仓库  https://github.com/zhangsonggui/comtradeOfPython.git
- - gitee仓库  https://gitee.com/zhangsonggui/comtradeOfPython.git
+
+- github仓库  https://github.com/zhangsonggui/comtradeOfPython.git
+- gitee仓库  https://gitee.com/zhangsonggui/comtradeOfPython.git
 
 ### 3.1 配置模块开发环境
 
@@ -32,33 +34,45 @@ git clone https://github.com/zhangsonggui/comtradeOfPython.git
 cd comtradeOfPython
 #根据pyproject.toml创建虚拟环境，安装依赖包
 uv venv
+
+# 打包whl
+uv build
 ```
 
 ### 3.2 模块使用
+
 > 使用uv新建项目
+
 ```shell
-# 新建目录
-mkdir project_name
-# 指定项目使用的python版本，如果不指定，默认使用当前操作系统版本最高的python版本
-uv python pin 3.10
-# 初始化项目
-uv init
-# 安装模块，不在加版本号，默认安装最新版本
-uv add py3comtrade
+    # 新建目录
+    mkdir project_name
+    # 指定项目使用的python版本，如果不指定，默认使用当前操作系统版本最高的python版本
+    uv python pin 3.10
+    # 初始化项目
+    uv init
+    # 安装模块，不在加版本号，默认安装最新版本
+    uv add py3comtrade
+    
+    # 安装本地whl包
+    uv pip install 本地目录\py3comtrade-4.0.5.1-py3-none-any.whl
 ```
+
 > 原有系统安装依赖包
+
 ```shell
     # 使用pip安装
     pip install py3comtrade
     # 使用uv安装
     uv add py3comtrade
+    # 安装本地whl包
+    uv pip install 本地目录\py3comtrade-4.0.5.1-py3-none-any.whl
 ```
 
 > 使用示例
-    
+
 ```python
 from py3comtrade.reader.comtrade_reader import comtrade_reader
-from py3comtrade.model.type.types import ChannelType,IdxType
+from py3comtrade.model.type.types import ChannelType, IdxType
 
 # comtrade路径，包含后缀名
 comtrade_file_path = 'comtrade_file_path'
@@ -68,7 +82,7 @@ record = comtrade_reader(comtrade_file_path)
 # 获取变电站名称
 station_name = record.header.station_name
 # 获取通道对象，可以通过模拟量通道的an标识或索引顺序号获取模拟量通道对象
-analog = record.get_channel(1, ChannelType.ANALOG,IdxType.CFGAN)
+analog = record.get_channel(1, ChannelType.ANALOG, IdxType.CFGAN)
 # 根据模拟量通道获取瞬时值，默认获取改通道全部采样点的数据
 record.get_analog_instant_data_range()
 ```
