@@ -11,7 +11,7 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 
 class ChannelNum(BaseModel):
@@ -27,6 +27,17 @@ class ChannelNum(BaseModel):
         """清除模型中所有字段"""
         for field in self.model_fields.keys():
             setattr(self, field, 0)
+
+    def __setattr__(self, name, value):
+        super().__setattr__(name, value)
+        if name in ['analog_num', 'digital_num']:
+            super().__setattr__('total_num', self.analog_num + self.digital_num)
+
+    @model_validator(mode="after")
+    def validate_and_update_totals(self):
+        """自动更新total_num为analog_num和digital_num的和"""
+        self.total_num = self.analog_num + self.digital_num
+        return self
 
     def __str__(self):
         return f"{self.total_num},{self.analog_num}A,{self.digital_num}D"

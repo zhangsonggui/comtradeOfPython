@@ -81,7 +81,8 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Com
     if read_mode in [ReadMode.DAT, ReadMode.FULL]:
         try:
             dat = data_reader(files.get("dat_path"), cfg.sample)
-            _comtrade.sample_time = dat.sample_time.tolist()
+            _comtrade.sample_point = dat.sample_time[:, 0].tolist()
+            _comtrade.sample_time = dat.sample_time[:, 1].tolist()
             for analog in _comtrade.analogs:
                 analog.raw = dat.analog_value.T[analog.index, :].tolist()
                 # analog.instants = np.round(vs * analog.a + analog.b, 3).tolist()

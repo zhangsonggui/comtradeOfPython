@@ -65,7 +65,7 @@ class Configure(BaseModel):
 
         return cfg_content
 
-    def write_file(self, output_file_path: str):
+    def write_cfg_file(self, output_file_path: str):
         with open(output_file_path, 'w', encoding='gbk') as f:
             f.write(self.__str__())
 
