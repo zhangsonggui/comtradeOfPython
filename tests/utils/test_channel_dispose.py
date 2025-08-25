@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from py3comtrade.model.type import AnalogFlag
+from py3comtrade.model.type.analog_enum import AnalogFlag
 from py3comtrade.utils.channel_dispose import match_channel_name, analog_channel_classification
 
 

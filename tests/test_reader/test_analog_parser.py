@@ -2,8 +2,7 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from py3comtrade.model.type import AnalogFlag
-from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType
+from py3comtrade.model.type.analog_enum import AnalogFlag, ElectricalUnit, PsType
 from py3comtrade.model.type.phase_code import Phase
 from py3comtrade.reader.analog_parser import analog_parser
 
