@@ -19,9 +19,9 @@ from typing import List
 
 from pydantic import BaseModel, Field
 
-from .channel_num import ChannelNum
-from .nrate import Nrate
-from .type import DataFileType
+from py3comtrade.model.channel_num import ChannelNum
+from py3comtrade.model.nrate import Nrate
+from py3comtrade.model.type.data_file_type import DataFileType
 
 
 class ConfigSample(BaseModel):

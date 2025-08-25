@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from ..model import Digital
-from ..model.type import Contact
-from ..model.type import PhaseCode
+from py3comtrade.model.digital import Digital
+from py3comtrade.model.type.digital_enum import Contact
+from py3comtrade.model.type.phase_code import Phase
 
 
 def digital_parser(_line_str):
@@ -22,7 +22,7 @@ def digital_parser(_line_str):
     # 初始化字段值
     index = None
     name = None
-    phase = PhaseCode.NO_PHASE
+    phase = Phase.NO_PHASE
     ccbm = ""
     status = Contact.NORMALLY_OPEN
 
@@ -34,7 +34,7 @@ def digital_parser(_line_str):
     if len(parts) >= 3 and parts[1] == '1':
         status = Contact.NORMALLY_CLOSED  # 优先级覆盖
     if len(parts) >= 4:
-        phase = PhaseCode.from_string(parts[2], default=PhaseCode.NO_PHASE)
+        phase = Phase.from_string(parts[2], default=Phase.NO_PHASE)
         ccbm = parts[3]
     if len(parts) >= 5 and parts[4] == '1':
         status = Contact.NORMALLY_CLOSED  # 优先级覆盖

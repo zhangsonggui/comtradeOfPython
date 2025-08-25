@@ -14,15 +14,15 @@ import os
 
 import chardet
 
-from .analog_parser import analog_parser
-from .channel_num_parser import channel_num_parser
-from .digital_parser import digital_parser
-from .header_parser import header_parser
-from .nrates_parser import create_nrate, create_nrates
-from ..model import Configure
-from ..model import PrecisionTime
-from ..model import TimeMult
-from ..model.type import DataFileType
+from py3comtrade.model.configure import Configure
+from py3comtrade.model.precision_time import PrecisionTime
+from py3comtrade.model.timemult import TimeMult
+from py3comtrade.model.type.data_file_type import DataFileType
+from py3comtrade.reader.analog_parser import analog_parser
+from py3comtrade.reader.channel_num_parser import channel_num_parser
+from py3comtrade.reader.digital_parser import digital_parser
+from py3comtrade.reader.header_parser import header_parser
+from py3comtrade.reader.nrates_parser import create_nrate, create_nrates
 
 
 def detect_file_encoding(file_path):

@@ -10,10 +10,10 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from .base_enum import BaseEnum
+from py3comtrade.model.type.base_enum import BaseEnum
 
 
-class PhaseCode(BaseEnum):
+class Phase(BaseEnum):
     N_PHASE = ('N', "N相")
     A_PHASE = ('A', "A相")
     B_PHASE = ('B', "B相")

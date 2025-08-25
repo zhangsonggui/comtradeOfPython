@@ -114,7 +114,7 @@ def zip_dir(path, output=None):
     for root, dirs, files in os.walk(path):
         relative_root = '' if root == path else root.replace(path, '') + os.sep  # 计算文件相对路径
         for filename in files:
-            zip.write(os.path.join(root, filename), relative_root + filename)  # 文件路径 压缩文件路径（相对路径）
+            zip.write(str(os.path.join(root, filename)), relative_root + filename)  # 文件路径 压缩文件路径（相对路径）
     zip.close()
 
 

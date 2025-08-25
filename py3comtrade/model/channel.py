@@ -14,8 +14,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from .type import PhaseCode, AnalogFlag
-from ..utils.channel_dispose import match_channel_name, analog_channel_classification
+from py3comtrade.model.type.analog_enum import AnalogFlag
+from py3comtrade.model.type.phase_code import Phase
+from py3comtrade.utils.channel_dispose import match_channel_name, analog_channel_classification
 
 
 class ChannelIdx(BaseModel):
@@ -33,8 +34,8 @@ class Channel(ChannelIdx):
     通道类
     """
     name: str = Field(..., description="通道标识符，必选，字符串，最大长度128个字符")
-    phase: PhaseCode = Field(default=PhaseCode.NO_PHASE,
-                             description="通道相别标识，可选，字母、数字，最小0个字符，最大长度2个字符")
+    phase: Phase = Field(default=Phase.NO_PHASE,
+                         description="通道相别标识，可选，字母、数字，最小0个字符，最大长度2个字符")
     ccbm: str = Field(default="", description="被监视的电路元件，可选，字母、数字，最小0个字符，最大长度64个字符")
     index: int = Field(default=0, description="通道索引号")
     raw: Optional[List[int]] = Field(default=list, description="通道原始数据")

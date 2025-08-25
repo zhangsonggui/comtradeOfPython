@@ -12,16 +12,16 @@
 #  See the Mulan PSL v2 for more details.
 import xml.etree.ElementTree as ET
 
-from py3comtrade.model import AnalogChannel, ChannelIdx
+from py3comtrade.model.analog_channel import AnalogChannel, ChannelIdx
 from py3comtrade.model.bus import Bus
 from py3comtrade.model.dmf import DMF
 from py3comtrade.model.line import Line
 from py3comtrade.model.primary_equipments import ACVBranch, CG, MR, RX, ACCBranch
 from py3comtrade.model.status_channel import StatusChannel
 from py3comtrade.model.transformer import Transformer, WG, TransformerWinding
-from py3comtrade.model.type import BreakerFlag, ChannelFlag, Contact, PsType, RelayFlag, SignalType, WarningFlag
-from py3comtrade.model.type.analog_enum import Multiplier, TvInstallation, BranNum, CtDirection, TransWindLocation, \
-    WGFlag
+from py3comtrade.model.type.analog_enum import (Multiplier, TvInstallation, BranNum, CtDirection, TransWindLocation,
+                                                WGFlag, PsType)
+from py3comtrade.model.type.digital_enum import BreakerFlag, ChannelFlag, Contact, RelayFlag, SignalType, WarningFlag
 
 
 def analog_channel_parser(channel_xml) -> AnalogChannel:

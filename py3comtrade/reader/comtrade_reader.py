@@ -12,9 +12,9 @@
 #  See the Mulan PSL v2 for more details.
 import os
 
-from py3comtrade.model import Comtrade
-from py3comtrade.model.type import FilePath
-from py3comtrade.model.type import ReadMode
+from py3comtrade.model.comtrade import Comtrade
+from py3comtrade.model.type.mode_enum import ReadMode
+from py3comtrade.model.type.types import FilePath
 from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import data_reader
 

@@ -16,9 +16,9 @@ import struct
 import numpy as np
 import pandas as pd
 
-from ..model.config_sample import ConfigSample
-from ..model.data import Data
-from ..model.type import DataFileType
+from py3comtrade.model.config_sample import ConfigSample
+from py3comtrade.model.data import Data
+from py3comtrade.model.type.data_file_type import DataFileType
 
 
 def digital_split(datas: tuple) -> list:

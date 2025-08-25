@@ -14,9 +14,8 @@ from typing import Optional
 
 from pydantic import Field
 
-from .channel import ChannelIdx
-from .type import AnalogFlag, AnalogType, ElectricalUnit
-from .type.analog_enum import Multiplier, PsType
+from py3comtrade.model.channel import ChannelIdx
+from py3comtrade.model.type.analog_enum import AnalogFlag, AnalogType, ElectricalUnit, Multiplier, PsType
 
 
 class AnalogChannel(ChannelIdx):

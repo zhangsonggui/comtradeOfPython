@@ -11,8 +11,9 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 
-from ..model import Analog
-from ..model.type import ElectricalUnit, PsType, PhaseCode
+from py3comtrade.model.analog import Analog
+from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType
+from py3comtrade.model.type.phase_code import Phase
 
 
 def analog_parser(line):
@@ -21,7 +22,7 @@ def analog_parser(line):
     # 创建Analog对象，传入参数
     analog = Analog(idx_cfg=int(line[0]),
                     name=line[1],
-                    phase=PhaseCode.from_string(line[2], default=PhaseCode.NO_PHASE),
+                    phase=Phase.from_string(line[2], default=Phase.NO_PHASE),
                     ccbm=line[3],
                     unit=ElectricalUnit.from_string(line[4], default=ElectricalUnit.NONE),
                     a=float(line[5]),

@@ -12,7 +12,7 @@
 #  See the Mulan PSL v2 for more details.
 
 
-from ..model import ConfigHeader
+from py3comtrade.model.config_header import ConfigHeader
 
 
 def header_parser(line) -> ConfigHeader:

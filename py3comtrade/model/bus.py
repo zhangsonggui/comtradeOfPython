@@ -14,9 +14,9 @@ from typing import List
 
 from pydantic import Field
 
-from .channel import ChannelIdx
-from .primary_equipments import ACVBranch, PrimaryEquipments
-from .type import TvInstallation
+from py3comtrade.model.channel import ChannelIdx
+from py3comtrade.model.primary_equipments import ACVBranch, PrimaryEquipments
+from py3comtrade.model.type.analog_enum import TvInstallation
 
 
 class Bus(PrimaryEquipments):

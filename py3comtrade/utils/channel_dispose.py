@@ -3,7 +3,7 @@
 import re
 from typing import List
 
-from py3comtrade.model.type import ElectricalUnit, AnalogFlag
+from py3comtrade.model.type.analog_enum import ElectricalUnit, AnalogFlag
 
 # 预编译名称启用规则正则表达式，提升性能
 _NAME_ENABLE_COMPILED_PATTERNS: List[re.Pattern] = [
@@ -93,7 +93,7 @@ def analog_channel_classification(_name_str: str, unit: ElectricalUnit = None) -
         analog_flag = AnalogFlag.DCC
     elif analog_flag is None:
         analog_flag = AnalogFlag.DCV
-    
+
     return analog_flag
 
 

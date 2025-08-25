@@ -14,9 +14,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from . import ChannelIdx
-from .primary_equipments import ACCBranch, ACVBranch, PrimaryEquipments
-from .type import TransWindLocation, WGFlag
+from py3comtrade.model.channel import ChannelIdx
+from py3comtrade.model.primary_equipments import ACCBranch, ACVBranch, PrimaryEquipments
+from py3comtrade.model.type.analog_enum import TransWindLocation, WGFlag
 
 
 class WG(BaseModel):

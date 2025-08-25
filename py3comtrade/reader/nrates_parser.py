@@ -10,8 +10,8 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from ..model import ConfigSample
-from ..model import Nrate
+from py3comtrade.model.config_sample import ConfigSample
+from py3comtrade.model.nrate import Nrate
 
 
 def create_nrates(freg, nrate_num):

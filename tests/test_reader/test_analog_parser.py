@@ -4,7 +4,7 @@ import unittest
 
 from py3comtrade.model.type import AnalogFlag
 from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType
-from py3comtrade.model.type.phase_code import PhaseCode
+from py3comtrade.model.type.phase_code import Phase
 from py3comtrade.reader.analog_parser import analog_parser
 
 
@@ -16,7 +16,7 @@ class TestAnalogParser(unittest.TestCase):
         analog_a = analog_parser(line_analog_a)
         self.assertEqual('220kV母线_Ua', analog_a.name)
         self.assertEqual(ElectricalUnit.V, analog_a.unit)
-        self.assertEqual(PhaseCode.A_PHASE, analog_a.phase)
+        self.assertEqual(Phase.A_PHASE, analog_a.phase)
         self.assertEqual(PsType.S, analog_a.ps)
         self.assertEqual(True, analog_a.is_enable())
         self.assertEqual(AnalogFlag.ACV, analog_a.channel_flag())
@@ -26,5 +26,5 @@ class TestAnalogParser(unittest.TestCase):
         analog_c = analog_parser(line_analog_c)
         self.assertEqual('220kV母线_Uc', analog_c.name)
         self.assertEqual(ElectricalUnit.V, analog_c.unit)
-        self.assertEqual(PhaseCode.C_PHASE, analog_c.phase)
+        self.assertEqual(Phase.C_PHASE, analog_c.phase)
         self.assertEqual(PsType.S, analog_c.ps)

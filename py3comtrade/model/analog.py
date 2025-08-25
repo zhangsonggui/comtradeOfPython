@@ -13,9 +13,9 @@
 
 from pydantic import Field
 
-from .channel import Channel
-from .type import ElectricalUnit, PsType, AnalogFlag
-from ..utils.channel_dispose import analog_channel_classification
+from py3comtrade.model.channel import Channel
+from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType, AnalogFlag
+from py3comtrade.utils.channel_dispose import analog_channel_classification
 
 
 class Analog(Channel):

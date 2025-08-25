@@ -20,16 +20,17 @@ import pandas as pd
 from pydantic import Field
 
 from py3comtrade.computation.basic_calc import raw_to_instant
+from py3comtrade.model.analog import Analog
+from py3comtrade.model.configure import Configure
+from py3comtrade.model.digital import Digital
+from py3comtrade.model.digital_change_status import StatusRecord
 from py3comtrade.model.dmf import DMF
-from . import Nrate
-from .analog import Analog
-from .configure import Configure
-from .digital import Digital
-from .digital_change_status import StatusRecord
-from .type import FilePath, DataFileType
-from .type import PsType
-from .type.types import IdxType, ChannelType
-from ..utils.file_tools import split_path
+from py3comtrade.model.nrate import Nrate
+from py3comtrade.model.type.analog_enum import PsType
+from py3comtrade.model.type.data_file_type import DataFileType
+from py3comtrade.model.type.types import FilePath
+from py3comtrade.model.type.types import IdxType, ChannelType
+from py3comtrade.utils.file_tools import split_path
 
 
 class Comtrade(Configure):

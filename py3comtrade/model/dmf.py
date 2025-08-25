@@ -14,11 +14,11 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from .analog_channel import AnalogChannel
-from .bus import Bus
-from .line import Line
-from .status_channel import StatusChannel
-from .transformer import Transformer
+from py3comtrade.model.analog_channel import AnalogChannel
+from py3comtrade.model.bus import Bus
+from py3comtrade.model.line import Line
+from py3comtrade.model.status_channel import StatusChannel
+from py3comtrade.model.transformer import Transformer
 
 
 class DMF(BaseModel):

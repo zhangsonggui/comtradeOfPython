@@ -14,7 +14,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
-from .type import CtDirection
+from py3comtrade.model.type.analog_enum import CtDirection
 
 
 class PrimaryEquipments(BaseModel):
