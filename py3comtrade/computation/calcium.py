@@ -13,6 +13,8 @@ class Calcium(BaseModel):
     effective: float = Field(default=None, description="有效值")
     vector: complex = Field(default=None, description="相量值")
     angle: float = Field(default=None, description="相角值")
+    dc_component: float = Field(default=None, description="直流分量")
+    harmonics: dict = Field(default={}, description="各次谐波")
 
     def model_post_init(self, context: Any) -> None:
         """
@@ -23,20 +25,54 @@ class Calcium(BaseModel):
         self.calc_value()
 
     def calc_vector(self, k: int):
+        """计算向量"""
         v = self.dft_rx(self.instant, k)
         self.vector = complex(round(v.real, 3), round(v.imag, 3))
         return self.vector
 
     def calc_angle(self):
+        """计算角度"""
         self.angle = math_polar_rect.complex_to_polar(self.vector)[1]
 
     def calc_effective(self):
+        """计算有效值"""
         self.effective = round(abs(self.vector), 3)
+
+    def calc_dc_component(self):
+        """计算直流分量"""
+        signal_samples = np.array(self.instant)  # 例如，这是一个周期性的电流信号样本
+        # 计算直流分量
+        self.dc_component = float(np.round(np.mean(signal_samples), 3))
+
+    def calc_harmonics(self, samp: int, hs=None):
+        """计算谐波
+        参数:
+            samp(int) 采样频率,单位Hz
+            hs(int) 计算谐波数组,默认计算2、3、5、9次谐波
+        """
+        if hs is None:
+            hs = [2, 3, 5, 7, 9]
+        n = len(self.instant)  # 数据点数
+        f0 = samp / n  # 频率分辨率
+        # fft计算
+        fft_values = np.fft.fft(self.instant)
+        fft_magnitude = np.abs(fft_values) / n  # 幅值归一化
+
+        # 计算频率轴
+        freqs = np.fft.fftfreq(n, 1 / samp)
+
+        # 提取K次谐波
+        for h in hs:  # 2~9 次谐波
+            freq = h * f0  # 谐波频率
+            idx = np.argmin(np.abs(freqs - freq))  # 找到最接近的频率点
+            amplitude = fft_magnitude[idx] / np.sqrt(2) * 2  # 幅值
+            self.harmonics[h] = {"frequency": freq, "amplitude": np.around(amplitude, 3)}
 
     def calc_value(self):
         self.calc_vector(k=1)
         self.calc_angle()
         self.calc_effective()
+        self.calc_dc_component()
 
     @staticmethod
     def dft_rx(vs: list[float], k: int) -> complex:
@@ -73,6 +109,8 @@ if __name__ == '__main__':
            -0.031, -8.504, -16.798, -24.622, -32.33, -39.866, -47.207, -54.063, -60.186, -65.621, -70.564, -74.812,
            -78.646, -81.497, -83.394]
     cal = Calcium(instant=ssz)
+    cal.calc_harmonics(3200)
     print(cal.vector)
     print(cal.effective)
     print(cal.angle)
+    print(cal.dc_component)
