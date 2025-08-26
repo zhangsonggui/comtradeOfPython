@@ -22,6 +22,15 @@ class TestCalcius(unittest.TestCase):
     def test_calc_angle(self):
         self.assertEqual(-95.654, self.cal.angle)
 
+    def test_calc_dc_component(self):
+        self.assertEqual(0.007, self.cal.dc_component)
+
+    def test_calc_harmonics(self):
+        self.cal.calc_harmonics(3200)
+        hs = self.cal.harmonics
+        self.assertEqual(0.012, hs.get(2).get('amplitude'))
+        self.assertEqual(0.064, hs.get(3).get('amplitude'))
+
 
 if __name__ == '__main__':
     unittest.main()
