@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf- 8 -*-
+from typing import Any
+
 import numpy as np
 from pydantic import Field, BaseModel
 
@@ -12,9 +14,18 @@ class Calcium(BaseModel):
     vector: complex = Field(default=None, description="相量值")
     angle: float = Field(default=None, description="相角值")
 
+    def model_post_init(self, context: Any) -> None:
+        """
+        在模型初始化完成后自动执行
+        """
+        # 在这里执行初始化后的逻辑
+        # 可以进行一些计算或设置
+        self.calc_value()
+
     def calc_vector(self, k: int):
         v = self.dft_rx(self.instant, k)
         self.vector = complex(round(v.real, 3), round(v.imag, 3))
+        return self.vector
 
     def calc_angle(self):
         self.angle = math_polar_rect.complex_to_polar(self.vector)[1]
@@ -52,3 +63,16 @@ class Calcium(BaseModel):
         real /= m
         imag /= m
         return complex(real, imag) / np.sqrt(2)
+
+
+if __name__ == '__main__':
+    ssz = [-84.691, -85.198, -84.824, -83.715, -81.708, -78.662, -75.062, -70.744, -65.683, -60.217, -54.29,
+           -47.527, -40.1, -32.525, -24.521, -16.524, -8.403, 0.141, 8.59, 16.805, 24.615, 32.291, 39.928,
+           47.253, 54.063, 60.256, 65.621, 70.564, 74.836, 78.631, 81.466, 83.426, 84.73, 85.128, 84.816, 83.613,
+           81.661, 78.709, 75.007, 70.744, 65.73, 60.186, 54.352, 47.48, 40.163, 32.564, 24.537, 16.657, 8.395,
+           -0.031, -8.504, -16.798, -24.622, -32.33, -39.866, -47.207, -54.063, -60.186, -65.621, -70.564, -74.812,
+           -78.646, -81.497, -83.394]
+    cal = Calcium(instant=ssz)
+    print(cal.vector)
+    print(cal.effective)
+    print(cal.angle)

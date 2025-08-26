@@ -10,12 +10,19 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+from typing import List
 
-from pydantic import Field
+from pydantic import Field, BaseModel
 
 from py3comtrade.model.channel import Channel
-from py3comtrade.model.digital_change_status import DigitalChangeStatus
 from py3comtrade.model.type.digital_enum import Contact
+
+
+class StatusRecord(BaseModel):
+    """表示一个变为记录的模型类，包含时间戳和状态"""
+    sample_point: int = Field(description="采样点")
+    timestamp: int = Field(description="时间戳")
+    status: int = Field(description="状态")
 
 
 class Digital(Channel):
@@ -23,7 +30,7 @@ class Digital(Channel):
     开关量通道类
     """
     contact: Contact = Field(default=Contact.NORMALLY_OPEN, description="状态通道正常状态")
-    change_status: DigitalChangeStatus = Field(default_factory=list, description="变位记录")
+    change_status: List[StatusRecord] = Field(default_factory=list, description="变位记录")
 
     def clear(self) -> None:
         """清除模型中所有字段"""

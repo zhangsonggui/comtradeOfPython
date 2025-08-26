@@ -10,6 +10,8 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+import json
+from datetime import datetime
 from enum import Enum
 
 
@@ -62,3 +64,14 @@ class BaseEnum(Enum):
                     return member
 
         raise ValueError(f"无法将 '{string}' 映射到 {cls.__name__} 枚举类型中")
+
+
+class CustomEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, datetime):
+            return obj.isoformat()
+        # 处理所有枚举类型
+        if isinstance(obj, Enum):
+            return obj.value
+
+        return super().default(obj)

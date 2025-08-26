@@ -4,12 +4,13 @@ import unittest
 
 from py3comtrade.model.type.types import IdxType, ChannelType
 from py3comtrade.reader.comtrade_reader import ReadMode, comtrade_reader
+from tests import project_root
 
 
 class TestComtrade(unittest.TestCase):
 
     def setUp(self):
-        file_name = r'../data/xtz.dat'
+        file_name = f"{project_root}/tests/data/xtz.dat"
         self.xtz = comtrade_reader(file_name, ReadMode.DAT)
 
     def test_get_raw_by_analog_index(self):

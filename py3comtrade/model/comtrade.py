@@ -11,6 +11,7 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import copy
+import json
 import os.path
 import struct
 from typing import Union, List
@@ -23,10 +24,11 @@ from py3comtrade.computation.basic_calc import raw_to_instant
 from py3comtrade.model.analog import Analog
 from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
-from py3comtrade.model.digital_change_status import StatusRecord
+from py3comtrade.model.digital import StatusRecord
 from py3comtrade.model.dmf import DMF
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
+from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.types import FilePath
 from py3comtrade.model.type.types import IdxType, ChannelType
@@ -36,9 +38,9 @@ from py3comtrade.utils.file_tools import split_path
 class Comtrade(Configure):
     file_path: FilePath = Field(default=None, description="录波文件路径")
     dmf: DMF = Field(default=None, description="Comtrade数据对象")
-    sample_point: list = Field(default_factory=list, description="采样点号")
-    sample_time: list = Field(default_factory=list, description="采样时间")
-    digital_change: list = Field(default_factory=list, description="变位开关量通道记录")
+    sample_point: List[int] = Field(default_factory=list, description="采样点号")
+    sample_time: List[int] = Field(default_factory=list, description="采样时间")
+    digital_change: List[Digital] = Field(default_factory=list, description="变位开关量通道记录")
 
     def get_channel_raw_data_range(self, channel_idx: Union[int, list[int]] = None,
                                    idx_type: IdxType = IdxType.INDEX,
@@ -116,16 +118,18 @@ class Comtrade(Configure):
         self.digital_change = []
         for digital in self.digitals:
             raw = np.array(digital.raw)
-            status_record = StatusRecord(timestamp=0, status=raw[0].item())
-            digital.change_status.append(status_record)
+            digital.change_status.append(StatusRecord(sample_point=self.sample_point[0],
+                                                      timestamp=self.sample_time[0],
+                                                      status=raw[0].item()))
             if raw.min() != raw.max():
                 # 找出变化点：当前值与前一个值不同
                 change_indices = np.where(raw[:-1] != raw[1:])[0] + 1
                 # 获取变化后的值
                 change_vs = raw[change_indices]
                 for i in range(len(change_vs)):
-                    status_record = StatusRecord(timestamp=change_indices[i].item(), status=change_vs[i].item())
-                    digital.change_status.append(status_record)
+                    digital.change_status.append(StatusRecord(sample_point=change_indices[i].item(),
+                                                              timestamp=self.sample_time[change_indices[i].item()],
+                                                              status=change_vs[i].item()))
                 self.digital_change.append(digital)
 
     def _update_configure(self, nrates: List[Nrate] = None, data_file_type: DataFileType = DataFileType.BINARY):
@@ -141,6 +145,11 @@ class Comtrade(Configure):
             self.sample.nrate_num = len(nrates)
             self.sample.nrates = nrates
             self.sample.calc_sampling()
+
+    def save_json(self, file_path: str):
+        comtrade_json = self.model_dump()
+        with open(file_path, 'w', encoding='utf8') as f:
+            json.dump(comtrade_json, f, ensure_ascii=False, indent=2, cls=CustomEncoder)
 
     def save_csv(self, file_path: str,
                  samp_point_num_title: bool = True,

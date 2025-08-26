@@ -1,45 +1,27 @@
-import numpy as np
-import pandas as pd
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import time
 
-from py3comtrade.reader.config_reader import config_reader
+from py3comtrade.reader.comtrade_reader import comtrade_reader
 
 if __name__ == "__main__":
     # file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.cfg'
-    # comtrade = comtrade_reader(file_path)
-    # comtrade.analyze_digital_change_status()
-    #
-    # cfg_content = generate_cfg_str(comtrade.configure)
-    # configure_to_file(comtrade.configure, "./test1.cfg")
-    # instant_analog = comtrade.get_instant_by_multi_analog()
-    # instant_digital = comtrade.get_instant_by_multi_digital()
-    # data = np_concatenate(comtrade.data.sample_time.T,instant_analog,instant_digital)
-    # data_to_ascii(comtrade.configure,data, "./test1.dat")
-    # data_to_ascii_file(comtrade.configure, sample_time, analog_values,digital_values, "./test.dat")
-    # for ssz in sszs:
-    #     print(ssz)
-    # fig,axes = plt.subplots(nrows=sszs.shape[0],ncols=1,figsize=(8,6),sharex=True)
-    # for i,ax in enumerate(axes):
-    #     ax.plot(sszs[i, :])
-    #     ax.set_ylabel(comtrade.configure.analogs[i].name)
-    #
-    # plt.tight_layout()
-    # plt.show()
-    cfg_file = r"D:\codeArea\gitee\comtradeOfPython\tests\data\D51_RCD_2346_20150917_105253_065_F.cfg"
-    dat_file = r"D:\codeArea\gitee\comtradeOfPython\tests\data\D51_RCD_2346_20150917_105253_065_F.dat"
-    cfg = config_reader(cfg_file)
-    count = cfg.sample.count
-    data = {
-        "index": np.zeros(count, dtype=np.int32),
-        "time": np.zeros(count, dtype=np.int32),
-    }
+    file_path = r"C:\Users\sddl\Desktop\7次电铁线录波文件\20200803_220kV仁铁Ⅰ线(仁和站-高密牵引站)动作报告\仁和站\本侧故障录波器\32353_65318_comtrade.cfg"
 
-    for analog in cfg.analogs:
-        data[analog.name] = np.zeros(count, dtype=np.float32)
-
-    for digital in cfg.digitals:
-        data[digital.name] = np.zeros(count, dtype=np.int32)
-    df = pd.DataFrame(data)
-    with open(dat_file, 'r') as f:
-        content = pd.read_csv(f, header=None)
-        df = content
-    print(df)
+    start_time = time.time()
+    cr = comtrade_reader(file_path)
+    # for analog in cr.analogs:
+    #     if analog.is_enable():
+    #         print(f"{analog.name}:\t是否启用:{analog.is_enable()},是否电流:{analog.channel_flag()}")
+    # for digital in cr.digitals:
+    #     if digital.is_change():
+    #         print(f"{digital.name}:\t是否启用:{digital.is_enable()},是否变位:{digital.is_change()}")
+    end_time = time.time()
+    zrt = cr.get_zero_point()
+    print(f"文件解析耗时{end_time - start_time}")
+    json = cr.model_dump()
+    # cr.save_json("test.json")
+    # cr.save_comtrade("test.cfg", data_file_type=DataFileType.BINARY)
+    # raw_all = cr.get_channel_raw_data_range()
+    # digital_change = cr.get_digital_change()
+    print(cr.header.station_name)
