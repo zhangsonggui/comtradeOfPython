@@ -7,6 +7,26 @@ from py3comtrade.model.type.analog_enum import ElectricalUnit, AnalogFlag
 
 # 预编译名称启用规则正则表达式，提升性能
 _NAME_ENABLE_COMPILED_PATTERNS: List[re.Pattern] = [
+    # 电压相关模式
+    re.compile(r'^电压\d+\s*[Uu][abc]$', re.IGNORECASE),  # 电压+数字+Ua/Ub/Uc
+    re.compile(r'^电压\d+\s*[Uu]0$', re.IGNORECASE),  # 电压+数字+U0
+    re.compile(r'^电压\d+\s*3[Uu]0$', re.IGNORECASE),  # 电压+数字+3U0
+    # 电流相关模式
+    re.compile(r'^电流\d+\s*[Ii][abc]$', re.IGNORECASE),  # 电流+数字+Ia/Ib/Ic
+    re.compile(r'^电流\d+\s*[Ii]0$', re.IGNORECASE),  # 电流+数字+I0
+    re.compile(r'^电流\d+\s*3[Ii]0$', re.IGNORECASE),  # 电流+数字+3I0
+    # 带空格的模式
+    re.compile(r'^电流\d+\s+[Ii][abc]$', re.IGNORECASE),  # 电流+数字+空格+Ia/Ib/Ic
+    re.compile(r'^电流\d+\s+[Ii]0$', re.IGNORECASE),  # 电流+数字+空格+I0
+    re.compile(r'^电流\d+\s+3[Ii]0$', re.IGNORECASE),  # 电流+数字+空格+3I0
+    re.compile(r'^电压\d+\s+[Uu][abc]$', re.IGNORECASE),  # 电压+数字+空格+Ua/Ub/Uc
+    re.compile(r'^电压\d+\s+[Uu]0$', re.IGNORECASE),  # 电压+数字+空格+U0
+    re.compile(r'^电压\d+\s+3[Uu]0$', re.IGNORECASE),  # 电压+数字+空格+3U0
+    # 更通用的模式
+    re.compile(r'^电流\d*\s+[Ii][abc0]$', re.IGNORECASE),  # 电流+可选数字+空格+相别
+    re.compile(r'^电流\d*\s+3[Ii]0$', re.IGNORECASE),  # 电流+可选数字+空格+3I0
+    re.compile(r'^电压\d*\s+[Uu][abc0]$', re.IGNORECASE),  # 电压+可选数字+空格+相别
+    re.compile(r'^电压\d*\s+3[Uu]0$', re.IGNORECASE),
     re.compile(r'^\s*\d+\s*$'),  # 纯数字或数字前后有空格
     re.compile(r'^模拟量$'),  # 仅模拟量三个字
     re.compile(r'^模拟量\s*\d*$'),  # 模拟量加数字或数字前有空格
@@ -16,12 +36,6 @@ _NAME_ENABLE_COMPILED_PATTERNS: List[re.Pattern] = [
     re.compile(r'^电流'),  # 以电流开头（注意：可能需要进一步限制）
     re.compile(r'^开关量\s*\d+$'),  # 开关量加数字
     re.compile(r'^状态量\s*\d+$'),  # 状态量加数字
-    re.compile(r'^电压\d+\s*[Uu][abc]$', re.IGNORECASE),  # 电压+数字+Ua/Ub/Uc
-    re.compile(r'^电压\d+\s*[Uu]0$', re.IGNORECASE),  # 电压+数字+U0
-    re.compile(r'^电流\d+\s*[Ii][abc]$', re.IGNORECASE),  # 电流+数字+Ia/Ib/Ic
-    re.compile(r'^电流\d+\s*[Ii]0$', re.IGNORECASE),  # 电流+数字+I0
-    re.compile(r'^电压\d+\s*3[Uu]0$', re.IGNORECASE),  # 电压+数字+3U0
-    re.compile(r'^电流\d+\s*3[Ii]0$', re.IGNORECASE)  # 电流+数字+3I0
 ]
 
 # 预编译名称判断电压规则正则表达式，提升性能
@@ -116,7 +130,15 @@ if __name__ == "__main__":
         "频率量",  # 不符合规则
         "模拟量abc",  # 不符合规则
         "abc123",  # 不符合规则
-        ""  # 空字符串
+        "",  # 空字符串
+        "电流10 Ia",
+        "电流14 I0",
+        "电压5 Ua",
+        "电压3 3U0",
+        "电流1 Ib",
+        "电流2 Ic",
+        "电压1 Ub",
+        "电压2 Uc"
     ]
 
     print("使用match_channel__name函数:")

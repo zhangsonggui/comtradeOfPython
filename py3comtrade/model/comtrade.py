@@ -73,12 +73,12 @@ class Comtrade(Configure):
             cns.append(chaneel_new)
         return cns
 
-    def get_analog_instant_data_range(self, channel_idx: Union[int, list[int]] = None,
-                                      idx_type: IdxType = IdxType.INDEX,
-                                      channel_type: ChannelType = ChannelType.ANALOG,
-                                      start_point: int = 0,
-                                      end_point: int = None,
-                                      output_primary: bool = False) -> Union[list[Digital], list[Analog]]:
+    def get_channel_instant_data_range(self, channel_idx: Union[int, list[int]] = None,
+                                       idx_type: IdxType = IdxType.INDEX,
+                                       channel_type: ChannelType = ChannelType.ANALOG,
+                                       start_point: int = 0,
+                                       end_point: int = None,
+                                       output_primary: bool = False) -> Union[list[Analog], list[Digital]]:
         """
         根据指定通道标识获取指定采样范围内模拟量瞬时采样值
 

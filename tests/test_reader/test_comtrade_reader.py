@@ -27,18 +27,18 @@ class TestComtrade(unittest.TestCase):
         self.assertEqual(3, len(ysz1))
 
     def test_get_instant_by_analog(self):
-        ch1_ssz = self.xtz.get_analog_instant_data_range(0)[0].y
+        ch1_ssz = self.xtz.get_channel_instant_data_range(0)[0].y
         self.assertEqual(-84.691, ch1_ssz[0])
         self.assertEqual(65.465, ch1_ssz[602])
         self.assertEqual(85.316, ch1_ssz[1282])
 
-        ch11_ssz = self.xtz.get_analog_instant_data_range(11, idx_type=IdxType.CFGAN)[0].y
+        ch11_ssz = self.xtz.get_channel_instant_data_range(11, idx_type=IdxType.CFGAN)[0].y
         self.assertEqual(0.136, ch11_ssz[0])
         self.assertEqual(0.327, ch11_ssz[600])
         self.assertEqual(0.682, ch11_ssz[1281])
 
     def test_get_instant_by_multi_analog(self):
-        instants = self.xtz.get_analog_instant_data_range()
+        instants = self.xtz.get_channel_instant_data_range()
         self.assertEqual(48, len(instants))
         self.assertEqual(0.136, instants[10].y[0])
 
