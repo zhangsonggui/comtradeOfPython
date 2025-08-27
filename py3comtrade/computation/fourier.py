@@ -10,42 +10,70 @@
 
 import numpy as np
 
+from py3comtrade.model.harmonic import Harmonic
 
-def dft_rx(vs: np.ndarray, num_samples: int, k: int) -> complex:
+
+def compute_dft_component(vs: list[float], k: int = 1) -> complex:
     """
-    离散傅里叶变换实部和虚部
-    @param vs: 瞬时值数组
-    @param num_samples: 采样点数
-    @param k: 获取的频率
-    @return: 相量值，虚部和虚部元组
+    实现离散傅里叶变换（DFT）的核心计算逻辑
+    参数:
+        vs(list[float]): 瞬时值数组
+        k(int): 待计算的频率
+    返回值:
+        相量值，虚部和虚部元组
     """
     # 参数校验
-    if not isinstance(vs, np.ndarray) or vs.ndim != 1:
-        raise ValueError("输入的瞬时值数组vs必须是一维非空的numpy数组")
-    if not isinstance(num_samples, int) or num_samples <= 0:
-        raise ValueError("采样点数num_samples必须是正整数")
-    if not isinstance(k, int) or k < 0 or k >= num_samples:
-        raise ValueError("频率k必须是非负整数且小于采样点数")
+    size = len(vs)
+    if not isinstance(vs, list) and size > 2:
+        raise ValueError(f"输入的瞬时值数组长度要大于2，现在长度为{size}")
+    if not isinstance(k, int) or k < 0 or k >= size:
+        raise ValueError(f"频率k必须是非负整数且小于采样点数")
     # 计算中点值，明确使用二进制除法
-    m = num_samples // 2
-    # 生成索引数组i
-    i_values = np.arange(num_samples)
+    m = size // 2
+    real = 0.0
+    imag = 0.0
+    for i in range(size):
+        real += vs[i] * np.sin(i * k * np.pi / m)
+        imag += vs[i] * np.cos(i * k * np.pi / m)
 
-    # 计算角度theta
-    theta = (i_values * k) * np.pi / m
+    real /= m
+    imag /= m
+    return complex(real, imag) / np.sqrt(2)
 
-    # 向量化的sin和cos计算，并与vs做点积
-    real_part = vs.dot(np.sin(theta)) / m
-    imag_part = vs.dot(np.cos(theta)) / m
-    # real = 0.0
-    # imag = 0.0
-    # for i in range(num_samples):
-    #     real += vs[i] * np.sin(i * k * np.pi / m)
-    #     imag += vs[i] * np.cos(i * k * np.pi / m)
-    #
-    # real /= m
-    # imag /= m
-    return complex(real_part, imag_part)/np.sqrt(2)
+
+def fft_component(vs: list[float], k: int = None) -> dict[int, Harmonic]:
+    """
+    使用numpy中fft实现离散傅里叶变换的核心计算逻辑
+    参数:
+        vs(list[float]): 瞬时值数组
+        k(int): 待计算的频率
+    返回值:
+        字典,key为谐波次数,value为谐波结果Harmonic
+    """
+    # 参数校验
+    F0 = 50
+    size = len(vs)
+    samp = F0 * size
+    if not isinstance(vs, list) and size > 2:
+        raise ValueError(f"输入的瞬时值数组长度要大于2，现在长度为{size}")
+    if k is None:
+        k = [2, 3, 5, 7, 9]
+    # fft计算
+    fft_values = np.fft.fft(vs)
+    fft_magnitude = np.abs(fft_values) / size  # 幅值归一化
+
+    # 计算频率轴
+    freqs = np.fft.fftfreq(size, 1 / samp)
+
+    # 提取K次谐波
+    harmonics = {}
+    for h in k:  # 2~9 次谐波
+        freq = h * F0  # 谐波频率
+        idx = np.argmin(np.abs(freqs - freq))  # 找到最接近的频率点
+        amplitude = fft_magnitude[idx] / np.sqrt(2) * 2  # 幅值
+        harmonics[h] = Harmonic(frequency=freq, amplitude=float(np.around(amplitude, 3)))
+
+    return harmonics
 
 
 def dft_exp_decay(vs: np.ndarray, sample_rate: int = None):
@@ -72,9 +100,9 @@ def dft_exp_decay(vs: np.ndarray, sample_rate: int = None):
     arr3 = vs[int(sample_rate / 2):]
 
     # 进行傅里叶计算，获取实部和虚部
-    arr1_dft = dft_rx(arr1, sample_rate, 1)
-    arr2_dft = dft_rx(arr2, sample_rate, 1)
-    arr3_dft = dft_rx(arr3, sample_rate, 1)
+    arr1_dft = compute_dft_component(arr1.tolist())
+    arr2_dft = compute_dft_component(arr2.tolist())
+    arr3_dft = compute_dft_component(arr3.tolist())
 
     # 计算常数
     fz = arr3_dft.real + arr2_dft.imag
@@ -91,28 +119,6 @@ def dft_exp_decay(vs: np.ndarray, sample_rate: int = None):
     real = arr1_dft.real - k1
     imag = arr1_dft.imag - k2
     return complex(real, imag)
-
-
-def dft_rx_channels(vs: np.ndarray, sample_rate: int = None, k: int = 1) -> np.ndarray:
-    """
-    提供多个通道的傅里叶计算实部和虚部
-    :param vs: 一个二维的numpy数组，一维是通道，二维是指定周期的瞬时值
-    :param sample_rate: 采样率，默认为None，从CFG文件中获取
-    :param k: 频率因素，默认为1
-    :return:返回一个二维数组，一维是通道列表，二维是实部虚部元祖
-    """
-    if not isinstance(vs, np.ndarray):
-        raise Exception(f'vs必须为np.ndarray类型')
-    if sample_rate is None:
-        sample_rate = vs.shape[1]
-    elif sample_rate != vs.shape[1]:
-        raise ValueError(f"输入的瞬时值数组长度与输入的采样率{sample_rate}不一致")
-    dft = np.zeros(vs.shape[0], dtype=complex)
-    # 获取一个周波的瞬时值
-    for i in range(vs.shape[0]):
-        # 进行傅里叶计算，获取实部和虚部
-        dft[i] = dft_rx(vs[i], sample_rate, k)
-    return dft
 
 
 def eliminate_exp_decay_channels(vs: np.ndarray, sample_rate: int = None):

@@ -1,11 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf- 8 -*-
-from typing import Any
+from typing import Any, Dict
 
 import numpy as np
 from pydantic import Field, BaseModel
 
-from py3comtrade.computation import math_polar_rect
+from py3comtrade.computation.fourier import compute_dft_component, fft_component
+from py3comtrade.computation.math_polar_rect import complex_to_polar, complex_to_magnitude
+from py3comtrade.model.harmonic import Harmonic
 
 
 class Calcium(BaseModel):
@@ -14,7 +16,7 @@ class Calcium(BaseModel):
     vector: complex = Field(default=None, description="相量值")
     angle: float = Field(default=None, description="相角值")
     dc_component: float = Field(default=None, description="直流分量")
-    harmonics: dict = Field(default={}, description="各次谐波")
+    harmonics: Dict[int, Harmonic] = Field(default={}, description="各次谐波")
 
     def model_post_init(self, context: Any) -> None:
         """
@@ -24,19 +26,19 @@ class Calcium(BaseModel):
         # 可以进行一些计算或设置
         self.calc_value()
 
-    def calc_vector(self, k: int):
+    def calc_vector(self, k: int = 1):
         """计算向量"""
-        v = self.dft_rx(self.instant, k)
-        self.vector = complex(round(v.real, 3), round(v.imag, 3))
+        dft = compute_dft_component(self.instant, k)
+        self.vector = complex(round(dft.real, 3), round(dft.imag, 3))
         return self.vector
 
     def calc_angle(self):
         """计算角度"""
-        self.angle = math_polar_rect.complex_to_polar(self.vector)[1]
+        self.angle = complex_to_polar(self.vector)[1]
 
     def calc_effective(self):
         """计算有效值"""
-        self.effective = round(abs(self.vector), 3)
+        self.effective = complex_to_magnitude(self.vector)
 
     def calc_dc_component(self):
         """计算直流分量"""
@@ -44,61 +46,20 @@ class Calcium(BaseModel):
         # 计算直流分量
         self.dc_component = float(np.round(np.mean(signal_samples), 3))
 
-    def calc_harmonics(self, samp: int, hs=None):
-        """计算谐波
+    def calc_harmonics(self, hs: list = None):
+        """计算谐波,使用numpy中的fft
+        也可使用compute_dft_component函数实现相关计算
         参数:
-            samp(int) 采样频率,单位Hz
             hs(int) 计算谐波数组,默认计算2、3、5、9次谐波
         """
-        if hs is None:
-            hs = [2, 3, 5, 7, 9]
-        n = len(self.instant)  # 数据点数
-        f0 = samp / n  # 频率分辨率
-        # fft计算
-        fft_values = np.fft.fft(self.instant)
-        fft_magnitude = np.abs(fft_values) / n  # 幅值归一化
-
-        # 计算频率轴
-        freqs = np.fft.fftfreq(n, 1 / samp)
-
-        # 提取K次谐波
-        for h in hs:  # 2~9 次谐波
-            freq = h * f0  # 谐波频率
-            idx = np.argmin(np.abs(freqs - freq))  # 找到最接近的频率点
-            amplitude = fft_magnitude[idx] / np.sqrt(2) * 2  # 幅值
-            self.harmonics[h] = {"frequency": freq, "amplitude": np.around(amplitude, 3)}
+        self.harmonics = fft_component(self.instant, hs)
+        return self.harmonics
 
     def calc_value(self):
-        self.calc_vector(k=1)
+        self.calc_vector()
         self.calc_angle()
         self.calc_effective()
         self.calc_dc_component()
-
-    @staticmethod
-    def dft_rx(vs: list[float], k: int) -> complex:
-        """
-        离散傅里叶变换实部和虚部
-        @param vs: 瞬时值数组
-        @param k: 获取的频率
-        @return: 相量值，虚部和虚部元组
-        """
-        # 参数校验
-        size = len(vs)
-        if not isinstance(vs, list) and size > 2:
-            raise ValueError(f"输入的瞬时值数组长度要大于2，现在长度为{size}")
-        if not isinstance(k, int) or k < 0 or k >= size:
-            raise ValueError(f"频率k必须是非负整数且小于采样点数")
-        # 计算中点值，明确使用二进制除法
-        m = size // 2
-        real = 0.0
-        imag = 0.0
-        for i in range(size):
-            real += vs[i] * np.sin(i * k * np.pi / m)
-            imag += vs[i] * np.cos(i * k * np.pi / m)
-
-        real /= m
-        imag /= m
-        return complex(real, imag) / np.sqrt(2)
 
 
 if __name__ == '__main__':
@@ -109,8 +70,11 @@ if __name__ == '__main__':
            -0.031, -8.504, -16.798, -24.622, -32.33, -39.866, -47.207, -54.063, -60.186, -65.621, -70.564, -74.812,
            -78.646, -81.497, -83.394]
     cal = Calcium(instant=ssz)
-    cal.calc_harmonics(3200)
-    print(cal.vector)
-    print(cal.effective)
-    print(cal.angle)
-    print(cal.dc_component)
+    cal.calc_harmonics([0, 1, 2, 3, 5, 7, 9])
+    print(f"向量值:{cal.vector}")
+    print(f"有效值:{cal.effective}")
+    print(f"角度:{cal.angle}")
+    print(f"直流分量:{cal.dc_component}")
+    # print(f"谐波:{cal.harmonics}")
+    for k, h in cal.harmonics.items():
+        print(f"{k}次谐波:{h.amplitude}")
