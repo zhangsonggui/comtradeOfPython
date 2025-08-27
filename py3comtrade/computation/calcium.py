@@ -23,8 +23,11 @@ class Calcium(BaseModel):
         在模型初始化完成后自动执行
         """
         # 在这里执行初始化后的逻辑
-        # 可以进行一些计算或设置
-        self.calc_value()
+        self.calc_vector()
+        self.calc_angle()
+        self.calc_effective()
+        self.calc_dc_component()
+        self.calc_harmonics()
 
     def calc_vector(self, k: int = 1):
         """计算向量"""
@@ -45,6 +48,7 @@ class Calcium(BaseModel):
         signal_samples = np.array(self.instant)  # 例如，这是一个周期性的电流信号样本
         # 计算直流分量
         self.dc_component = float(np.round(np.mean(signal_samples), 3))
+        return self.dc_component
 
     def calc_harmonics(self, hs: list = None):
         """计算谐波,使用numpy中的fft
@@ -54,12 +58,6 @@ class Calcium(BaseModel):
         """
         self.harmonics = fft_component(self.instant, hs)
         return self.harmonics
-
-    def calc_value(self):
-        self.calc_vector()
-        self.calc_angle()
-        self.calc_effective()
-        self.calc_dc_component()
 
 
 if __name__ == '__main__':

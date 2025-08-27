@@ -86,12 +86,12 @@ class ConfigSample(BaseModel):
             nrate.start_point = 0 if i == 0 else self.nrates[i - 1].end_point
 
             # 计算采样段一共用了多少时间
-            nrate.waste_time = float(nrate.count / nrate.cycle_point * time_per_cycle)
+            nrate.duration = float(nrate.count / nrate.cycle_point * time_per_cycle)
             # 计算每个采样段结束是的时间
             nrate.end_time = (
-                nrate.waste_time
+                nrate.duration
                 if i == 0
-                else nrate.waste_time + self.nrates[i - 1].end_time
+                else nrate.duration + self.nrates[i - 1].end_time
             )
         # 更新总采样点数
         self.count = self.nrates[-1].end_point

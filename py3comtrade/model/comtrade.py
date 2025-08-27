@@ -48,7 +48,7 @@ class Comtrade(Configure):
                                    start_point: int = 0,
                                    end_point: int = None) -> Union[list[Digital], list[Analog]]:
         """
-        根据指定通道标识获取指定采样范围内模拟量原始采样值
+        根据指定通道标识获取指定采样范围内通道原始采样值
 
         参数:
             channel_idx(int,list[int]) 通道索引值或通道索引值列表
@@ -133,7 +133,11 @@ class Comtrade(Configure):
                 self.digital_change.append(digital)
 
     def _update_configure(self, nrates: List[Nrate] = None, data_file_type: DataFileType = DataFileType.BINARY):
-        """更新配置文件参数"""
+        """更新配置文件参数
+        参数:
+            nrates(List[Nrate]) 采样段
+            data_file_type(DataFileType) 文件格式
+        """
         # 更新文件格式
         self.sample.data_file_type = data_file_type
         # 根据模拟量和开关量数组长度更新通道数量
@@ -147,6 +151,11 @@ class Comtrade(Configure):
             self.sample.calc_sampling()
 
     def save_json(self, file_path: str):
+        """
+        将comtrade对象保存为json文件
+        参数:
+            file_path(str):保存文件路径
+        """
         comtrade_json = self.model_dump()
         with open(file_path, 'w', encoding='utf8') as f:
             json.dump(comtrade_json, f, ensure_ascii=False, indent=2, cls=CustomEncoder)

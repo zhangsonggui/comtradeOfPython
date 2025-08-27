@@ -24,7 +24,7 @@ class Nrate(BaseModel):
     start_point: int = Field(default=0, description="该段最开始的采样序号")
     cycle_point: int = Field(default=0, description="该采样段每周波包含的采样点数")
     count: int = Field(default=0, description="该采样段的采样点数")
-    waste_time: int = Field(default=0, description="该采样段时间")
+    duration: int = Field(default=0, description="该采样段时间")
     end_time: int = Field(default=0, description="该段结束时间")
 
     @field_validator('count')
