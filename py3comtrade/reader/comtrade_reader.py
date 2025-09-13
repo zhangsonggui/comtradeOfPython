@@ -10,17 +10,17 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-import os
-from pathlib import Path
+import numpy as np
 
 from py3comtrade.model.comtrade import Comtrade
 from py3comtrade.model.type.mode_enum import ReadMode
+from py3comtrade.model.type.types import ValueType
 from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import data_reader
 from py3comtrade.utils.comtrade_file_path import get_comtrade_path
 
 
-def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Comtrade:
+def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL,value_type: str = "INSTANT") -> Comtrade:
     """
     读取Comtrade数据
 
@@ -48,11 +48,19 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Com
             dat = data_reader(files.dat_path, cfg.sample)
             _comtrade.sample_point = dat.sample_time[:, 0].tolist()
             _comtrade.sample_time = dat.sample_time[:, 1].tolist()
-            for analog in _comtrade.analogs:
-                analog.raw = dat.analog_value.T[analog.index, :].tolist()
-                # analog.instants = np.round(vs * analog.a + analog.b, 3).tolist()
+            if value_type.upper()  == "INSTANT":
+                _comtrade.sample.value_type = ValueType.INSTANT
+                for analog in _comtrade.analogs:
+                    if value_type == ValueType.INSTANT.name:
+                        vs = dat.analog_value.T[analog.index, :]
+                        analog.values = np.round(vs * analog.a + analog.b, 3).tolist()
+            elif value_type.upper() == "RAW":
+                _comtrade.sample.value_type = ValueType.RAW
+                for analog in _comtrade.analogs:
+                    analog.values = dat.analog_value.T[analog.index, :].tolist()
             for digital in _comtrade.digitals:
-                digital.raw = dat.digital_value.T[digital.index, :].tolist()
+                digital.values = dat.digital_value.T[digital.index, :].tolist()
+
         except ValueError as e:
             raise f"{_file_path}文件解析失败：{e}"
         _comtrade.analyze_digital_change_status()

@@ -29,3 +29,8 @@ class IdxType(Enum):
 class ChannelType(Enum):
     ANALOG = (0, "模拟通道")
     DIGITAL = (1, "开关量通道")
+
+class ValueType(Enum):
+    INSTANT = (0, "瞬时值")
+    RAW = (1, "原始采样值")
+    RMS = (2, "有效值值")

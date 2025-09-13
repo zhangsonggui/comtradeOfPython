@@ -22,6 +22,7 @@ from pydantic import BaseModel, Field
 from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.data_file_type import DataFileType
+from py3comtrade.model.type.types import ValueType
 
 
 class ConfigSample(BaseModel):
@@ -33,6 +34,7 @@ class ConfigSample(BaseModel):
     nrates: List[Nrate] = Field(default_factory=list, description="采样段列表")
     count: int = Field(default=0, description="总采样点数")
     data_file_type: DataFileType = Field(default=DataFileType.BINARY, description="数据文件类型")
+    value_type: ValueType = Field(default=ValueType.INSTANT, description="采样值类型")
     analog_word: int = Field(default=2, description="模拟量字数")
     digital_word: int = Field(default=2, description="开关量字数")
     analog_sampe_word: int = Field(default=2, description="每采样点模拟量占用的字节数")

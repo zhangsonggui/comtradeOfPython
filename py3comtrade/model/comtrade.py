@@ -12,7 +12,6 @@
 #  See the Mulan PSL v2 for more details.
 import copy
 import json
-import os.path
 import struct
 from typing import Union, List
 
@@ -20,7 +19,7 @@ import numpy as np
 import pandas as pd
 from pydantic import Field
 
-from py3comtrade.computation.basic_calc import raw_to_instant
+from py3comtrade.computation.basic_calc import convert_primary_secondary, convert_raw_instant
 from py3comtrade.model.analog import Analog
 from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
@@ -30,7 +29,7 @@ from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
-from py3comtrade.model.type.types import IdxType, ChannelType
+from py3comtrade.model.type.types import IdxType, ChannelType, ValueType
 from py3comtrade.utils.comtrade_file_path import ComtradeFilePath, generate_comtrade_path
 from py3comtrade.utils.file_tools import split_path
 
@@ -41,6 +40,72 @@ class Comtrade(Configure):
     sample_point: List[int] = Field(default_factory=list, description="采样点号")
     sample_time: List[int] = Field(default_factory=list, description="采样时间")
     digital_change: List[Digital] = Field(default_factory=list, description="变位开关量通道记录")
+
+    @property
+    def self(self) -> 'Comtrade':
+        """返回类本身实例，支持链式调用"""
+        return self
+
+    def remove_fields(self, fields: Union[str, List[str]]) -> 'Comtrade':
+        """
+        移除指定的属性字段
+
+        :param fields: 要移除的字段名或字段名列表
+        :return: 类本身实例，支持链式调用
+        """
+        if isinstance(fields, str):
+            fields = [fields]
+
+        for field in fields:
+            if field in self.model_fields:
+                setattr(self, field, None)
+        return self
+
+    def get_channel_data_range(self, channel_idx: Union[int, list[int]] = None,
+                               idx_type: IdxType = IdxType.INDEX,
+                               channel_type: ChannelType = ChannelType.ANALOG,
+                               start_point: int = 0,
+                               end_point: int = None,
+                               output_value_type: ValueType = ValueType.INSTANT,
+                               output_primary: bool = False) -> Union[Analog, Digital, list[Digital], list[Analog]]:
+        # 根据传入的采样值范围确定开始采样值点和结束采样点
+        start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point)
+        # 根据通道索引值获取模拟量通道对象
+        chaneels = self.get_channel(channel_idx, channel_type, idx_type)
+
+        if not isinstance(chaneels, list):
+            chaneels = [chaneels]
+        cns = []
+        if channel_type == ChannelType.DIGITAL:
+            for chaneel in chaneels:
+                chaneel_new = copy.copy(chaneel)
+                chaneel_new.values = chaneel.values[start_point:end_point + 1]
+                cns.append(chaneel_new)
+            return cns
+        # 如果数值格式和存储格式不一致需要进行转换
+        if self.sample.value_type ==ValueType.RAW and output_value_type == ValueType.INSTANT:
+            for chaneel in chaneels:
+                chaneel_new = copy.copy(chaneel)
+                vs = chaneel.values[start_point:end_point + 1]
+                chaneel_new.values = convert_raw_instant(vs, chaneel.a, chaneel.b, chaneel.primary,
+                                                         chaneel.secondary, chaneel.ps.value, output_primary)
+                cns.append(chaneel_new)
+        elif self.sample.value_type ==ValueType.INSTANT and output_value_type == ValueType.RAW:
+            for chaneel in chaneels:
+                chaneel_new = copy.copy(chaneel)
+                vs = chaneel.values[start_point:end_point + 1]
+                chaneel_new.values = convert_raw_instant(vs, chaneel.a, chaneel.b, chaneel.primary,
+                                                         chaneel.secondary, chaneel.ps==PsType.P, output_primary, False)
+                cns.append(chaneel_new)
+        else:
+            # 格式一致，判断模拟量一次值还是二次值，满足输出的要求
+            for chaneel in chaneels:
+                chaneel_new = copy.copy(chaneel)
+                vs = chaneel.values[start_point:end_point + 1]
+                chaneel_new.values = convert_primary_secondary(vs, chaneel.primary, chaneel.secondary, chaneel.ps==PsType.P,
+                                                               output_primary)
+                cns.append(chaneel_new)
+        return cns
 
     def get_channel_raw_data_range(self, channel_idx: Union[int, list[int]] = None,
                                    idx_type: IdxType = IdxType.INDEX,
@@ -59,19 +124,7 @@ class Comtrade(Configure):
         返回值:
             通道对象数组
         """
-        # 根据传入的采样值范围确定开始采样值点和结束采样点
-        start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point)
-        # 根据通道索引值获取模拟量通道对象
-        chaneels = self.get_channel(channel_idx, channel_type, idx_type)
-
-        if not isinstance(chaneels, list):
-            chaneels = [chaneels]
-        cns = []
-        for chaneel in chaneels:
-            chaneel_new = copy.copy(chaneel)
-            chaneel_new.raw = chaneel.raw[start_point:end_point + 1]
-            cns.append(chaneel_new)
-        return cns
+        return self.get_channel_data_range(channel_idx, idx_type, channel_type, start_point, end_point, output_value_type=ValueType.RAW)
 
     def get_channel_instant_data_range(self, channel_idx: Union[int, list[int]] = None,
                                        idx_type: IdxType = IdxType.INDEX,
@@ -92,16 +145,8 @@ class Comtrade(Configure):
         返回值:
             通道对象数组
         """
-        channel_raw_data = self.get_channel_raw_data_range(channel_idx, idx_type, channel_type, start_point, end_point)
-        if channel_type == channel_type.DIGITAL:
-            return channel_raw_data
-        instants = []
-        for channel in channel_raw_data:
-            input_primary = True if channel.ps == PsType.P else False
-            channel.y = raw_to_instant(channel.raw, channel.a, channel.b, channel.primary, channel.secondary,
-                                       input_primary, output_primary)
-            instants.append(channel)
-        return instants
+        return self.get_channel_data_range(channel_idx, idx_type, channel_type, start_point, end_point,
+                                           ValueType.INSTANT, output_primary)
 
     def get_digital_change(self) -> list[Digital]:
         """
@@ -117,15 +162,15 @@ class Comtrade(Configure):
         """
         self.digital_change = []
         for digital in self.digitals:
-            raw = np.array(digital.raw)
+            value = np.array(digital.values)
             digital.change_status.append(StatusRecord(sample_point=self.sample_point[0],
                                                       timestamp=self.sample_time[0],
-                                                      status=raw[0].item()))
-            if raw.min() != raw.max():
+                                                      status=value[0].item()))
+            if value.min() != value.max():
                 # 找出变化点：当前值与前一个值不同
-                change_indices = np.where(raw[:-1] != raw[1:])[0] + 1
+                change_indices = np.where(value[:-1] != value[1:])[0] + 1
                 # 获取变化后的值
-                change_vs = raw[change_indices]
+                change_vs = value[change_indices]
                 for i in range(len(change_vs)):
                     digital.change_status.append(StatusRecord(sample_point=change_indices[i].item(),
                                                               timestamp=self.sample_time[change_indices[i].item()],
@@ -178,14 +223,14 @@ class Comtrade(Configure):
                 f.write(f'采样点号,{",".join(map(str, self.sample_point))}\n')
             if sample_time_title:
                 f.write(f'采样时间,{",".join(map(str, self.sample_time))}\n')
-            for analog in self.analogs:
-                if value_type == "raw":
-                    f.write(f'{analog.name},{",".join(map(str, analog.raw))}\n')
-                else:
-                    instant = [raw * analog.a + analog.b for raw in analog.raw]
-                    f.write(f'{analog.name},{",".join(map(str, instant))}\n')
+            if value_type == "raw":
+                analog_datas = self.get_channel_data_range(output_value_type=ValueType.RAW)
+            else:
+                analog_datas = self.get_channel_data_range(output_value_type=ValueType.INSTANT)
+            for analog in analog_datas:
+                f.write(f'{analog.name},{",".join(map(str, analog.values))}\n')
             for digital in self.digitals:
-                f.write(f'{digital.name},{",".join(map(str, digital.raw))}\n')
+                f.write(f'{digital.name},{",".join(map(str, digital.values))}\n')
 
     def save_comtrade(self, file_path: str, data_file_type: DataFileType = DataFileType.BINARY):
         """
@@ -213,8 +258,9 @@ class Comtrade(Configure):
         参数:
             output_file_path: 输出文件路径
         """
-        analog_values = np.array([analog.raw for analog in self.analogs])
-        digital_values = np.array([digital.raw for digital in self.digitals])
+        analog_datas = self.get_channel_data_range(output_value_type=ValueType.INSTANT)
+        analog_values = np.array([analog.values for analog in analog_datas])
+        digital_values = np.array([digital.values for digital in self.digitals])
         # 组合数据
         data = np.column_stack((
             self.sample_point,
@@ -234,8 +280,9 @@ class Comtrade(Configure):
             output_file_path: 输出文件路径
         """
         # 获取数据并转置，使每行代表一个采样点
-        analog_values = np.array([analog.raw for analog in self.analogs]).T
-        digital_values = np.array([digital.raw for digital in self.digitals]).T
+        analog_datas = self.get_channel_data_range(output_value_type=ValueType.INSTANT)
+        analog_values = np.array([analog.values for analog in analog_datas]).T
+        digital_values = np.array([digital.values for digital in self.digitals]).T
         # 根据数据类型确定模拟量格式
         if self.sample.data_file_type == DataFileType.BINARY32:
             analog_fmt = '<i'  # 4个字节小端序有符号整数

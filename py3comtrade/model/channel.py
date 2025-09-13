@@ -10,7 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from typing import List, Optional
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
@@ -38,7 +38,27 @@ class Channel(ChannelIdx):
                          description="通道相别标识，可选，字母、数字，最小0个字符，最大长度2个字符")
     ccbm: str = Field(default="", description="被监视的电路元件，可选，字母、数字，最小0个字符，最大长度64个字符")
     index: int = Field(default=0, description="通道索引号")
-    raw: Optional[List[int]] = Field(default=list, description="通道原始数据")
+    values: Optional[List[Union[float, int]]] = Field(default_factory=list, description="通道数值")
+
+    @property
+    def self(self) -> 'Channel':
+        """返回类本身实例，支持链式调用"""
+        return self
+
+    def remove_fields(self, fields: Union[str, List[str]]) -> 'Channel':
+        """
+        移除指定的属性字段
+
+        :param fields: 要移除的字段名或字段名列表
+        :return: 类本身实例，支持链式调用
+        """
+        if isinstance(fields, str):
+            fields = [fields]
+
+        for field in fields:
+            if field in self.model_fields:
+                setattr(self, field, None)
+        return self
 
     def clear(self) -> None:
         """清除模型中所有字段"""
