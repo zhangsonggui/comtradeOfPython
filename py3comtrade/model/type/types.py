@@ -29,6 +29,7 @@ class IdxType(Enum):
 class ChannelType(Enum):
     ANALOG = (0, "模拟通道")
     DIGITAL = (1, "开关量通道")
+    FULL  = (2, "全部通道")
 
 class ValueType(Enum):
     INSTANT = (0, "瞬时值")

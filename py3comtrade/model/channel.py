@@ -16,6 +16,7 @@ from pydantic import BaseModel, Field
 
 from py3comtrade.model.type.analog_enum import AnalogFlag
 from py3comtrade.model.type.phase_code import Phase
+from py3comtrade.model.type.types import IdxType
 from py3comtrade.utils.channel_dispose import match_channel_name, analog_channel_classification
 
 
@@ -24,6 +25,7 @@ class ChannelIdx(BaseModel):
     通道索引类
     """
     idx_cfg: int = Field(..., description="通道索引号，必选，数字，整数")
+    selected: bool = Field(default=False, description="通道是否被选中")
 
     def __str__(self):
         return f"{self.idx_cfg}"
@@ -72,6 +74,14 @@ class Channel(ChannelIdx):
     def channel_flag(self) -> AnalogFlag:
         """根据通道名称和单位判断通道类型"""
         return analog_channel_classification(self.name)
+
+    def is_selected(self,target:list, target_type:IdxType= IdxType.INDEX) -> bool:
+        """判断通道是否被选中"""
+        if target_type == IdxType.INDEX:
+            self.selected = True if self.index in target else False
+        else:
+            self.selected = True if self.idx_cfg in target else False
+        return self.selected
 
     def __str__(self):
         return super().__str__() + f",{self.name},{self.phase.code},{self.ccbm}"

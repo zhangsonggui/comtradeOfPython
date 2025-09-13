@@ -15,6 +15,7 @@ from pydantic import Field
 
 from py3comtrade.model.channel import Channel
 from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType, AnalogFlag
+from py3comtrade.model.type.types import IdxType
 from py3comtrade.utils.channel_dispose import analog_channel_classification
 
 
@@ -43,6 +44,13 @@ class Analog(Channel):
     def channel_flag(self) -> AnalogFlag:
         """根据通道名称和单位判断通道类型"""
         return analog_channel_classification(self.name, self.unit)
+
+    def is_selected(self, target:list=None, target_type:IdxType= IdxType.INDEX):
+        """判断通道是否被选中"""
+        if target is None:
+            self.selected = self.is_enable()
+            return self.selected
+        return super().is_selected(target, target_type)
 
     def __str__(self):
         return (

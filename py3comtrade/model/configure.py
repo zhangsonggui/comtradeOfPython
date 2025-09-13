@@ -10,6 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+import copy
 from typing import Union
 
 from pydantic import BaseModel, Field
@@ -201,18 +202,18 @@ class Configure(BaseModel):
             fault_point += nrate.end_point
         return fault_point
 
-    def get_channel(self, index: Union[int, list[int]] = None,
-                    channel_type: ChannelType = ChannelType.ANALOG,
-                    idx_type: IdxType = IdxType.INDEX) -> Union[Analog, Digital, list[Analog], list[Digital]]:
+    def get_channel_obj(self, index: Union[int, list[int]] = None,
+                        channel_type: ChannelType = ChannelType.ANALOG,
+                        idx_type: IdxType = IdxType.INDEX) -> Union[Analog, Digital, list[Analog], list[Digital]]:
         """
-        根据通道索引获取通道类型
+        根据通道索引获取通道对象，含采样数据
 
         参数:
-            index（int,list[int]）通道索引值
-            channel_type 通道类型
-            idx_type(IdxTyep)通道索引值类型，INDEX、CFGAN
+            index（int,list[int]）通道索引值（index）、通道标识（cfgan）、通道索引值列表或通道标识列表
+            channel_type:(ChannelType)通道类型，默认为模拟量通道ANALOG,支持模拟量和开关量
+            idx_type:(IdxType)通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
         返回值:
-            通道对象或通道对象数组（模拟量、开关量）
+            选择的通道对象或通道对象数组（模拟量、开关量）
         """
         is_analog = channel_type == ChannelType.ANALOG
         # 索引如果为None，返回模拟量或开关量的所有通道
@@ -241,6 +242,30 @@ class Configure(BaseModel):
                 return [self.analogs[i] for i in index if self.analogs[i].idx_cfg == index] if is_analog else [
                     self.digitals[i] for i in index if self.digitals[i].idx_cfg == index]
         raise TypeError("索引类型错误！需要 int 或 list 类型，但收到 {type(channel_idx).__name__}。")
+
+    def get_channel_selector(self, analog_ids: Union[int, list[int]] = None,
+                        digital_ids: Union[int, list[int]] = None,
+                        idx_type: IdxType = IdxType.INDEX):
+        """
+        获取通道选择器，返回全部通道对象，不含采样值，选择通道selected为True
+        参数:
+            analog_ids: 模拟通道ID列表
+            digital_ids: 开关量ID列表
+            idx_type: 通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
+        返回值:
+            通道选择器列表
+        """
+        channels = []
+        for analog in self.analogs:
+            is_selected = analog.is_selected(analog_ids, idx_type)
+            analog_new = copy.copy(analog) if is_selected else copy.copy(analog).remove_fields("values")
+            channels.append(analog_new)
+        for digital in self.digitals:
+            is_selected = digital.is_selected(digital_ids, idx_type)
+            analog_new = copy.copy(digital) if is_selected else copy.copy(digital).remove_fields("values")
+            analog_new.index = len(channels)
+            channels.append(analog_new)
+        return channels
 
     def add_analog(self, analog: Analog, index: int = None):
         if index is not None:

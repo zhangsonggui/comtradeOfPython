@@ -16,6 +16,7 @@ from pydantic import Field, BaseModel
 
 from py3comtrade.model.channel import Channel
 from py3comtrade.model.type.digital_enum import Contact
+from py3comtrade.model.type.types import IdxType
 
 
 class StatusRecord(BaseModel):
@@ -43,6 +44,13 @@ class Digital(Channel):
 
     def is_enable(self):
         return super().is_enable() or self.is_change()
+
+    def is_selected(self, target:list=None, target_type:IdxType= IdxType.INDEX):
+        """判断通道是否被选中"""
+        if target is None:
+            self.selected = self.is_change()
+            return self.selected
+        return super().is_selected(target, target_type)
 
     def __str__(self):
         contact_code = 1 if self.contact == Contact.NORMALLY_CLOSED else 0

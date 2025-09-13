@@ -13,6 +13,7 @@
 import copy
 import json
 import struct
+import warnings
 from typing import Union, List
 
 import numpy as np
@@ -57,7 +58,11 @@ class Comtrade(Configure):
             fields = [fields]
 
         for field in fields:
-            if field in self.model_fields:
+            field_info = self.model_fields[field]
+            if hasattr(field_info, 'default'):
+                # 设置为默认值或 None
+                setattr(self, field, field_info.default)
+            else:
                 setattr(self, field, None)
         return self
 
@@ -68,43 +73,53 @@ class Comtrade(Configure):
                                end_point: int = None,
                                output_value_type: ValueType = ValueType.INSTANT,
                                output_primary: bool = False) -> Union[Analog, Digital, list[Digital], list[Analog]]:
+        """
+        根据指定通道标识获取指定采样范围内通道数据
+
+        参数:
+            channel_idx(int,list[int]) 通道索引值（index）、通道标识（cfgan）、通道索引值列表或通道标识列表
+            idx_type:(IdxType)通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
+            channel_type:(ChannelType)通道类型，默认为模拟量通道ANALOG,支持模拟量和开关量
+            start_point(int) 开始采样点号，默认为0，标识第一个采样点
+            end_point(int) 结束采样点号，默认为None，表示取所有采样点
+        返回值:
+            选择的模拟量、开关量对象或列表，含采样数据
+        """
         # 根据传入的采样值范围确定开始采样值点和结束采样点
         start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point)
         # 根据通道索引值获取模拟量通道对象
-        chaneels = self.get_channel(channel_idx, channel_type, idx_type)
+        chanels = self.get_channel_obj(channel_idx, channel_type, idx_type)
 
-        if not isinstance(chaneels, list):
-            chaneels = [chaneels]
+        if not isinstance(chanels, list):
+            chanels = [chanels]
         cns = []
-        if channel_type == ChannelType.DIGITAL:
-            for chaneel in chaneels:
-                chaneel_new = copy.copy(chaneel)
-                chaneel_new.values = chaneel.values[start_point:end_point + 1]
-                cns.append(chaneel_new)
-            return cns
-        # 如果数值格式和存储格式不一致需要进行转换
-        if self.sample.value_type ==ValueType.RAW and output_value_type == ValueType.INSTANT:
-            for chaneel in chaneels:
-                chaneel_new = copy.copy(chaneel)
-                vs = chaneel.values[start_point:end_point + 1]
-                chaneel_new.values = convert_raw_instant(vs, chaneel.a, chaneel.b, chaneel.primary,
-                                                         chaneel.secondary, chaneel.ps.value, output_primary)
-                cns.append(chaneel_new)
-        elif self.sample.value_type ==ValueType.INSTANT and output_value_type == ValueType.RAW:
-            for chaneel in chaneels:
-                chaneel_new = copy.copy(chaneel)
-                vs = chaneel.values[start_point:end_point + 1]
-                chaneel_new.values = convert_raw_instant(vs, chaneel.a, chaneel.b, chaneel.primary,
-                                                         chaneel.secondary, chaneel.ps==PsType.P, output_primary, False)
-                cns.append(chaneel_new)
-        else:
-            # 格式一致，判断模拟量一次值还是二次值，满足输出的要求
-            for chaneel in chaneels:
-                chaneel_new = copy.copy(chaneel)
-                vs = chaneel.values[start_point:end_point + 1]
-                chaneel_new.values = convert_primary_secondary(vs, chaneel.primary, chaneel.secondary, chaneel.ps==PsType.P,
-                                                               output_primary)
-                cns.append(chaneel_new)
+        for channel in chanels:
+            # 拷贝对象避免影响原始对象采样数值
+            channel_new = copy.copy(channel)
+            vs = channel.values[start_point:end_point + 1]
+
+            # 如果是开关量通道，则直接返回原始采样值
+            if channel_type == ChannelType.DIGITAL:
+                channel_new.values = vs
+                cns.append(channel_new)
+            else:
+                # 如果是非开关量通道，需要判断输入和输出的格式是否一致，不一致则需要进行转换
+                input_primary = channel.ps == PsType.P
+                # 文件数值格式为原始采样值，输出格式为瞬时值
+                if self.sample.value_type == ValueType.RAW and output_value_type == ValueType.INSTANT:
+                    channel_new.values = convert_raw_instant(vs, channel.a, channel.b, channel.primary,
+                                                             channel.secondary, channel.ps.value, output_primary)
+                # 文件数值格式为瞬时值，输出格式为原始采样值
+                elif self.sample.value_type == ValueType.INSTANT and output_value_type == ValueType.RAW:
+                    channel_new.values = convert_raw_instant(vs, channel.a, channel.b, channel.primary,
+                                                             channel.secondary, input_primary, output_primary,
+                                                             to_instant=False)
+                # 格式一致，判断文件模拟量数值类型和输出数值类型的一次值还是二次值是否一致
+                else:
+                    channel_new.values = convert_primary_secondary(vs, channel.primary, channel.secondary,
+                                                                   input_primary, output_primary)
+                cns.append(channel_new)
+
         return cns
 
     def get_channel_raw_data_range(self, channel_idx: Union[int, list[int]] = None,
@@ -124,7 +139,13 @@ class Comtrade(Configure):
         返回值:
             通道对象数组
         """
-        return self.get_channel_data_range(channel_idx, idx_type, channel_type, start_point, end_point, output_value_type=ValueType.RAW)
+        warnings.warn(
+            "get_channel_raw_data_range()方法已弃用，请使用get_channel_data_range()方法代替",
+            DeprecationWarning,
+            stacklevel=2
+        )
+        return self.get_channel_data_range(channel_idx, idx_type, channel_type, start_point, end_point,
+                                           output_value_type=ValueType.RAW)
 
     def get_channel_instant_data_range(self, channel_idx: Union[int, list[int]] = None,
                                        idx_type: IdxType = IdxType.INDEX,
@@ -145,6 +166,11 @@ class Comtrade(Configure):
         返回值:
             通道对象数组
         """
+        warnings.warn(
+            "get_channel_instant_data_range()方法已弃用，请使用get_channel_data_range()方法代替",
+            DeprecationWarning,
+            stacklevel=2
+        )
         return self.get_channel_data_range(channel_idx, idx_type, channel_type, start_point, end_point,
                                            ValueType.INSTANT, output_primary)
 
@@ -177,23 +203,32 @@ class Comtrade(Configure):
                                                               status=change_vs[i].item()))
                 self.digital_change.append(digital)
 
-    def _update_configure(self, nrates: List[Nrate] = None, data_file_type: DataFileType = DataFileType.BINARY):
+    def _update_configure(self, analogs: List[Analog]=None, diagitals: List[Digital]=None,
+                          nrates: List[Nrate] = None,
+                          data_file_type: DataFileType = DataFileType.BINARY
+                          ):
         """更新配置文件参数
         参数:
             nrates(List[Nrate]) 采样段
             data_file_type(DataFileType) 文件格式
         """
+        # TODO: 增加校验功能，要验证通道数量、采样点数量和通道对象是否一致
         # 更新文件格式
         self.sample.data_file_type = data_file_type
-        # 根据模拟量和开关量数组长度更新通道数量
+        # 更新模拟量通道对象
+        self.analogs = [analog for analog in analogs if analog.values is not None and analog.selected]
         self.channel_num.analog_num = len(self.analogs)
+        # 更新开关量通道对象
+        self.digitals = [digital for digital in diagitals if digital.values is not None and digital.selected]
         self.channel_num.digital_num = len(self.digitals)
+        # 更新采样信息
         self.sample.channel_num = self.channel_num
         # 更新采样频率
         if nrates is not None:
             self.sample.nrate_num = len(nrates)
             self.sample.nrates = nrates
             self.sample.calc_sampling()
+
 
     def save_json(self, file_path: str):
         """

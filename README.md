@@ -82,7 +82,7 @@ record = comtrade_reader(comtrade_file_path)
 # 获取变电站名称
 station_name = record.header.station_name
 # 获取通道对象，可以通过模拟量通道的an标识或索引顺序号获取模拟量通道对象
-analog = record.get_channel(1, ChannelType.ANALOG, IdxType.CFGAN)
+analog = record.get_channel_obj(1, ChannelType.ANALOG, IdxType.CFGAN)
 # 根据模拟量通道获取瞬时值，默认获取改通道全部采样点的数据
 record.get_analog_instant_data_range()
 ```

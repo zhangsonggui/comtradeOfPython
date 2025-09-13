@@ -49,17 +49,17 @@ class TestConfigReader(unittest.TestCase):
         self.assertEqual((69, 132, 64), self.xtz.get_cursor_sample_range(100, cycle_num=1, mode=SampleMode.CENTERED))
 
     def test_get_channel(self):
-        index_analog = self.xtz.get_channel(0)
+        index_analog = self.xtz.get_channel_obj(0)
         self.assertEqual('220kV母线I_Ua', index_analog.name)
-        an_analog = self.xtz.get_channel(1, ChannelType.ANALOG, IdxType.CFGAN)
+        an_analog = self.xtz.get_channel_obj(1, ChannelType.ANALOG, IdxType.CFGAN)
         self.assertEqual('220kV母线I_Ua', an_analog.name)
 
-        index_digital = self.xtz.get_channel(0, ChannelType.DIGITAL)
+        index_digital = self.xtz.get_channel_obj(0, ChannelType.DIGITAL)
         self.assertEqual('220kV母线_保护一_Ⅰ母差动动作', index_digital.name)
-        dn_digital = self.xtz.get_channel(1, ChannelType.DIGITAL, IdxType.CFGAN)
+        dn_digital = self.xtz.get_channel_obj(1, ChannelType.DIGITAL, IdxType.CFGAN)
         self.assertEqual('220kV母线_保护一_Ⅰ母差动动作', dn_digital.name)
 
-        index_analogs = self.xtz.get_channel([0, 1, 2, 3])
+        index_analogs = self.xtz.get_channel_obj([0, 1, 2, 3])
         self.assertEqual("220kV母线I_Uc", index_analogs[2].name)
 
     def test_get_header(self):
