@@ -9,6 +9,10 @@
 """
 import os
 import zipfile
+from pathlib import Path
+
+from py3comtrade.model.type.types import FilePath
+
 
 # 定义读取字节数的常量
 READ_BYTES_FOR_ENCODING = 10 * 1024  # 10KB
@@ -53,26 +57,18 @@ def split_path(path):
     return dir_name, file_name, extension
 
 
-def verify_file_validity(file_path: str):
+def verify_file_validity(_file_path: str)->bool:
     """
     验证文件是否存在且非空。
-    :param file_path: 文件的路径
+    :param _file_path: 文件的路径
     :return: 文件名路径或错误信息
     """
-    try:
-        # 检查文件是否存在
-        if not os.path.exists(file_path):
-            return f"错误：文件 {file_path} 不存在。"
-
-        # 检查文件是否为空
-        if os.path.getsize(file_path) == 0:
-            return f"错误：文件 {file_path} 为空。"
-
-        # 如果通过以上检查，说明文件存在且非空
-        return file_path
-    except Exception as e:
-        # 捕获其他可能的异常，如权限问题等
-        return f"发生错误：{str(e)}"
+    _file_path = Path(_file_path)
+    if not _file_path.exists():
+        return False
+    if not _file_path.is_file():
+        return False
+    return _file_path.stat().st_size != 0
 
 
 def read_file_adaptive_encoding(filename):
@@ -133,3 +129,16 @@ def extract_files_with_suffixes(zip_file, output=None, suffixes=None):
         for entry in zip_ref.namelist():
             if any(entry.endswith(suffix) for suffix in suffixes):
                 zip_ref.extract(entry, output)
+
+
+def check_file_path(_file_path: Path) -> bool:
+    """
+    检查文件路径是否存在
+    :param _file_path: 文件路径
+    :return: 文件路径是否存在
+    """
+    if not _file_path.exists():
+        return False
+    if not _file_path.is_file():
+        return False
+    return True

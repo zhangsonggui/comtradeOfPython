@@ -65,8 +65,7 @@ def read_ascii_file(file_path: str, _sample: ConfigSample):
     digital_value = content[:, _sample.channel_num.analog_num + 2:]
 
     # 构造并返回Data对象
-    return Data(file_path=file_path,
-                sample_time=sample_time,
+    return Data(sample_time=sample_time,
                 analog_value=analog_value,
                 digital_value=digital_value)
 
@@ -100,8 +99,7 @@ def read_binary_file(file_path: str, _sample: ConfigSample):
     sample_time = data['timestamp']
     analog_value = data['analog']
     digital_value = np.unpackbits(data['digital'].view(np.uint8), bitorder='little', axis=-1)
-    return Data(file_path=file_path,
-                sample_time=sample_time,
+    return Data(sample_time=sample_time,
                 analog_value=analog_value,
                 digital_value=digital_value)
 
@@ -122,8 +120,7 @@ def read_binary(file_path: str, _sample: ConfigSample):
             sample_time[i:] = sample_struct[0:2]
             analog_value[i:] = sample_struct[2:2 + _sample.channel_num.analog_num]
             digital_value[i:] = digital_split(sample_struct[2 + _sample.channel_num.analog_num:])
-    return Data(file_path=file_path,
-                sample_time=sample_time,
+    return Data(sample_time=sample_time,
                 analog_value=analog_value,
                 digital_value=digital_value)
 

@@ -30,13 +30,13 @@ from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
-from py3comtrade.model.type.types import FilePath
 from py3comtrade.model.type.types import IdxType, ChannelType
+from py3comtrade.utils.comtrade_file_path import ComtradeFilePath, generate_comtrade_path
 from py3comtrade.utils.file_tools import split_path
 
 
 class Comtrade(Configure):
-    file_path: FilePath = Field(default=None, description="录波文件路径")
+    file_path: ComtradeFilePath = Field(default=None, description="录波文件路径")
     dmf: DMF = Field(default=None, description="Comtrade数据对象")
     sample_point: List[int] = Field(default_factory=list, description="采样点号")
     sample_time: List[int] = Field(default_factory=list, description="采样时间")
@@ -196,19 +196,15 @@ class Comtrade(Configure):
         返回:
             cfg、dat文件
         """
-        # 分离文件路径为目录、文件名、文件后缀
-        path, file_name, ext_name = split_path(file_path)
-        self.file_path["cfg_path"] = str(os.path.join(path, file_name + ".cfg"))
-        self.file_path["dat_path"] = str(os.path.join(path, file_name + ".dat"))
-        self.file_path["dmf_path"] = str(os.path.join(path, file_name + ".dmf"))
+        cfp = generate_comtrade_path(file_path)
         # 更换configure参数
         self._update_configure(data_file_type=data_file_type)
         # 写入cfg文件
-        super().write_cfg_file(self.file_path.get("cfg_path"))
+        super().write_cfg_file(cfp.cfg_path)
         if data_file_type == DataFileType.ASCII:
-            self._write_ascii_file(self.file_path.get("dat_path"))
+            self._write_ascii_file(cfp.dat_path)
         else:
-            self._write_binary_file(self.file_path.get("dat_path"))
+            self._write_binary_file(cfp.dat_path)
 
     def _write_ascii_file(self, output_file_path: str):
         """

@@ -15,7 +15,6 @@ from pydantic import BaseModel, Field, ConfigDict
 
 
 class Data(BaseModel):
-    file_path: str = Field(description="文件路径")
     size: int = Field(default=0, description="文件大小")
     sample_time: np.ndarray = Field(default=None, description="采样时间")
     analog_value: np.ndarray = Field(default=None, description="模拟量值")

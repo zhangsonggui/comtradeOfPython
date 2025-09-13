@@ -11,50 +11,13 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import os
+from pathlib import Path
 
 from py3comtrade.model.comtrade import Comtrade
 from py3comtrade.model.type.mode_enum import ReadMode
-from py3comtrade.model.type.types import FilePath
 from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import data_reader
-
-
-def get_comtrade_path(_file_path: str) -> FilePath:
-    """
-    根据传入的文件路径获取不同后缀名的一组文件。
-    :param _file_path: 指定文件路径
-    :return: 具有不同后缀的文件列表
-    """
-    try:
-        # 验证路径是否有效
-        if not _file_path or not os.path.exists(_file_path):
-            raise FileNotFoundError(f"路径 {_file_path} 无效或不存在。")
-        # 确保路径是文件路径
-        if not os.path.isfile(_file_path):
-            raise ValueError(f"路径 {_file_path} 不是一个有效的文件路径。")
-        # 规范化路径大小写
-        normalized_path = os.path.abspath(os.path.normcase(_file_path))
-
-        # 获取目录路径
-        dir_path = os.path.dirname(normalized_path)
-
-        # 获取文件名（包括后缀）
-        _file_name = os.path.basename(normalized_path)
-
-        # 分离文件名和后缀
-        name, ext = os.path.splitext(_file_name)
-        if ext in ["CFG", "DAT", "DMF"]:
-            cfg_path = os.path.join(dir_path, f"{name}.CFG")
-            dat_path = os.path.join(dir_path, f"{name}.DAT")
-            dmf_path = os.path.join(dir_path, f"{name}.DMF")
-        else:
-            cfg_path = os.path.join(dir_path, f"{name}.cfg")
-            dat_path = os.path.join(dir_path, f"{name}.dat")
-            dmf_path = os.path.join(dir_path, f"{name}.dmf")
-        return FilePath(cfg_path=cfg_path, dat_path=dat_path, dmf_path=dmf_path)
-    except (TypeError, ValueError) as e:
-        print(f"文件名解析失败!!!", e)
-        return FilePath(cfg_path="", dat_path="", dmf_path="")
+from py3comtrade.utils.comtrade_file_path import get_comtrade_path
 
 
 def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Comtrade:
@@ -68,7 +31,9 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Com
         Comtrade对象
     """
     files = get_comtrade_path(_file_path)
-    cfg = config_reader(files.get("cfg_path"))
+    if not files:
+        raise FileNotFoundError(f"{_file_path}文件不存在")
+    cfg = config_reader(files.cfg_path)
     _comtrade: Comtrade = Comtrade(file_path=files,
                                    header=cfg.header,
                                    channel_num=cfg.channel_num,
@@ -80,7 +45,7 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Com
                                    timemult=cfg.timemult)
     if read_mode in [ReadMode.DAT, ReadMode.FULL]:
         try:
-            dat = data_reader(files.get("dat_path"), cfg.sample)
+            dat = data_reader(files.dat_path, cfg.sample)
             _comtrade.sample_point = dat.sample_time[:, 0].tolist()
             _comtrade.sample_time = dat.sample_time[:, 1].tolist()
             for analog in _comtrade.analogs:
@@ -97,9 +62,6 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL) -> Com
 
 
 if __name__ == '__main__':
-    file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.cfg'
-    comtrade = comtrade_reader(file_path, ReadMode.DAT)
-    raw_a = comtrade.get_raw_by_analog_indices()
-    raw_d = comtrade.get_instant_by_digital_indices()
-    for dc in comtrade.digital_change:
-        print(dc.name, dc.idx_cfg, dc.phase)
+    file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz'
+    wave = comtrade_reader(file_path)
+    print(wave)

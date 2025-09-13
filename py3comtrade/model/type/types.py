@@ -1,4 +1,5 @@
 from enum import Enum
+from pathlib import Path
 
 import numpy as np
 from numpy.typing import NDArray
@@ -13,11 +14,11 @@ IntArray32 = NDArray[np.int32]
 
 class FilePath(TypedDict):
     # 配置文件路径
-    cfg_path: str
+    cfg_path: Path
     # 数据文件路径
-    dat_path: str
+    dat_path: Path
     # 模型文件路径
-    dmf_path: str
+    dmf_path: Path
 
 
 class IdxType(Enum):
