@@ -30,9 +30,9 @@ from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
+from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import IdxType, ChannelType, ValueType
 from py3comtrade.utils.comtrade_file_path import ComtradeFilePath, generate_comtrade_path
-from py3comtrade.utils.file_tools import split_path
 
 
 class Comtrade(Configure):
@@ -71,6 +71,8 @@ class Comtrade(Configure):
                                channel_type: ChannelType = ChannelType.ANALOG,
                                start_point: int = 0,
                                end_point: int = None,
+                               cycle_num: float = None,
+                               mode: SampleMode = SampleMode.FORWARD,
                                output_value_type: ValueType = ValueType.INSTANT,
                                output_primary: bool = False) -> Union[Analog, Digital, list[Digital], list[Analog]]:
         """
@@ -82,11 +84,13 @@ class Comtrade(Configure):
             channel_type:(ChannelType)通道类型，默认为模拟量通道ANALOG,支持模拟量和开关量
             start_point(int) 开始采样点号，默认为0，标识第一个采样点
             end_point(int) 结束采样点号，默认为None，表示取所有采样点
+            cycle_num(float)取周波数量，当该参数不为空时，end_point无效
+            model（SampleMode）取值方式，向前还是向后取值，默认向时间轴后方取值FORWARD
         返回值:
             选择的模拟量、开关量对象或列表，含采样数据
         """
         # 根据传入的采样值范围确定开始采样值点和结束采样点
-        start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point)
+        start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point,cycle_num, mode)
         # 根据通道索引值获取模拟量通道对象
         chanels = self.get_channel_obj(channel_idx, channel_type, idx_type)
 
@@ -128,7 +132,7 @@ class Comtrade(Configure):
                                    start_point: int = 0,
                                    end_point: int = None) -> Union[list[Digital], list[Analog]]:
         """
-        根据指定通道标识获取指定采样范围内通道原始采样值
+        【不推荐使用】根据指定通道标识获取指定采样范围内通道原始采样值
 
         参数:
             channel_idx(int,list[int]) 通道索引值或通道索引值列表
@@ -154,7 +158,7 @@ class Comtrade(Configure):
                                        end_point: int = None,
                                        output_primary: bool = False) -> Union[list[Analog], list[Digital]]:
         """
-        根据指定通道标识获取指定采样范围内模拟量瞬时采样值
+        【不推荐使用】根据指定通道标识获取指定采样范围内模拟量瞬时采样值
 
         参数:
             channel_idx(int,list[int]) 通道索引值或通道索引值列表

@@ -10,7 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from typing import List, Optional, Union
+from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
