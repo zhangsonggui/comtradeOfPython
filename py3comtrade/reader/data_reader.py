@@ -53,21 +53,32 @@ def read_ascii_file(file_path: str, _sample: ConfigSample):
         ValueError: 当文件数据格式与配置不匹配时抛出
     """
     # 读取CSV格式的ASCII文件内容
-    with open(file_path, 'r') as f:
-        content = pd.read_csv(f, header=None)
-        # 验证数据文件的行列数是否与配置匹配
-        if _sample.count != content.shape[0] or _sample.channel_num.total_num + 2 != content.shape[1]:
-            raise ValueError("数据文件格式错误")
+    try:
+        content = pd.read_csv(file_path, header=None)
+    except Exception as e:
+        raise ValueError(f"读取数据文件失败：{str(e)}")
+
+    # 验证数据文件的行列数是否与配置匹配
+    expected_rows = _sample.count
+    expected_cols = _sample.channel_num.total_num + 2
+    actual_rows, actual_cols = content.shape
+
+    if expected_rows != actual_rows or expected_cols != actual_cols:
+        raise ValueError(
+            f"数据文件格式错误: 期望行列数({expected_rows}, {expected_cols}), "
+            f"实际行列数({actual_rows}, {actual_cols})"
+        )
+
 
     # 按列分割数据：前2列为采样时间，中间为模拟量数据，剩余为数字量数据
-    sample_time = content[:, 0:2]
-    analog_value = content[:, 2:_sample.channel_num.analog_num + 2]
-    digital_value = content[:, _sample.channel_num.analog_num + 2:]
+    sample_time = content.iloc[:, 0:2]
+    analog_value = content.iloc[:, 2:_sample.channel_num.analog_num + 2]
+    digital_value = content.iloc[:, _sample.channel_num.analog_num + 2:]
 
     # 构造并返回Data对象
-    return Data(sample_time=sample_time,
-                analog_value=analog_value,
-                digital_value=digital_value)
+    return Data(sample_time=sample_time.to_numpy(),
+                analog_value=analog_value.to_numpy(),
+                digital_value=digital_value.to_numpy())
 
 
 def read_binary_file(file_path: str, _sample: ConfigSample):
