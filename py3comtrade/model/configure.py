@@ -204,9 +204,7 @@ class Configure(BaseModel):
 
     def get_channel_obj(self, index: Union[int, list[int]] = None,
                         channel_type: ChannelType = ChannelType.ANALOG,
-                        idx_type: IdxType = IdxType.INDEX,
-                        is_enable: bool = False,
-                        is_selected: bool = True) -> Union[Analog, Digital, list[Analog], list[Digital]]:
+                        idx_type: IdxType = IdxType.INDEX) -> Union[Analog, Digital, list[Analog], list[Digital]]:
         """
         根据通道索引获取通道对象，含采样数据
 
@@ -217,37 +215,53 @@ class Configure(BaseModel):
         返回值:
             选择的通道对象或通道对象数组（模拟量、开关量）
         """
-        is_analog = channel_type == ChannelType.ANALOG
-        # 索引如果为None，返回模拟量或开关量的所有通道
-        if index is None:
-            return self.analogs if is_analog else self.digitals
-        # 根据通道类型获取该类型的最大通道数量
-        channel_num_max = self.channel_num.analog_num if is_analog else self.channel_num.digital_num
-        # 如果索引值为int，判断索引值是否合法，如果合法返回该索引的通道对象
-        if isinstance(index, int):
-            if not (0 <= index < channel_num_max):
-                raise ValueError(f"索引超出范围！当前索引: {index}, 允许范围: [0, {channel_num_max})")
-            # 如果是按照索引值查找，返回对应的通道对象
-            if idx_type == IdxType.INDEX:
-                return self.analogs[index] if is_analog else self.digitals[index]
-            # 如果按照通道标识符查找，返回对应的通道对象数组
-            else:
-                return next((analog for analog in self.analogs if analog.idx_cfg == index),
-                            None) if is_analog else next(
-                    (digital for digital in self.digitals if digital.idx_cfg == index), None)
+        if channel_type == ChannelType.ANALOG:
+            channels = self.analogs
+        elif channel_type == ChannelType.DIGITAL:
+            channels = self.digitals
+        else:
+            channels = self.analogs + self.digitals
+        # 处理 None 或空列表情况
+        if index is None or (isinstance(index, list) and len(index) == 0):
+            return channels
 
-        # 如果索引值为list，判断索引值是否合法，如果合法返回该索引的通道对象数组
-        if isinstance(index, list):
+        if idx_type == IdxType.CFGAN and (channel_type == ChannelType.ALL):
+            raise ValueError(f"当通道类型为ALL时，不能使用CFGAN索引")
+
+        # 处理单个索引情况
+        if isinstance(index, int):
             if idx_type == IdxType.INDEX:
-                return [self.analogs[i] for i in index] if is_analog else [self.digitals[i] for i in index]
-            else:
-                return [self.analogs[i] for i in index if self.analogs[i].idx_cfg == index] if is_analog else [
-                    self.digitals[i] for i in index if self.digitals[i].idx_cfg == index]
-        raise TypeError("索引类型错误！需要 int 或 list 类型，但收到 {type(channel_idx).__name__}。")
+                if not (0 <= index < len(channels)):
+                    raise IndexError(f"索引值： {index} 不在 [0, {len(channels)})范围内")
+                return channels[index]
+            else:  # IdxType.CFGAN
+                # 使用缓存字典优化查找性能
+                channels_dict = {channel.index: channel for channel in channels}
+                if index not in channels_dict:
+                    raise ValueError(f"没有找到CFGAN为{index}的通道对象")
+                return channels_dict[index]
+
+        # 处理索引列表情况
+        elif isinstance(index, list):
+            if idx_type == IdxType.INDEX:
+                # 检查所有索引是否在范围内
+                if im := max(index) >= len(channels):
+                    raise ValueError(f"索引值： {im} 不在 [0, {len(channels)})范围内")
+                return [channels[idx] for idx in index]
+            else:  # IdxType.CFGAN
+                channels_dict = {channel.index: channel for channel in channels}
+                result = []
+                for cfgan in index:
+                    if cfgan not in channels_dict:
+                        raise ValueError(f"Analog with cfgan {cfgan} not found")
+                    result.append(channels_dict[cfgan])
+                return result
+        else:
+            raise TypeError(f"Index must be int, list[int] or None, got {type(index)}")
 
     def get_channel_selector(self, analog_ids: Union[int, list[int]] = None,
-                        digital_ids: Union[int, list[int]] = None,
-                        idx_type: IdxType = IdxType.INDEX):
+                             digital_ids: Union[int, list[int]] = None,
+                             idx_type: IdxType = IdxType.INDEX):
         """
         获取通道选择器，返回全部通道对象，不含采样值，选择通道selected为True
         参数:
@@ -259,12 +273,12 @@ class Configure(BaseModel):
         """
         channels = self.get_analog_selector(analog_ids, idx_type)
         channels.extend(self.get_digital_selector(digital_ids, idx_type))
-        for index,channel in enumerate(channels):
+        for index, channel in enumerate(channels):
             channel.index = index
         return channels
 
     def get_analog_selector(self, analog_ids: Union[int, list[int]] = None,
-                        idx_type: IdxType = IdxType.INDEX):
+                            idx_type: IdxType = IdxType.INDEX):
         """
         获取模拟通道选择器，返回模拟通道对象，不含采样值，选择通道selected为True
         参数:
@@ -281,7 +295,7 @@ class Configure(BaseModel):
         return channels
 
     def get_digital_selector(self, digital_ids: Union[int, list[int]] = None,
-                        idx_type: IdxType = IdxType.INDEX):
+                             idx_type: IdxType = IdxType.INDEX):
         """
         获取开关量选择器，返回开关量对象，不含采样值，选择通道selected为True
         参数:

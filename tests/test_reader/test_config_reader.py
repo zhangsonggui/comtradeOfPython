@@ -51,6 +51,23 @@ class TestConfigReader(unittest.TestCase):
     def test_get_cursor_sample_ragne(self):
         pass
 
+    def test_get_channel_obj(self):
+        analogs = self.xtz.get_channel_obj()
+        self.assertEqual(48, len(analogs))
+        digitals = self.xtz.get_channel_obj(channel_type=ChannelType.DIGITAL)
+        self.assertEqual(96, len(digitals))
+        channels = self.xtz.get_channel_obj(channel_type=ChannelType.ALL)
+        self.assertEqual(144, len(channels))
+        analogs = self.xtz.get_channel_obj([],channel_type=ChannelType.ANALOG)
+        self.assertEqual(48, len(analogs))
+        ch2 = self.xtz.get_channel_obj(1,idx_type=IdxType.CFGAN)
+        self.assertEqual('220kV母线I_Ub', ch2.name)
+
+        ch2_5 = self.xtz.get_channel_obj([1,2,3,4,5])
+        self.assertEqual(5, len(ch2_5))
+        self.assertEqual('220kV母线II_Ua', ch2_5[3].name)
+
+
     def test_get_channel(self):
         index_analog = self.xtz.get_channel_obj(0)
         self.assertEqual('220kV母线I_Ua', index_analog.name)

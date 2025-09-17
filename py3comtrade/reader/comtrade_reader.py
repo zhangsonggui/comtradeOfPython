@@ -62,7 +62,7 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL,value_t
                 digital.values = dat.digital_value.T[digital.index, :].tolist()
 
         except ValueError as e:
-            raise f"{_file_path}文件解析失败：{e}"
+            raise ValueError(f"{_file_path}文件解析失败：{e}")
         _comtrade.analyze_digital_change_status()
     if read_mode in [ReadMode.DMF, ReadMode.FULL]:
         pass
