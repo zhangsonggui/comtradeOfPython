@@ -48,6 +48,9 @@ class TestConfigReader(unittest.TestCase):
         self.assertEqual((0, 63, 64), self.xtz.get_cursor_sample_range(10, cycle_num=1, mode=SampleMode.CENTERED))
         self.assertEqual((69, 132, 64), self.xtz.get_cursor_sample_range(100, cycle_num=1, mode=SampleMode.CENTERED))
 
+    def test_get_cursor_sample_ragne(self):
+        pass
+
     def test_get_channel(self):
         index_analog = self.xtz.get_channel_obj(0)
         self.assertEqual('220kV母线I_Ua', index_analog.name)

@@ -204,7 +204,9 @@ class Configure(BaseModel):
 
     def get_channel_obj(self, index: Union[int, list[int]] = None,
                         channel_type: ChannelType = ChannelType.ANALOG,
-                        idx_type: IdxType = IdxType.INDEX) -> Union[Analog, Digital, list[Analog], list[Digital]]:
+                        idx_type: IdxType = IdxType.INDEX,
+                        is_enable: bool = False,
+                        is_selected: bool = True) -> Union[Analog, Digital, list[Analog], list[Digital]]:
         """
         根据通道索引获取通道对象，含采样数据
 
@@ -255,11 +257,40 @@ class Configure(BaseModel):
         返回值:
             通道选择器列表
         """
+        channels = self.get_analog_selector(analog_ids, idx_type)
+        channels.extend(self.get_digital_selector(digital_ids, idx_type))
+        for index,channel in enumerate(channels):
+            channel.index = index
+        return channels
+
+    def get_analog_selector(self, analog_ids: Union[int, list[int]] = None,
+                        idx_type: IdxType = IdxType.INDEX):
+        """
+        获取模拟通道选择器，返回模拟通道对象，不含采样值，选择通道selected为True
+        参数:
+            analog_ids: 模拟通道ID列表
+            idx_type: 通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an
+        返回值:
+            通道选择器列表
+        """
         channels = []
         for analog in self.analogs:
             is_selected = analog.is_selected(analog_ids, idx_type)
             analog_new = copy.copy(analog) if is_selected else copy.copy(analog).remove_fields("values")
             channels.append(analog_new)
+        return channels
+
+    def get_digital_selector(self, digital_ids: Union[int, list[int]] = None,
+                        idx_type: IdxType = IdxType.INDEX):
+        """
+        获取开关量选择器，返回开关量对象，不含采样值，选择通道selected为True
+        参数:
+            digital_ids: 开关量ID列表
+            idx_type: 通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an
+        返回值:
+            通道选择器列表
+        """
+        channels = []
         for digital in self.digitals:
             is_selected = digital.is_selected(digital_ids, idx_type)
             analog_new = copy.copy(digital) if is_selected else copy.copy(digital).remove_fields("values")

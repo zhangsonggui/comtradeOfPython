@@ -13,6 +13,9 @@ class TestComtrade(unittest.TestCase):
         file_name = f"{project_root}/tests/data/xtz.dat"
         self.xtz = comtrade_reader(file_name, ReadMode.DAT)
 
+    def test_get_channel_data_range(self):
+        ch1_ysz = self.xtz.get_channel_data_range(1)
+
     def test_get_raw_by_analog_index(self):
         ch1_ysz = self.xtz.get_channel_raw_data_range(1)
         self.assertEqual(3077, len(ch1_ysz[0].values))

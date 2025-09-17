@@ -14,7 +14,7 @@ import copy
 import json
 import struct
 import warnings
-from typing import Union, List
+from typing import Any, Union, List
 
 import numpy as np
 import pandas as pd
@@ -66,6 +66,13 @@ class Comtrade(Configure):
                 setattr(self, field, None)
         return self
 
+    def model_post_init(self, context: Any) -> None:
+        """
+        在模型初始化完成后自动执行
+        """
+        # 在这里执行初始化后的逻辑
+        pass
+
     def get_channel_data_range(self, channel_idx: Union[int, list[int]] = None,
                                idx_type: IdxType = IdxType.INDEX,
                                channel_type: ChannelType = ChannelType.ANALOG,
@@ -90,7 +97,7 @@ class Comtrade(Configure):
             选择的模拟量、开关量对象或列表，含采样数据
         """
         # 根据传入的采样值范围确定开始采样值点和结束采样点
-        start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point,cycle_num, mode)
+        start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
         # 根据通道索引值获取模拟量通道对象
         chanels = self.get_channel_obj(channel_idx, channel_type, idx_type)
 
@@ -175,8 +182,9 @@ class Comtrade(Configure):
             DeprecationWarning,
             stacklevel=2
         )
-        return self.get_channel_data_range(channel_idx, idx_type, channel_type, start_point, end_point,
-                                           ValueType.INSTANT, output_primary)
+        return self.get_channel_data_range(channel_idx=channel_idx, idx_type=idx_type, channel_type=channel_type,
+                                           start_point=start_point, end_point=end_point,
+                                           output_value_type=ValueType.INSTANT, output_primary=output_primary)
 
     def get_digital_change(self) -> list[Digital]:
         """
@@ -207,7 +215,7 @@ class Comtrade(Configure):
                                                               status=change_vs[i].item()))
                 self.digital_change.append(digital)
 
-    def _update_configure(self, analogs: List[Analog]=None, diagitals: List[Digital]=None,
+    def _update_configure(self, analogs: List[Analog] = None, diagitals: List[Digital] = None,
                           nrates: List[Nrate] = None,
                           data_file_type: DataFileType = DataFileType.BINARY
                           ):
@@ -232,7 +240,6 @@ class Comtrade(Configure):
             self.sample.nrate_num = len(nrates)
             self.sample.nrates = nrates
             self.sample.calc_sampling()
-
 
     def save_json(self, file_path: str):
         """

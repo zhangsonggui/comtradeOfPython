@@ -13,6 +13,7 @@
 import json
 from datetime import datetime
 from enum import Enum
+from pathlib import WindowsPath
 
 
 class BaseEnum(Enum):
@@ -70,6 +71,9 @@ class CustomEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, datetime):
             return obj.isoformat()
+
+        if isinstance(obj, WindowsPath):
+            return str(obj)
         # 处理所有枚举类型
         if isinstance(obj, Enum):
             return obj.value

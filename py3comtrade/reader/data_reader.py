@@ -56,7 +56,7 @@ def read_ascii_file(file_path: str, _sample: ConfigSample):
     with open(file_path, 'r') as f:
         content = pd.read_csv(f, header=None)
         # 验证数据文件的行列数是否与配置匹配
-        if _sample.count != content.shape[0] or _sample.channel_num.total_num != content.shape[1]:
+        if _sample.count != content.shape[0] or _sample.channel_num.total_num + 2 != content.shape[1]:
             raise ValueError("数据文件格式错误")
 
     # 按列分割数据：前2列为采样时间，中间为模拟量数据，剩余为数字量数据
