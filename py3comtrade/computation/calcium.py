@@ -56,6 +56,7 @@ class Calcium(BaseModel):
         参数:
             hs(int) 计算谐波数组,默认计算2、3、5、9次谐波
         """
+        hs = [2, 3, 5, 7, 9] if hs is None else hs
         self.harmonics = fft_component(self.instant, hs)
         return self.harmonics
 

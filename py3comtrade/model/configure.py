@@ -91,6 +91,34 @@ class Configure(BaseModel):
         point2_segment = self.get_cursor_in_segment(point2)
         return self.sample.nrates[point1_segment:point2_segment + 1]
 
+    def cut_samples_points(self, point1: int = 0, point2: int = None) -> ConfigSample:
+        """
+        根据左右采样点,计算裁剪采样点后的采样段信息
+        参数:
+            Point1:开始采样点
+            Point2:结束采样点
+        返回值:
+            采样信息段
+        """
+        if point2 is None:
+            point1, point2, _ = self.get_cursor_sample_range(point1, point2)
+        # 验证输入参数
+        if not (0 <= point1 < self.sample.count):
+            raise ValueError(f"起始点 {point1} 超出有效范围 [0, {self.sample.count})")
+        if not (0 <= point2 < self.sample.count):
+            raise ValueError(f"结束点 {point2} 超出有效范围 [0, {self.sample.count})")
+        if point1 > point2:
+            raise ValueError("起始点不能大于结束点")
+        sample = copy.copy(self.sample)
+        sample.nrates = self.get_two_point_between_segment(point1, point2)
+        diff = point1 - sample.nrates[0].start_point
+        for index, nrate in enumerate(sample.nrates):
+            nrate.start_point = nrate.start_point - diff if nrate.start_point != 0 else 0
+            nrate.end_point -= diff
+        sample.nrates[-1].end_point = point2
+        sample.calc_sampling()
+        return sample
+
     def equal_two_point_samp_rate(self, point1: int, point2: int) -> bool:
         """
         判断两个点之间是否是相同的采样率
@@ -278,7 +306,8 @@ class Configure(BaseModel):
         return channels
 
     def get_analog_selector(self, analog_ids: Union[int, list[int]] = None,
-                            idx_type: IdxType = IdxType.INDEX):
+                            idx_type: IdxType = IdxType.INDEX,
+                            is_values: bool = False):
         """
         获取模拟通道选择器，返回模拟通道对象，不含采样值，选择通道selected为True
         参数:
@@ -290,12 +319,16 @@ class Configure(BaseModel):
         channels = []
         for analog in self.analogs:
             is_selected = analog.is_selected(analog_ids, idx_type)
-            analog_new = copy.copy(analog) if is_selected else copy.copy(analog).remove_fields("values")
+            if is_values:
+                analog_new = copy.copy(analog)
+            else:
+                analog_new = copy.copy(analog) if is_selected else copy.copy(analog).remove_fields("values")
             channels.append(analog_new)
         return channels
 
     def get_digital_selector(self, digital_ids: Union[int, list[int]] = None,
-                             idx_type: IdxType = IdxType.INDEX):
+                             idx_type: IdxType = IdxType.INDEX,
+                             is_values: bool = False):
         """
         获取开关量选择器，返回开关量对象，不含采样值，选择通道selected为True
         参数:
@@ -307,9 +340,12 @@ class Configure(BaseModel):
         channels = []
         for digital in self.digitals:
             is_selected = digital.is_selected(digital_ids, idx_type)
-            analog_new = copy.copy(digital) if is_selected else copy.copy(digital).remove_fields("values")
-            analog_new.index = len(channels)
-            channels.append(analog_new)
+            if is_values:
+                digital_new = copy.copy(digital)
+            else:
+                digital_new = copy.copy(digital) if is_selected else copy.copy(digital).remove_fields("values")
+            digital_new.index = len(channels)
+            channels.append(digital_new)
         return channels
 
     def add_analog(self, analog: Analog, index: int = None):

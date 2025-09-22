@@ -22,10 +22,13 @@ class Nrate(BaseModel):
     samp: int = Field(default=0, description="采样率, 单位为Hz")
     end_point: int = Field(default=0, description="该段最末的采样序号")
     start_point: int = Field(default=0, description="该段最开始的采样序号")
-    cycle_point: int = Field(default=0, description="该采样段每周波包含的采样点数")
+    cycle_point: float = Field(default=0, description="该采样段每周波包含的采样点数")
     count: int = Field(default=0, description="该采样段的采样点数")
-    duration: int = Field(default=0, description="该采样段时间")
-    end_time: int = Field(default=0, description="该段结束时间")
+    duration: float = Field(default=0, description="该采样段时间")
+    end_time: float = Field(default=0, description="该段结束时间")
+
+    def calc_count(self):
+        self.count = self.end_point - self.start_point
 
     @field_validator('count')
     def validate_count(cls, v, values):

@@ -18,4 +18,5 @@ class Phase(BaseEnum):
     A_PHASE = ('A', "A相")
     B_PHASE = ('B', "B相")
     C_PHASE = ('C', "C相")
+    D_PHASE = ('D', "直流")
     NO_PHASE = ('', "无相别")

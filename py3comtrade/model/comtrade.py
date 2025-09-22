@@ -14,7 +14,7 @@ import copy
 import json
 import struct
 import warnings
-from typing import Any, Union, List
+from typing import Any, List, Union
 
 import numpy as np
 import pandas as pd
@@ -31,7 +31,7 @@ from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.mode_enum import SampleMode
-from py3comtrade.model.type.types import IdxType, ChannelType, ValueType
+from py3comtrade.model.type.types import ChannelType, IdxType, ValueType
 from py3comtrade.utils.comtrade_file_path import ComtradeFilePath, generate_comtrade_path
 
 
@@ -72,6 +72,32 @@ class Comtrade(Configure):
         """
         # 在这里执行初始化后的逻辑
         pass
+
+    def get_comtrade_filter(self,
+                            idx_type: IdxType = IdxType.INDEX,
+                            analog_ids: list[int] = None,
+                            digital_ids: list[int] = None,
+                            is_values: bool = False,
+                            start_point: int = 0,
+                            end_point: int = None,
+                            output_value_type: ValueType = ValueType.INSTANT,
+                            output_primary: bool = False) -> 'Comtrade':
+
+        analogs = self.get_analog_selector(analog_ids=analog_ids, idx_type=idx_type, is_values=is_values)
+        digitals = self.get_digital_selector(digital_ids=digital_ids, idx_type=idx_type, is_values=is_values)
+
+        sample = self.cut_samples_points(start_point, end_point)
+
+        return Comtrade(file_path=self.file_path,
+                        sample_point=self.sample_point[start_point:end_point],
+                        sample_time=self.sample_time[start_point:end_point],
+                        digital_change=self.digital_change,
+                        channel_num=self.channel_num,
+                        analogs=analogs,
+                        digitals=digitals,
+                        sample=sample,
+                        file_start_time=self.file_start_time,
+                        fault_time=self.fault_time)
 
     def get_channel_data_range(self, channel_idx: Union[int, list[int]] = None,
                                idx_type: IdxType = IdxType.INDEX,
@@ -241,13 +267,16 @@ class Comtrade(Configure):
             self.sample.nrates = nrates
             self.sample.calc_sampling()
 
-    def save_json(self, file_path: str):
+    def save_json(self, file_path: str, wave: 'Comtrade' = None):
         """
         将comtrade对象保存为json文件
         参数:
             file_path(str):保存文件路径
         """
-        comtrade_json = self.model_dump()
+        if wave is None:
+            comtrade_json = self.model_dump()
+        else:
+            comtrade_json = wave.model_dump_json()
         with open(file_path, 'w', encoding='utf8') as f:
             json.dump(comtrade_json, f, ensure_ascii=False, indent=2, cls=CustomEncoder)
 

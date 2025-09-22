@@ -41,7 +41,7 @@ def compute_dft_component(vs: list[float], k: int = 1) -> complex:
     return complex(real, imag) / np.sqrt(2)
 
 
-def fft_component(vs: list[float], k: int = None) -> dict[int, Harmonic]:
+def fft_component(vs: list[float], k: list[int] = None) -> dict[int, Harmonic]:
     """
     使用numpy中fft实现离散傅里叶变换的核心计算逻辑
     参数:

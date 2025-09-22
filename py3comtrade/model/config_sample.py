@@ -97,6 +97,7 @@ class ConfigSample(BaseModel):
             )
         # 更新总采样点数
         self.count = self.nrates[-1].end_point
+        self.nrate_num = len(self.nrates)
         self.__calc_sample_words()
 
     def __calc_sample_words(self):
