@@ -2,7 +2,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 
-from py3comtrade.model.type.types import IdxType, ChannelType
+from py3comtrade.model.exceptions import InvalidIndexException
+from py3comtrade.model.type.types import ChannelType, IdxType
 from py3comtrade.reader.comtrade_reader import ReadMode, comtrade_reader
 from tests import project_root
 
@@ -21,7 +22,7 @@ class TestComtrade(unittest.TestCase):
         self.assertEqual(3077, len(ch1_ysz[0].values))
         ch2_ysz = self.xtz.get_channel_raw_data_range(2, start_point=0, end_point=3076, idx_type=IdxType.INDEX)
         self.assertEqual(3077, len(ch2_ysz[0].values))
-        with self.assertRaises(ValueError):
+        with self.assertRaises(InvalidIndexException):
             self.xtz.get_channel_raw_data_range(48)
 
     def test_get_raw_by_analog_indices(self):

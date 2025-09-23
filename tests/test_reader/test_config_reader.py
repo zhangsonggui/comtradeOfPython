@@ -58,15 +58,14 @@ class TestConfigReader(unittest.TestCase):
         self.assertEqual(96, len(digitals))
         channels = self.xtz.get_channel_obj(channel_type=ChannelType.ALL)
         self.assertEqual(144, len(channels))
-        analogs = self.xtz.get_channel_obj([],channel_type=ChannelType.ANALOG)
+        analogs = self.xtz.get_channel_obj([], channel_type=ChannelType.ANALOG)
         self.assertEqual(48, len(analogs))
-        ch2 = self.xtz.get_channel_obj(1,idx_type=IdxType.CFGAN)
-        self.assertEqual('220kV母线I_Ub', ch2.name)
+        ch2 = self.xtz.get_channel_obj(1, idx_type=IdxType.CFGAN)
+        self.assertEqual('220kV母线I_Ua', ch2.name)
 
-        ch2_5 = self.xtz.get_channel_obj([1,2,3,4,5])
+        ch2_5 = self.xtz.get_channel_obj([1, 2, 3, 4, 5])
         self.assertEqual(5, len(ch2_5))
         self.assertEqual('220kV母线II_Ua', ch2_5[3].name)
-
 
     def test_get_channel(self):
         index_analog = self.xtz.get_channel_obj(0)
@@ -81,6 +80,8 @@ class TestConfigReader(unittest.TestCase):
 
         index_analogs = self.xtz.get_channel_obj([0, 1, 2, 3])
         self.assertEqual("220kV母线I_Uc", index_analogs[2].name)
+        idx_cfg_analogs = self.xtz.get_channel_obj([1, 2, 3, 4], ChannelType.ANALOG, IdxType.CFGAN)
+        self.assertEqual("220kV母线I_Uc", idx_cfg_analogs[2].name)
 
     def test_get_header(self):
         self.assertEqual('xtz', self.xtz.header.station_name)
