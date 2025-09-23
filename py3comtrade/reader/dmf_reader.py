@@ -10,17 +10,20 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+import os
 import xml.etree.ElementTree as ET
 
 from py3comtrade.model.analog_channel import AnalogChannel, ChannelIdx
 from py3comtrade.model.bus import Bus
 from py3comtrade.model.dmf import DMF
+from py3comtrade.model.exceptions import ComtradeDataFormatException, ComtradeFileEncodingException, \
+    ComtradeFileParseException
 from py3comtrade.model.line import Line
-from py3comtrade.model.primary_equipments import ACVBranch, CG, MR, RX, ACCBranch
+from py3comtrade.model.primary_equipments import ACCBranch, ACVBranch, CG, MR, RX
 from py3comtrade.model.status_channel import StatusChannel
-from py3comtrade.model.transformer import Transformer, WG, TransformerWinding
-from py3comtrade.model.type.analog_enum import (Multiplier, TvInstallation, BranNum, CtDirection, TransWindLocation,
-                                                WGFlag, PsType)
+from py3comtrade.model.transformer import Transformer, TransformerWinding, WG
+from py3comtrade.model.type.analog_enum import (BranNum, CtDirection, Multiplier, PsType, TransWindLocation,
+                                                TvInstallation, WGFlag)
 from py3comtrade.model.type.digital_enum import BreakerFlag, ChannelFlag, Contact, RelayFlag, SignalType, WarningFlag
 
 
@@ -181,37 +184,51 @@ def transformer_parser(transformer_xml, ns) -> Transformer:
     return tran
 
 
-def dmf_parser(_file_path) -> DMF:
-    _dmf = DMF()
-    tree = ET.parse(_file_path)
-    root = tree.getroot()
-    ns = {
-        'scl': 'http://www.iec.ch/61850/2003/SCL'
-    }
-    _dmf.station_name = root.get('station_name', "变电站")
-    _dmf.version = root.get('version', 1.0)
-    _dmf.reference = root.get('reference', 0)
-    _dmf.rec_dev_name = root.get('rec_dev_name', "录波器")
+def dmf_parser(_file_path: str) -> DMF:
+    if not os.path.exists(_file_path):
+        raise ComtradeFileEncodingException(_file_path, "DMF文件找不到")
+    try:
+        _dmf = DMF()
+        try:
+            tree = ET.parse(_file_path)
+        except ET.ParseError as e:
+            error_msg = f"XML解析错误: {e}\n错误位置: 行 {e.lineno}, 列 {e.offset}"
+            raise ComtradeFileParseException(_file_path, error_msg, e)
 
-    for channel in root.findall('scl:AnalogChannel', ns):
-        _dmf.analog_channels.append(analog_channel_parser(channel))
+        root = tree.getroot()
+        ns = {
+            'scl': 'http://www.iec.ch/61850/2003/SCL'
+        }
 
-    for channel in root.findall('scl:StatusChannel', ns):
-        _dmf.status_channels.append(status_channel_parser(channel))
+        try:
+            _dmf.station_name = root.get('station_name', "变电站")
+            _dmf.version = root.get('version', 1.0)
+            _dmf.reference = root.get('reference', 0)
+            _dmf.rec_dev_name = root.get('rec_dev_name', "录波器")
 
-    for bus in root.findall('scl:Bus', ns):
-        _dmf.buses.append(bus_parser(bus, ns))
+            for channel in root.findall('scl:AnalogChannel', ns):
+                _dmf.analog_channels.append(analog_channel_parser(channel))
 
-    for line in root.findall('scl:Line', ns):
-        _dmf.lines.append(line_parser(line, ns))
+            for channel in root.findall('scl:StatusChannel', ns):
+                _dmf.status_channels.append(status_channel_parser(channel))
 
-    for tran in root.findall('scl:Transformer', ns):
-        _dmf.transformers.append(transformer_parser(tran, ns))
-    return _dmf
+            for bus in root.findall('scl:Bus', ns):
+                _dmf.buses.append(bus_parser(bus, ns))
+
+            for line in root.findall('scl:Line', ns):
+                _dmf.lines.append(line_parser(line, ns))
+
+            for tran in root.findall('scl:Transformer', ns):
+                _dmf.transformers.append(transformer_parser(tran, ns))
+            return _dmf
+        except ComtradeDataFormatException as e:
+            raise ComtradeDataFormatException(_file_path, f"解析DMF文件内容时发生错误: ", original_error=e)
+    except ComtradeFileParseException as e:
+        raise ComtradeFileParseException(_file_path, f"处理DMF文件时发生未知错误:", original_error=e)
 
 
 if __name__ == '__main__':
-    file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\hjz.dmf'
+    file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.dmf'
     dmf = dmf_parser(file_path)
     bus = dmf.find_bus_by_name("220kV母线U")
     for line in dmf.lines:

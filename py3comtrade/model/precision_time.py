@@ -14,6 +14,8 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
+from py3comtrade.model.exceptions import ComtradeDataFormatException
+
 time_formats = [
     "%d/%m/%Y,%H:%M:%S.%f",  # 四位年
     "%m/%d/%Y,%H:%M:%S.%f",  # 四位年
@@ -37,7 +39,7 @@ def format_time(str_time: str):
             return datetime.strptime(str_time, fmt)
         except ValueError:
             continue
-    raise ValueError(f"时间格式错误")
+    raise ComtradeDataFormatException(f"时间格式错误")
 
 
 class PrecisionTime(BaseModel):

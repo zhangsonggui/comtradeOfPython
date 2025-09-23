@@ -15,6 +15,8 @@ from typing import List
 
 import chardet
 
+from py3comtrade.model.exceptions import FileNotFoundException, FileEncodingException
+
 # 配置日志系统
 logging.basicConfig(
     level=logging.INFO,
@@ -51,6 +53,9 @@ def detect_file_encoding(file_path: str):
         raise logging.error(f"必须是一个字符串,{file_path}")
 
     try:
+        if not os.path.exists(file_path):
+            raise FileNotFoundException(file_path)
+        
         with open(file_path, "rb") as file:
             raw_data = file.read(READ_BYTES_FOR_ENCODING)
             result = chardet.detect(raw_data)
@@ -60,9 +65,11 @@ def detect_file_encoding(file_path: str):
                 return None
 
             return result["encoding"] if is_valid_encoding(result["encoding"]) else None
+    except FileNotFoundException:
+        raise
     except (IOError, OSError) as e:
         logging.error(f"无法读取文件 {file_path}: {e}")
-        raise RuntimeError(f"无法读取文件 {file_path}: {e}")
+        raise FileEncodingException(file_path, f"无法读取文件: {str(e)}", original_error=e)
 
 
 def detect_os_encoding():

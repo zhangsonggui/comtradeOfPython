@@ -13,6 +13,8 @@
 import copy
 from typing import Union
 
+from py3comtrade.model.exceptions import InvalidOperationException, InvalidIndexException, ChannelNotFoundException
+
 from pydantic import BaseModel, Field
 
 from py3comtrade.model.analog import Analog
@@ -104,11 +106,11 @@ class Configure(BaseModel):
             point1, point2, _ = self.get_cursor_sample_range(point1, point2)
         # 验证输入参数
         if not (0 <= point1 < self.sample.count):
-            raise ValueError(f"起始点 {point1} 超出有效范围 [0, {self.sample.count})")
+            raise InvalidIndexException(point1, f"[0, {self.sample.count})")
         if not (0 <= point2 < self.sample.count):
-            raise ValueError(f"结束点 {point2} 超出有效范围 [0, {self.sample.count})")
+            raise InvalidIndexException(point2, f"[0, {self.sample.count})")
         if point1 > point2:
-            raise ValueError("起始点不能大于结束点")
+            raise InvalidOperationException("起始点不能大于结束点")
         sample = copy.copy(self.sample)
         sample.nrates = self.get_two_point_between_segment(point1, point2)
         diff = point1 - sample.nrates[0].start_point
@@ -157,10 +159,9 @@ class Configure(BaseModel):
         :return: 返回一个元祖，分别代表开始采样点、结束采样点、采样点数量
         """
         if not isinstance(point1, int):
-            raise TypeError(f"采样点开始位置类型错误！需要 int 类型，但收到 {type(point1).__name__}。")
+            raise InvalidOperationException(f"采样点开始位置类型错误！需要 int 类型，但收到 {type(point1).__name__}。")
         if not (0 <= point1 < self.sample.count):
-            raise ValueError(
-                f"采样点开始位置超出录波采样范围！当前采样点位置: {point1}, 允许范围: [0, {self.sample.count})")
+            raise InvalidIndexException(point1, f"[0, {self.sample.count})")
         start_point = point1
         if cycle_num is not None:  # 当采样周波不为空时，直接按照周波数计算出采样点位置
             start_point, end_point = self.get_cursor_cycle_sample_range(point1, cycle_num, mode)
@@ -168,12 +169,11 @@ class Configure(BaseModel):
             end_point = self.sample.count - 1
         else:
             if not isinstance(point2, int):
-                raise TypeError(f"采样点结束位置类型错误！需要 int 类型，但收到 {type(point2).__name__}。")
+                raise InvalidOperationException(f"采样点结束位置类型错误！需要 int 类型，但收到 {type(point2).__name__}。")
             if not (0 <= point2 < self.sample.count):
-                raise ValueError(
-                    f"采样点结束位置超出录波采样范围！当前采样点位置: {point2}, 允许范围: [0, {self.sample.count})")
+                raise InvalidIndexException(point2, f"[0, {self.sample.count})")
             if point2 < point1:
-                raise ValueError("采样点结束位置小于采样点开始位置！")
+                raise InvalidOperationException("采样点结束位置小于采样点开始位置！")
             end_point = point2
         samp_num = end_point - start_point
         return start_point, end_point, samp_num + 1
@@ -254,19 +254,19 @@ class Configure(BaseModel):
             return channels
 
         if idx_type == IdxType.CFGAN and (channel_type == ChannelType.ALL):
-            raise ValueError(f"当通道类型为ALL时，不能使用CFGAN索引")
+            raise InvalidOperationException("当通道类型为ALL时，不能使用CFGAN索引")
 
         # 处理单个索引情况
         if isinstance(index, int):
             if idx_type == IdxType.INDEX:
                 if not (0 <= index < len(channels)):
-                    raise IndexError(f"索引值： {index} 不在 [0, {len(channels)})范围内")
+                    raise InvalidIndexException(index, f"[0, {len(channels)})")
                 return channels[index]
             else:  # IdxType.CFGAN
                 # 使用缓存字典优化查找性能
                 channels_dict = {channel.index: channel for channel in channels}
                 if index not in channels_dict:
-                    raise ValueError(f"没有找到CFGAN为{index}的通道对象")
+                    raise ChannelNotFoundException(index, "CFGAN")
                 return channels_dict[index]
 
         # 处理索引列表情况
@@ -274,18 +274,18 @@ class Configure(BaseModel):
             if idx_type == IdxType.INDEX:
                 # 检查所有索引是否在范围内
                 if im := max(index) >= len(channels):
-                    raise ValueError(f"索引值： {im} 不在 [0, {len(channels)})范围内")
+                    raise InvalidIndexException(im, f"[0, {len(channels)})")
                 return [channels[idx] for idx in index]
             else:  # IdxType.CFGAN
                 channels_dict = {channel.index: channel for channel in channels}
                 result = []
                 for cfgan in index:
                     if cfgan not in channels_dict:
-                        raise ValueError(f"Analog with cfgan {cfgan} not found")
+                        raise ChannelNotFoundException(cfgan, "CFGAN")
                     result.append(channels_dict[cfgan])
                 return result
         else:
-            raise TypeError(f"Index must be int, list[int] or None, got {type(index)}")
+            raise InvalidOperationException(f"Index must be int, list[int] or None, got {type(index)}")
 
     def get_channel_selector(self, analog_ids: Union[int, list[int]] = None,
                              digital_ids: Union[int, list[int]] = None,

@@ -22,11 +22,13 @@ from pydantic import Field
 
 from py3comtrade.computation.basic_calc import convert_primary_secondary, convert_raw_instant
 from py3comtrade.model.analog import Analog
+from py3comtrade.model.bus import Bus
 from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
 from py3comtrade.model.digital import StatusRecord
-from py3comtrade.model.dmf import DMF
+from py3comtrade.model.line import Line
 from py3comtrade.model.nrate import Nrate
+from py3comtrade.model.transformer import Transformer
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
@@ -37,10 +39,13 @@ from py3comtrade.utils.comtrade_file_path import ComtradeFilePath, generate_comt
 
 class Comtrade(Configure):
     file_path: ComtradeFilePath = Field(default=None, description="录波文件路径")
-    dmf: DMF = Field(default=None, description="Comtrade数据对象")
+    fault_point: int = Field(default=0, description="故障时刻采样点")
     sample_point: List[int] = Field(default_factory=list, description="采样点号")
     sample_time: List[int] = Field(default_factory=list, description="采样时间")
     digital_change: List[Digital] = Field(default_factory=list, description="变位开关量通道记录")
+    buses: List[Bus] = Field(default_factory=list, description="母线")
+    lines: List[Line] = Field(default_factory=list, description="线路")
+    transformers: List[Transformer] = Field(default_factory=list, description="变压器")
 
     @property
     def self(self) -> 'Comtrade':
@@ -71,7 +76,7 @@ class Comtrade(Configure):
         在模型初始化完成后自动执行
         """
         # 在这里执行初始化后的逻辑
-        pass
+        self.fault_point = self.get_zero_point()
 
     def get_comtrade_filter(self,
                             idx_type: IdxType = IdxType.INDEX,
@@ -320,11 +325,11 @@ class Comtrade(Configure):
         # 更换configure参数
         self._update_configure(data_file_type=data_file_type)
         # 写入cfg文件
-        super().write_cfg_file(cfp.cfg_path)
+        super().write_cfg_file(str(cfp.cfg_path))
         if data_file_type == DataFileType.ASCII:
-            self._write_ascii_file(cfp.dat_path)
+            self._write_ascii_file(str(cfp.dat_path))
         else:
-            self._write_binary_file(cfp.dat_path)
+            self._write_binary_file(str(cfp.dat_path))
 
     def _write_ascii_file(self, output_file_path: str):
         """
