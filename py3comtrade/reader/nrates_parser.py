@@ -19,6 +19,7 @@ def create_nrates(freg, nrate_num):
     创建采样段对象
     """
     freg = float(freg.strip())
+    freg = 50.0 if freg == 0.0 else freg
     nrate_num = int(nrate_num.strip())
     return ConfigSample(freg=freg, nrate_num=nrate_num)
 

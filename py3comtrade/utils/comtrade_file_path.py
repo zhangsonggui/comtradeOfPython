@@ -25,7 +25,7 @@ class ComtradeFilePath(BaseModel):
     dmf_path: Path = Field(default=None, description="Comtrade模型文件路径")
 
 
-def generate_comtrade_path(_file_path: str=None) -> ComtradeFilePath:
+def generate_comtrade_path(_file_path: str = None) -> ComtradeFilePath:
     """
     生成Comtrade文件路径对象
 
@@ -45,7 +45,7 @@ def generate_comtrade_path(_file_path: str=None) -> ComtradeFilePath:
     elif not _cfp.name or _cfp.name == '.':
         timestamp = datetime.now().strftime("%Y%m%d%H%M")
         _cfp = _cfp / timestamp
-    
+
     cfg_path = _cfp.with_suffix(".cfg")
     dat_path = _cfp.with_suffix(".dat")
     dmf_path = _cfp.with_suffix(".dmf")
@@ -70,8 +70,8 @@ def get_comtrade_path(_file_path: str) -> Optional[ComtradeFilePath]:
         dat_path = file_path.with_suffix(dat_suffix)
         dmf_path = file_path.with_suffix(dmf_suffix)
 
-        if verify_file_validity(cfg_path) and verify_file_validity(dat_path):
-            if verify_file_validity(dmf_path):
+        if verify_file_validity(str(cfg_path)) and verify_file_validity(str(dat_path)):
+            if verify_file_validity(str(dmf_path)):
                 return ComtradeFilePath(cfg_path=cfg_path, dat_path=dat_path, dmf_path=dmf_path)
             else:
                 return ComtradeFilePath(cfg_path=cfg_path, dat_path=dat_path)

@@ -17,10 +17,19 @@ from pydantic import BaseModel, Field
 from py3comtrade.model.exceptions import ComtradeDataFormatException
 
 time_formats = [
-    "%d/%m/%Y,%H:%M:%S.%f",  # 四位年
-    "%m/%d/%Y,%H:%M:%S.%f",  # 四位年
-    "%m/%d/%y,%H:%M:%S.%f",  # 两位年
-    "%Y-%m-%d %H:%M:%S",  # 另一种常见格式
+    "%d/%m/%Y,%H:%M:%S.%f",  # 四位年，欧洲格式（日/月/年）
+    "%m/%d/%Y,%H:%M:%S.%f",  # 四位年，美国格式（月/日/年）
+    "%m/%d/%y,%H:%M:%S.%f",  # 两位年，美国格式（月/日/年）
+    "%d/%m/%Y, %H:%M:%S.%f",  # 四位年，欧洲格式，带空格（你提供的例子）
+    "%Y-%m-%d %H:%M:%S",  # ISO日期格式，无微秒
+    "%Y-%m-%d %H:%M:%S.%f",  # ISO日期格式，带微秒
+    "%Y-%m-%d,%H:%M:%S.%f",  # ISO日期格式，逗号分隔，带微秒
+    "%Y/%m/%d %H:%M:%S",  # 斜杠分隔的年月日格式
+    "%Y/%m/%d %H:%M:%S.%f",  # 带微秒的斜杠分隔格式
+    "%d/%m/%Y %H:%M:%S",  # 欧洲常用格式，空格分隔
+    "%d/%m/%Y %H:%M:%S.%f",  # 带微秒的欧洲常用格式
+    "%m/%d/%Y %H:%M:%S",  # 美国常用格式，空格分隔
+    "%m/%d/%Y %H:%M:%S.%f",  # 带微秒的美国常用格式
 ]
 
 
@@ -38,6 +47,14 @@ def format_time(str_time: str):
         try:
             return datetime.strptime(str_time, fmt)
         except ValueError:
+            # 处理闰年日期错误的情况
+            if "29" in str_time and ("02/" in str_time or "/02/" in str_time):
+                # 尝试将2月29日替换为2月28日
+                try:
+                    modified_time = str_time.replace("/29/", "/28/")
+                    return datetime.strptime(modified_time, fmt)
+                except ValueError:
+                    continue
             continue
     raise ComtradeDataFormatException(f"时间格式错误")
 

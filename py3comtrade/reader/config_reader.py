@@ -35,7 +35,35 @@ def detect_file_encoding(file_path):
         raw_data = file.read()
         result = chardet.detect(raw_data)
         encoding = result["encoding"]
-        return encoding
+        # 如果chardet无法检测到编码或置信度太低，则尝试常见编码
+        if encoding is None or result["confidence"] < 0.7:
+            # 尝试常见的编码格式，按优先级排序
+            # 优先尝试中文编码，再尝试国际编码
+            common_encodings = ["gbk", "gb2312", "utf-8", "utf-16", "ascii", "cp936", "ansi"]
+            for enc in common_encodings:
+                try:
+                    raw_data.decode(enc)
+                    return enc
+                except UnicodeDecodeError:
+                    continue
+            # 如果所有常见编码都失败，回退到gbk（中文Windows常用编码）
+            return "gbk"
+
+        # 对于检测到的编码，再次验证其有效性
+        try:
+            raw_data.decode(encoding)
+            return encoding
+        except UnicodeDecodeError:
+            # 如果检测到的编码无效，尝试其他常见编码
+            fallback_encodings = ["gbk", "utf-8", "gb2312", "utf-16", "ascii"]
+            for enc in fallback_encodings:
+                try:
+                    raw_data.decode(enc)
+                    return enc
+                except UnicodeDecodeError:
+                    continue
+            # 最后的回退方案
+            return "gbk"
 
 
 def read_file(file_path):
@@ -47,7 +75,7 @@ def read_file(file_path):
     encoding = detect_file_encoding(file_path)
     if encoding is None:
         raise ValueError("无法确定文件编码格式")
-    with open(file_path, "r", encoding=encoding) as f:
+    with open(file_path, "r", encoding=encoding, errors="ignore") as f:
         content = [line.strip() for line in f.readlines() if line.strip()]
         return content
 

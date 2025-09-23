@@ -11,37 +11,60 @@ import os
 import zipfile
 from pathlib import Path
 
-from py3comtrade.model.type.types import FilePath
-
-
 # 定义读取字节数的常量
 READ_BYTES_FOR_ENCODING = 10 * 1024  # 10KB
+
+
+def generate_filename_with_timestamp(prefix="", suffix="", _format="%Y%m%d%H%M%S"):
+    """
+    以当前时间生成文件名
+
+    :param prefix: 文件名前缀
+    :param suffix: 文件名后缀（如 .txt, .log 等）
+    :param _format: 时间格式，默认为 "%Y%m%d%H%M%S"
+    :return: 基于当前时间生成的文件名
+    """
+    from datetime import datetime
+    timestamp = datetime.now().strftime(_format)
+    return f"{prefix}{timestamp}{suffix}"
 
 
 def file_finder(directory: str, extension: str, recursive: bool = False):
     """
     查找指定目录下所有指定后缀名的文件
     :param directory: 指定目录
-    :param extension: 指定后缀名,应以点号开头，如.reader
+    :param extension: 指定后缀名,应以点号开头，如.cfg
     :param recursive: 是否递归查找
     :return: 符合条件的文件列表
     """
     # 确保后缀名以点号开头
     if not extension.startswith('.'):
         extension = '.' + extension
-    # 验证或清理路径（简化示例）
-    directory = os.path.abspath(directory)
-    # 添加递归查找逻辑
-    matching_files = []
-    if recursive:
-        for root, dirs, files in os.walk(directory):
-            matching_files.extend([os.path.join(root, file) for file in files if file.endswith(extension)])
-    else:
-        files_and_dirs = os.listdir(directory)
-        matching_files = [os.path.join(directory, file) for file in files_and_dirs if
-                          os.path.isfile(os.path.join(directory, file)) and file.endswith(extension)]
 
-    return matching_files
+    # 使用pathlib处理路径
+    directory_path = Path(directory)
+
+    # 检查目录是否存在
+    if not directory_path.exists():
+        raise FileNotFoundError(f"目录不存在: {directory}")
+
+    if not directory_path.is_dir():
+        raise NotADirectoryError(f"路径不是目录: {directory}")
+
+    # 根据是否递归查找来获取文件
+    if recursive:
+        # 递归查找所有匹配后缀的文件
+        pattern = f"**/*{extension}"
+        matching_files = list(directory_path.glob(pattern))
+    else:
+        # 只在当前目录查找匹配后缀的文件
+        pattern = f"*{extension}"
+        matching_files = list(directory_path.glob(pattern))
+        # 过滤出文件（排除目录）
+        matching_files = [f for f in matching_files if f.is_file()]
+
+        # 只返回文件路径的字符串形式
+    return [str(f) for f in matching_files]
 
 
 def split_path(path):
@@ -57,7 +80,7 @@ def split_path(path):
     return dir_name, file_name, extension
 
 
-def verify_file_validity(_file_path: str)->bool:
+def verify_file_validity(_file_path: str) -> bool:
     """
     验证文件是否存在且非空。
     :param _file_path: 文件的路径
@@ -95,12 +118,22 @@ def read_file_adaptive_encoding(filename):
         return None
 
 
-def zip_files(files, output):
-    """压缩多个文件"""
-    zip = zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED)
-    for file in files:
-        zip.write(file)
-    zip.close()
+def zip_files(_files: list[str], output: str):
+    """压缩多个文件
+    参数:
+        _files:文件列表
+        output:输出目录
+    返回值:
+        压缩包
+    """
+    if output is None:
+        output = generate_filename_with_timestamp(suffix=".zip")
+    try:
+        with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zip:
+            for file in _files:
+                zip.write(file)
+    except Exception as e:
+        raise Exception(f"创建ZIP文件时发生错误: {e}")
 
 
 def zip_dir(path, output=None):
@@ -131,14 +164,7 @@ def extract_files_with_suffixes(zip_file, output=None, suffixes=None):
                 zip_ref.extract(entry, output)
 
 
-def check_file_path(_file_path: Path) -> bool:
-    """
-    检查文件路径是否存在
-    :param _file_path: 文件路径
-    :return: 文件路径是否存在
-    """
-    if not _file_path.exists():
-        return False
-    if not _file_path.is_file():
-        return False
-    return True
+if __name__ == '__main__':
+    fd = r"Y:\2013"
+    files = file_finder(fd, ".cfg", True)
+    print(files)

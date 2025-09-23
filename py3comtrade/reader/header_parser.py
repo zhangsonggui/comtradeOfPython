@@ -21,6 +21,7 @@ def header_parser(line) -> ConfigHeader:
     if not line:
         raise ValueError("配置头信息为空")
     parts = line.split(",")
+
     station_name = ''
     recorder_name = ''
     version = 1991
