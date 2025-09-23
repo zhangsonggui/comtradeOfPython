@@ -13,8 +13,6 @@
 import copy
 from typing import Union
 
-from py3comtrade.model.exceptions import InvalidOperationException, InvalidIndexException, ChannelNotFoundException
-
 from pydantic import BaseModel, Field
 
 from py3comtrade.model.analog import Analog
@@ -22,6 +20,7 @@ from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.config_header import ConfigHeader
 from py3comtrade.model.config_sample import ConfigSample
 from py3comtrade.model.digital import Digital
+from py3comtrade.model.exceptions import ChannelNotFoundException, InvalidIndexException, InvalidOperationException
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
@@ -264,7 +263,7 @@ class Configure(BaseModel):
                 return channels[index]
             else:  # IdxType.CFGAN
                 # 使用缓存字典优化查找性能
-                channels_dict = {channel.index: channel for channel in channels}
+                channels_dict = {channel.idx_cfg: channel for channel in channels}
                 if index not in channels_dict:
                     raise ChannelNotFoundException(index, "CFGAN")
                 return channels_dict[index]
@@ -277,7 +276,7 @@ class Configure(BaseModel):
                     raise InvalidIndexException(im, f"[0, {len(channels)})")
                 return [channels[idx] for idx in index]
             else:  # IdxType.CFGAN
-                channels_dict = {channel.index: channel for channel in channels}
+                channels_dict = {channel.idx_cfg: channel for channel in channels}
                 result = []
                 for cfgan in index:
                     if cfgan not in channels_dict:
