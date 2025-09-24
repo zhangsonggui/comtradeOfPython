@@ -36,7 +36,10 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL, value_
     files = get_comtrade_path(_file_path)
     if not files:
         raise ComtradeFileNotFoundException(_file_path, "文件不存在")
-    cfg = config_reader(files.cfg_path)
+    try:
+        cfg = config_reader(files.cfg_path)
+    except ComtradeFileEncodingException:
+        raise ComtradeFileEncodingException(f"文件格式错误:{_file_path}")
     _comtrade: Comtrade = Comtrade(file_path=files,
                                    header=cfg.header,
                                    channel_num=cfg.channel_num,

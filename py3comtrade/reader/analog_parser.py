@@ -23,7 +23,7 @@ def analog_parser(line):
     analog = Analog(idx_cfg=int(line[0]),
                     name=line[1],
                     phase=Phase.from_string(line[2], default=Phase.NO_PHASE),
-                    ccbm=line[3],
+                    ccbm="" if line[3] == "null" else line[3],
                     unit=ElectricalUnit.from_string(line[4], default=ElectricalUnit.NONE),
                     a=float(line[5]),
                     b=float(line[6]),
@@ -32,9 +32,9 @@ def analog_parser(line):
                     max_val=float(line[9]))
     # 如果分割后的字符串长度大于11，则传入更多参数
     if len(line) > 11:
-        analog.primary = float(line[10])
-        analog.secondary = float(line[11])
+        analog.primary = 1.0 if line[10] in ["null", ""] else float(line[10])
+        analog.secondary = 1.0 if line[11] in ["null", ""] else float(line[11])
         analog.ps = PsType.from_string(line[12], default=PsType.S)
-        analog.ratio = float(line[10]) / float(line[11]) if float(line[11]) != 0 else 1.0
+        analog.ratio = analog.primary / analog.secondary if analog.secondary != 0 else 1.0
     # 返回Analog对象
     return analog

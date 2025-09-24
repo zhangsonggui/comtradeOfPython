@@ -50,6 +50,15 @@ class ComtradeFileParseException(ComtradeException):
         super().__init__(message or default_message, self.ERROR_CODE, original_error)
 
 
+class ComtradeDataNullException(ComtradeException):
+    """数据内容为空"""
+    ERROR_CODE = "DATA_NULL_ERROR"
+
+    def __init__(self, message=None, original_error=None):
+        default_message = "数据内容为空"
+        super().__init__(message or default_message, self.ERROR_CODE, original_error)
+
+
 class ComtradeDataFormatException(ComtradeException):
     """数据格式不正确异常"""
     ERROR_CODE = "DATA_FORMAT_ERROR"

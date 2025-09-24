@@ -10,8 +10,8 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-
 from pydantic import BaseModel, Field, model_validator
+from typing_extensions import Self
 
 
 class ChannelNum(BaseModel):
@@ -38,6 +38,9 @@ class ChannelNum(BaseModel):
         """自动更新total_num为analog_num和digital_num的和"""
         self.total_num = self.analog_num + self.digital_num
         return self
+
+    def validate_num(self, cfg_line_num: int) -> Self:
+        pass
 
     def __str__(self):
         return f"{self.total_num},{self.analog_num}A,{self.digital_num}D"

@@ -44,7 +44,7 @@ class BaseEnum(Enum):
         :raises ValueError: 如果找不到匹配项且未启用 fuzzy 或 fuzzy 也失败
         """
         # 处理空字符串或空白字符串
-        if not string or string.strip() == '':
+        if not string or string.strip() in ["", "null"]:
             if default is not None:
                 return default
             raise ValueError(f"{cls.__name__} 未提供字符串且未设置默认值")

@@ -33,7 +33,7 @@ class Configure(BaseModel):
     配置文件类，用于存储配置文件信息
     """
     header: ConfigHeader = Field(default=ConfigHeader(), description="配置文件头")
-    channel_num: ChannelNum = Field(default=None, description="通道数量")
+    channel_num: ChannelNum = Field(default=ChannelNum(), description="通道数量")
     analogs: list[Analog] = Field(default_factory=list, description="模拟通道列表")
     digitals: list[Digital] = Field(default_factory=list, description="开关量通道列表")
     sample: ConfigSample = ConfigSample()
