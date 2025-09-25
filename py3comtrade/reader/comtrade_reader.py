@@ -72,10 +72,12 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL, value_
         _comtrade.analyze_digital_change_status()
     if read_mode in [ReadMode.DMF, ReadMode.FULL]:
         try:
-            dmf = dmf_parser(str(files.dmf_path))
-            _comtrade.buses = dmf.buses
-            _comtrade.lines = dmf.lines
-            _comtrade.transformers = dmf.transformers
+            _dmf = dmf_parser(str(files.dmf_path))
+            _comtrade.buses = _dmf.buses
+            _comtrade.lines = _dmf.lines
+            _comtrade.transformers = _dmf.transformers
+            _comtrade.analog_channels = _dmf.analog_channels
+            _comtrade.status_channels = _dmf.status_channels
         except ComtradeFileEncodingException as e:
             pass
 

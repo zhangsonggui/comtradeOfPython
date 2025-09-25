@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 import unittest
 
+from py3comtrade.dispose.channel_name import analog_channel_classification, match_channel_name
 from py3comtrade.model.type.analog_enum import AnalogFlag
-from py3comtrade.utils.channel_dispose import match_channel_name, analog_channel_classification
 
 
 class TestChannelDispose(unittest.TestCase):

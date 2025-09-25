@@ -3,7 +3,10 @@
 import re
 from typing import List
 
-from py3comtrade.model.type.analog_enum import ElectricalUnit, AnalogFlag
+import pandas as pd
+
+from py3comtrade.model.type.analog_enum import AnalogFlag, ElectricalUnit
+from py3comtrade.model.type.phase_code import Phase
 
 # 预编译名称启用规则正则表达式，提升性能
 _NAME_ENABLE_COMPILED_PATTERNS: List[re.Pattern] = [
@@ -74,6 +77,28 @@ _DC_COMPILED_PATTERN = [
     re.compile(r'.*直流通道'),
     re.compile(r'.*直流电源')
 ]
+# 预编译相别规则正则表达式
+_PHASE_A_COMPILED_PATTERNS: List[re.Pattern] = [
+    re.compile(r'.*[UuIi][Aa]$', re.IGNORECASE),  # Ua, Ia结尾
+    re.compile(r'.*[UuIi]0$', re.IGNORECASE),  # U0, I0结尾（作为A相处理）
+    re.compile(r'.*[Aa]相[电电压流]+$', re.IGNORECASE),  # A相电压, A相电流
+]
+
+_PHASE_B_COMPILED_PATTERNS: List[re.Pattern] = [
+    re.compile(r'.*[UuIi][Bb]$', re.IGNORECASE),  # Ub, Ib结尾
+    re.compile(r'.*[Bb]相[电电压流]+$', re.IGNORECASE),  # B相电压, B相电流
+]
+
+_PHASE_C_COMPILED_PATTERNS: List[re.Pattern] = [
+    re.compile(r'.*[UuIi][Cc]$', re.IGNORECASE),  # Uc, Ic结尾
+    re.compile(r'.*[Cc]相[电电压流]+$', re.IGNORECASE),  # C相电压, C相电流
+]
+
+_PHASE_N_COMPILED_PATTERNS: List[re.Pattern] = [
+    re.compile(r'.*3[UuIi]0$', re.IGNORECASE),  # 3U0, 3I0
+    re.compile(r'.*[UuIi]0$', re.IGNORECASE),  # U0, I0
+    re.compile(r'.*[Nn]相[电电压流]+$', re.IGNORECASE),  # N相电压, N相电流
+]
 
 
 def match_channel_name(_name_str: str) -> bool:
@@ -111,37 +136,36 @@ def analog_channel_classification(_name_str: str, unit: ElectricalUnit = None) -
     return analog_flag
 
 
+def parser_phase(_name_str: str):
+    _phase = Phase.NO_PHASE
+    if any(re.match(pattern, _name_str) for pattern in _PHASE_A_COMPILED_PATTERNS):
+        _phase = Phase.A_PHASE
+    if any(re.match(pattern, _name_str) for pattern in _PHASE_B_COMPILED_PATTERNS):
+        _phase = Phase.B_PHASE
+    if any(re.match(pattern, _name_str) for pattern in _PHASE_C_COMPILED_PATTERNS):
+        _phase = Phase.C_PHASE
+    if any(re.match(pattern, _name_str) for pattern in _PHASE_N_COMPILED_PATTERNS):
+        _phase = Phase.N_PHASE
+    return _phase
+
+
 # 示例用法
 if __name__ == "__main__":
-    test__name_strs = [
-        "123",  # 纯数字
-        " 123 ",  # 数字前后有空格
-        "模拟量",  # 仅模拟量
-        "模拟量1",  # 模拟量加数字
-        "模拟量 1",  # 模拟量加空格和数字
-        "电压220",  # 电压加数字
-        "电压 220",  # 电压加空格和数字
-        "电流5",  # 电流加数字
-        "电流 5",  # 电流加空格和数字
-        "开关量1",  # 开关量加数字
-        "开关量 1",  # 开关量加空格和数字
-        "状态量2",  # 状态量加数字
-        "状态量 2",  # 状态量加空格和数字
-        "频率量",  # 不符合规则
-        "模拟量abc",  # 不符合规则
-        "abc123",  # 不符合规则
-        "",  # 空字符串
-        "电流10 Ia",
-        "电流14 I0",
-        "电压5 Ua",
-        "电压3 3U0",
-        "电流1 Ib",
-        "电流2 Ic",
-        "电压1 Ub",
-        "电压2 Uc"
-    ]
-
-    print("使用match_channel__name函数:")
-    for name_str in test__name_strs:
-        result = match_channel_name(name_str)
-        print(f"'{name_str}': {result}")
+    df = pd.read_csv(r"D:\codeArea\gitee\comtradeOfPython\通道名称汇总.csv", encoding='gbk')
+    print(f"开始解析故障相别")
+    ok = 0
+    fail = 0
+    for index, row in df.iterrows():
+        name_str = row.iloc[0]  # 使用 iloc[0] 获取第一列的值
+        phase = parser_phase(name_str)
+        phase_ori = row.iloc[1]
+        if phase_ori != phase.value:
+            fail += 1
+            print(f"行 {index}: 第一列的值 = {name_str},识别相别:{phase.value},原始相别{phase_ori}")
+        else:
+            ok += 1
+    print(f"故障相别解析完毕")
+    # print("使用match_channel__name函数:")
+    # for name_str in test__name_strs:
+    #     result = match_channel_name(name_str)
+    #     print(f"'{name_str}': {result}")

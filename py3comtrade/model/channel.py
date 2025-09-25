@@ -10,14 +10,14 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from typing import Any, List, Optional, Union
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, Field
 
+from py3comtrade.dispose.channel_name import analog_channel_classification, match_channel_name
 from py3comtrade.model.type.analog_enum import AnalogFlag
 from py3comtrade.model.type.phase_code import Phase
 from py3comtrade.model.type.types import IdxType
-from py3comtrade.utils.channel_dispose import match_channel_name, analog_channel_classification
 
 
 class ChannelIdx(BaseModel):
@@ -75,7 +75,7 @@ class Channel(ChannelIdx):
         """根据通道名称和单位判断通道类型"""
         return analog_channel_classification(self.name)
 
-    def is_selected(self,target:list, target_type:IdxType= IdxType.INDEX) -> bool:
+    def is_selected(self, target: list, target_type: IdxType = IdxType.INDEX) -> bool:
         """判断通道是否被选中"""
         if target_type == IdxType.INDEX:
             self.selected = True if self.index in target else False
