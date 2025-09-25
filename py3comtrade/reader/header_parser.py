@@ -10,49 +10,18 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-
-
 import re
 
 from py3comtrade.model.config_header import ConfigHeader
 
-
-def identify_text_type(text):
-    """
-    判断文本类型,是全数字、数字加A、数字加D的组合，返回类型
-
-    Args:
-        text (str): 需要识别的文本
-
-    Returns:
-        dict: 包含不同类型匹配结果的字典
-    """
-    # 匹配纯数字（大于1991）
-    all_numbers = re.findall(r'\b\d+\b', text)
-    pure_numbers = [num for num in all_numbers if int(num) > 1991]
-
-    # 匹配数字+A（如 1992A, 2000A等）
-    numbers_with_a = re.findall(r'\b(\d+[Aa])\b', text)
-
-    # 匹配数字+D（如 1992D, 2000D等）
-    numbers_with_d = re.findall(r'\b(\d+[Dd])\b', text)
-
-    return {
-        'year'  : pure_numbers,
-        'an_num': numbers_with_a,
-        'dn_num': numbers_with_d
-    }
-
-
 YEAR_RE = r'\b([2-9]\d{3,}|199[1-9]|19[0-9]{3,}|[2-9][0-9]{4,})\b'
 
 
-def header_parser(line) -> ConfigHeader:
+def header_from_str(_header_str: str) -> ConfigHeader:
     """解析配置头信息"""
-    line = line.strip()
-    if not line:
+    if not _header_str:
         raise ValueError("配置头信息为空")
-    parts = line.split(",")
+    parts = _header_str.strip().split(",")
     station_name = ''
     recorder_name = ''
     version = 1991
@@ -67,8 +36,9 @@ def header_parser(line) -> ConfigHeader:
     return ConfigHeader(station_name=station_name, recorder_name=recorder_name, version=version)
 
 
-if __name__ == '__main__':
-    # text = identify_text_type("浚河站,浚河站220kV河泉线PSL602G保护,11A,8D")
-    pattern = r'\b([2-9]\d{3,}|199[1-9]|19[0-9]{3,}|[2-9][0-9]{4,})\b'
-    p1 = re.search(pattern, "")
-    print(p1.string)
+def header_from_dict(_header_dict: dict):
+    """从字典解析配置头信息"""
+    station_name = _header_dict.get("station_name", "变电站")
+    recorder_name = _header_dict.get("recorder_name", "录波设备")
+    version = _header_dict.get("version", 1991)
+    return ConfigHeader(station_name=station_name, recorder_name=recorder_name, version=version)

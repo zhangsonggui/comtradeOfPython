@@ -15,11 +15,17 @@ import numpy as np
 
 from py3comtrade.model.comtrade import Comtrade
 from py3comtrade.model.exceptions import ComtradeFileEncodingException, ComtradeFileNotFoundException
+from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.type.mode_enum import ReadMode
 from py3comtrade.model.type.types import ValueType
+from py3comtrade.reader.analog_parser import analog_from_dict
+from py3comtrade.reader.channel_num_parser import channel_num_from_dict
 from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import data_reader
+from py3comtrade.reader.digital_parser import digital_from_dict
 from py3comtrade.reader.dmf_reader import dmf_parser
+from py3comtrade.reader.header_parser import header_from_dict
+from py3comtrade.reader.nrates_parser import sample_from_dict
 from py3comtrade.utils.comtrade_file_path import get_comtrade_path
 
 
@@ -82,6 +88,32 @@ def comtrade_reader(_file_path: str, read_mode: ReadMode = ReadMode.FULL, value_
             pass
 
     return _comtrade
+
+
+def comtrade_from_dict(comtrade_dict: dict) -> Comtrade:
+    header = header_from_dict(comtrade_dict.get("header"))
+    channel_num = channel_num_from_dict(comtrade_dict.get("channel_num"))
+    analogs_dict = comtrade_dict.get("analogs")
+    analogs = []
+    for analog_dict in analogs_dict:
+        analogs.append(analog_from_dict(analog_dict))
+    digitals_dict = comtrade_dict.get("digitals")
+    digitals = []
+    for digital_dict in digitals_dict:
+        digitals.append(digital_from_dict(digital_dict))
+    sample = sample_from_dict(comtrade_dict.get("sample"))
+
+    return Comtrade(
+        header=header,
+        channel_num=channel_num,
+        analogs=analogs,
+        digitals=digitals,
+        sample=sample,
+        file_start_time=PrecisionTime(comtrade_dict.get("file_start_time").get("time")),
+        fault_time=PrecisionTime(comtrade_dict.get("fault_time").get("time")),
+        timemult=comtrade_dict.get("timemult").get("timemult")
+
+    )
 
 
 if __name__ == '__main__':

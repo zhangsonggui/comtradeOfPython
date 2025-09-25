@@ -5,6 +5,8 @@ import numpy as np
 from numpy.typing import NDArray
 from typing_extensions import TypedDict
 
+from py3comtrade.model.type.base_enum import BaseEnum
+
 Array = NDArray
 FloatArray64 = NDArray[np.float64]
 FloatArray32 = NDArray[np.float32]
@@ -29,9 +31,10 @@ class IdxType(Enum):
 class ChannelType(Enum):
     ANALOG = (0, "模拟通道")
     DIGITAL = (1, "开关量通道")
-    ALL  = (2, "全部通道")
+    ALL = (2, "全部通道")
 
-class ValueType(Enum):
-    INSTANT = (0, "瞬时值")
-    RAW = (1, "原始采样值")
-    RMS = (2, "有效值值")
+
+class ValueType(BaseEnum):
+    INSTANT = ("INSTANT", "瞬时值")
+    RAW = ("RAW", "原始采样值")
+    RMS = ("RMS", "有效值值")

@@ -14,11 +14,13 @@ from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.exceptions import ComtradeDataFormatException
 
 
-def channel_num_parser(line):
-    total_num, analog_num, digital_num = line.strip().split(",")
+def channel_num_from_str(_cn_str: str):
+    """从字符串生成通道数量对象"""
+    total_num, analog_num, digital_num = _cn_str.strip().split(",")
+    total_num = int(total_num)
     analog_num = str_to_int(analog_num)
     digital_num = str_to_int(digital_num)
-    if int(total_num) != analog_num + digital_num:
+    if total_num != analog_num + digital_num:
         raise ComtradeDataFormatException(
             F"通道数量校验错误,通道总数{total_num}不等于模拟量数量:{analog_num},开关量数量:{digital_num}之和")
     return ChannelNum(total_num=total_num, analog_num=analog_num, digital_num=digital_num)
@@ -27,3 +29,14 @@ def channel_num_parser(line):
 def str_to_int(string):
     digits = "".join([char for char in string if char.isdigit()])
     return int(digits) if digits else 0
+
+
+def channel_num_from_dict(_cn_dict: dict):
+    """从字典生成通道数量对象"""
+    total_num = _cn_dict.get("total_num", 0)
+    analog_num = _cn_dict.get("analog_num", 0)
+    digital_num = _cn_dict.get("digital_num", 0)
+    if total_num != analog_num + digital_num:
+        raise ComtradeDataFormatException(
+            F"通道数量校验错误,通道总数{total_num}不等于模拟量数量:{analog_num},开关量数量:{digital_num}之和")
+    return ChannelNum(total_num=total_num, analog_num=analog_num, digital_num=digital_num)

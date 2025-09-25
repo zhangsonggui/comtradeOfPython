@@ -24,6 +24,13 @@ class ComtradeFilePath(BaseModel):
     dat_path: Path = Field(default=None, description="Comtrade数据文件路径")
     dmf_path: Path = Field(default=None, description="Comtrade模型文件路径")
 
+    def __str__(self):
+        return {
+            "cfg_path": str(self.cfg_path),
+            "dat_path": str(self.dat_path),
+            "dmf_path": str(self.dmf_path)
+        }
+
 
 def generate_comtrade_path(_file_path: str = None) -> ComtradeFilePath:
     """

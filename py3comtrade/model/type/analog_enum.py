@@ -59,7 +59,7 @@ class BranNum(BaseEnum):
 
 class TvInstallation(BaseEnum):
     BUS = ("bus", "母线侧")
-    LINE = ("line", "线路侧")
+    LINE = ("_an_str", "线路侧")
 
 
 class CtDirection(BaseEnum):

@@ -31,7 +31,8 @@ class Nrate(BaseModel):
         self.count = self.end_point - self.start_point
 
     @field_validator('count')
-    def validate_count(cls, v, values):
+    def validate_count(cls, v, info):
+        values = info.data if hasattr(info, "data") else {}
         if 'end_point' in values and 'start_point' in values:
             return values['end_point'] - values['start_point']
         return v
