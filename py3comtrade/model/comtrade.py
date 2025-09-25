@@ -11,7 +11,6 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import copy
-import json
 import struct
 import warnings
 from typing import Any, List, Union
@@ -28,7 +27,6 @@ from py3comtrade.model.digital import StatusRecord
 from py3comtrade.model.dmf import DMF
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
-from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import ChannelType, IdxType, ValueType
@@ -266,46 +264,6 @@ class Comtrade(Configure, DMF):
             self.sample.nrate_num = len(nrates)
             self.sample.nrates = nrates
             self.sample.calc_sampling()
-
-    def save_json(self, file_path: str, wave: 'Comtrade' = None):
-        """
-        将comtrade对象保存为json文件
-        参数:
-            file_path(str):保存文件路径
-        """
-        if wave is None:
-            comtrade_json = self.model_dump()
-        else:
-            comtrade_json = wave.model_dump_json()
-        with open(file_path, 'w', encoding='utf8') as f:
-            json.dump(comtrade_json, f, ensure_ascii=False, indent=2, cls=CustomEncoder)
-
-    def save_csv(self, file_path: str,
-                 samp_point_num_title: bool = True,
-                 sample_time_title: bool = True,
-                 value_type: str = "instant"):
-        """
-        将comtrade对象保存为csv文件
-        参数:
-            file_path(str):保存文件路径
-            samp_point_num_title(bool):是否添加采样点序号行,默认为添加
-            sample_time_title(bool):是否添加采样时间行,默认为添加
-            value_type(str):数值格式instant保存为瞬时值,raw保存为原始采样值,默认为瞬时值
-        返回值:
-        """
-        with open(file_path, "w", encoding="gbk") as f:
-            if samp_point_num_title:
-                f.write(f'采样点号,{",".join(map(str, self.sample_point))}\n')
-            if sample_time_title:
-                f.write(f'采样时间,{",".join(map(str, self.sample_time))}\n')
-            if value_type == "raw":
-                analog_datas = self.get_channel_data_range(output_value_type=ValueType.RAW)
-            else:
-                analog_datas = self.get_channel_data_range(output_value_type=ValueType.INSTANT)
-            for analog in analog_datas:
-                f.write(f'{analog.name},{",".join(map(str, analog.values))}\n')
-            for digital in self.digitals:
-                f.write(f'{digital.name},{",".join(map(str, digital.values))}\n')
 
     def save_comtrade(self, file_path: str, data_file_type: DataFileType = DataFileType.BINARY):
         """

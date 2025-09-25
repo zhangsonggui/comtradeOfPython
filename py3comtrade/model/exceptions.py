@@ -71,6 +71,16 @@ class ComtradeDataFormatException(ComtradeException):
         super().__init__(message or default_message, self.ERROR_CODE, original_error)
 
 
+class ComtradeFileWriteException(ComtradeException):
+    """文件写入失败异常"""
+    ERROR_CODE = "FILE_WRITE_ERROR"
+
+    def __init__(self, file_path, message=None, original_error=None):
+        self.file_path = file_path
+        default_message = f"文件写入失败: {file_path}"
+        super().__init__(message or default_message, self.ERROR_CODE, original_error)
+
+
 class ChannelNotFoundException(ComtradeException):
     """通道未找到异常"""
     ERROR_CODE = "CHANNEL_NOT_FOUND"

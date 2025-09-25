@@ -24,37 +24,38 @@ comtrade对象，继承自Configure
 - digital_change：变位通道
 
 > **方法**
- 
+
 - **get_channel_raw_data_range**：获取指定通道、指定采样点范围的原始采样值数据
-  - channel_idx(int,list[int]) 通道索引值或通道索引值列表
-  - idx_type:(IdxType)通道标识类型，默认使用INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
-  - channel_type(ChannelTyep)通道类型，默认模拟量ANALOG，支持模拟量和开关量两种类型
-  - start_point(int) 开始采样点，默认值0，包含该点。
-  - end_point(int) 结束采样点，默认值为None，为录波文件最大采样点，不包含该点。
+    - channel_idx(int,list[int]) 通道索引值或通道索引值列表
+    - idx_type:(IdxType)通道标识类型，默认使用INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
+    - channel_type(ChannelTyep)通道类型，默认模拟量ANALOG，支持模拟量和开关量两种类型
+    - start_point(int) 开始采样点，默认值0，包含该点。
+    - end_point(int) 结束采样点，默认值为None，为录波文件最大采样点，不包含该点。
 - **get_channel_instant_data_range**：获取指定通道、指定采样点范围的瞬时值数据
-  - channel_idx(int,list[int]) 通道索引值或通道索引值列表
-  - idx_type:(IdxType)通道标识类型，默认使用INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
-  - channel_type(ChannelTyep)通道类型，默认模拟量ANALOG，支持模拟量和开关量两种类型
-  - start_point(int) 开始采样点，默认值0，包含该点。
-  - end_point(int) 结束采样点，默认值为None，为录波文件最大采样点，不包含该点。
-  - output_primary(bool)输出值是否是一次值
+    - channel_idx(int,list[int]) 通道索引值或通道索引值列表
+    - idx_type:(IdxType)通道标识类型，默认使用INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
+    - channel_type(ChannelTyep)通道类型，默认模拟量ANALOG，支持模拟量和开关量两种类型
+    - start_point(int) 开始采样点，默认值0，包含该点。
+    - end_point(int) 结束采样点，默认值为None，为录波文件最大采样点，不包含该点。
+    - output_primary(bool)输出值是否是一次值
 - **get_digital_change**：获取所有发生变位的开关量
 - **analyze_digital_change_status**：根据开关量采样值计算变化点号及幅值
 - _update_configure：更新配置文件对象
-  - nrates(List[Nrate]) 采样段
-  - data_file_type(DataFileType) 文件格式
+    - nrates(List[Nrate]) 采样段
+    - data_file_type(DataFileType) 文件格式
 - **save_json**：保存json文件
-  - file_path(str):保存文件路径
-- **save_csv**：保存csv文件
-  - file_path(str):保存文件路径
-  - samp_point_num_title(bool):是否添加采样点序号行,默认为添加
-  - sample_time_title(bool):是否添加采样时间行,默认为添加
-  - value_type(str):数值格式instant保存为瞬时值,raw保存为原始采样值,默认为瞬时值
+    - file_path(str):保存文件路径
+- **to_csv**：保存csv文件
+    - file_path(str):保存文件路径
+    - samp_point_num_title(bool):是否添加采样点序号行,默认为添加
+    - sample_time_title(bool):是否添加采样时间行,默认为添加
+    - value_type(str):数值格式instant保存为瞬时值,raw保存为原始采样值,默认为瞬时值
 - **save_comtrade**：保存comtrade文件
-  - file_path(str) 保存路径,后缀名可选
-  - data_file_type(DataFileType) 保存格式,默认保存为二进制文件
+    - file_path(str) 保存路径,后缀名可选
+    - data_file_type(DataFileType) 保存格式,默认保存为二进制文件
 - _write_ascii_file：创建ascii文件
 - _write_binary_file：创建二进制文件
+
 ## 2. 配置文件对象
 
 > **属性**
@@ -171,13 +172,11 @@ comtrade对象，继承自Configure
 
 - time：datetime时间
 
-
 > **方法**
 
 - 重写__init__方法：初始化时间对象
 - 重写__str__方法：使用"%d/%m/%Y,%H:%M:%S.%f"返回字符串
 - format_time格式化字符串为时间对象，兼容四位年份、月份和日期位置乱序、日期和时间位置乱序
-
 
 ### 4. 录波通道类
 
@@ -247,7 +246,6 @@ comtrade对象，继承自Configure
 - 重写channel_flag方法：根据通道名称判断通道类型
 - is_change方法：返回是否变位
 
-
 #### 4.5 DigitalChangeStatus开关量变位状态
 
 > **属性**
@@ -271,11 +269,15 @@ comtrade对象，继承自Configure
 - outpu_primary(bool)输出数值类型是一次值或二次值
 
 #### 5.2 math_polar_rect角度、弧度、向量值互转
+
 #### 5.3 fourier傅里叶计算
+
 - compute_dft_component：实现离散傅里叶变换（DFT）的核心计算逻辑
 - fft_component：使用numpy中fft实现离散傅里叶变换的核心计算逻辑
 - dft_exp_decay：消除直流分量后返回对应通道的实部和虚部，需要1.5个周波的数据。
+
 #### 5.4 calcium 数值计算
+
 > **属性**
 
 - instant：瞬时值数组
@@ -293,11 +295,15 @@ comtrade对象，继承自Configure
 - calc_dc_component：返回直流分量
 - calc_harmonics：返回各次谐波
 - calc_effective：返回有效值
-- 
+-
+
 #### 5.5 Sequence 向量转序分量
+
 - phasor_to_sequence_by_rotate：将相分量转化为序分量,使用旋转B、C角度进行计算
 - phasor_to_sequence_by_matrix：将相量值转化为序分量，使用numpy矩阵
+
 #### 5.6 impedance阻抗计算
+
 - compute_line_impedance：通过本侧故障前后电压、电流通道和对侧故障前后电压，计算线路正序阻抗
 
 ### DMF故障模型类
