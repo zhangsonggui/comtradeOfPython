@@ -12,6 +12,8 @@
 #  See the Mulan PSL v2 for more details.
 from enum import Enum
 
+from py3comtrade.model.type.base_enum import BaseEnum
+
 
 class ReadMode(Enum):
     FULL = (0, "comtrade所有文件")
@@ -20,7 +22,7 @@ class ReadMode(Enum):
     DMF = (3, "读取cfg和dmf文件")
 
 
-class SampleMode(Enum):
-    CENTERED = (0, "以当前点为中心，前后各取数据。")  # 表示以当前点为中心，前后各取数据。
-    FORWARD = (1, "表示从起点向后取数据。")
-    BACKWARD = (-1, "表示从终点向前取数据。")
+class SampleMode(BaseEnum):
+    CENTERED = ("CENTERED", "以当前点为中心，前后各取数据。")  # 表示以当前点为中心，前后各取数据。
+    FORWARD = ("FORWARD", "表示从起点向后取数据。")
+    BACKWARD = ("BACKWARD", "表示从终点向前取数据。")

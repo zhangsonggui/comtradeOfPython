@@ -1,4 +1,3 @@
-from enum import Enum
 from pathlib import Path
 
 import numpy as np
@@ -23,15 +22,15 @@ class FilePath(TypedDict):
     dmf_path: Path
 
 
-class IdxType(Enum):
-    INDEX = (0, "index索引")
-    CFGAN = (1, "cfg_idx索引")
+class IdxType(BaseEnum):
+    INDEX = ("INDEX", "index索引")
+    CFGAN = ("CFGAN", "cfg_idx索引")
 
 
-class ChannelType(Enum):
-    ANALOG = (0, "模拟通道")
-    DIGITAL = (1, "开关量通道")
-    ALL = (2, "全部通道")
+class ChannelType(BaseEnum):
+    ANALOG = ("ANALOG", "模拟通道")
+    DIGITAL = ("DIGITAL", "开关量通道")
+    ALL = ("ALL", "全部通道")
 
 
 class ValueType(BaseEnum):
