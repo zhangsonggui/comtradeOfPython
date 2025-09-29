@@ -11,6 +11,7 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import copy
+import json
 import struct
 import warnings
 from typing import Any, List, Union
@@ -27,6 +28,7 @@ from py3comtrade.model.digital import StatusRecord
 from py3comtrade.model.dmf import DMF
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
+from py3comtrade.model.type.base_enum import CustomEncoder
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import ChannelType, IdxType, ValueType
@@ -56,7 +58,7 @@ class Comtrade(Configure, DMF):
             fields = [fields]
 
         for field in fields:
-            field_info = self.model_fields[field]
+            field_info = self.__class__.model_fields[field]
             if hasattr(field_info, 'default'):
                 # 设置为默认值或 None
                 setattr(self, field, field_info.default)
@@ -77,9 +79,20 @@ class Comtrade(Configure, DMF):
                             digital_ids: list[int] = None,
                             is_values: bool = False,
                             start_point: int = 0,
-                            end_point: int = None,
-                            output_value_type: ValueType = ValueType.INSTANT,
-                            output_primary: bool = False) -> 'Comtrade':
+                            end_point: int = None) -> 'Comtrade':
+        """
+        根据指定的参数获取指定通道的采样数据
+
+        参数:
+            idx_type:(IdxType)通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
+            analog_ids(list[int]) 模拟量通道索引值或通道标识列表
+            digital_ids(list[int]) 开关量通道索引值或通道标识列表
+            is_values(bool) 是否返回值，默认返回值INSTANT，返回值
+            start_point(int) 采样起始点，默认0，表示第一个采样点
+            end_point(int) 采样结束点，默认None，表示取所有采样点
+        返回:
+            Comtrade对象，包含指定通道的采样数据
+        """
 
         analogs = self.get_analog_selector(analog_ids=analog_ids, idx_type=idx_type, is_values=is_values)
         digitals = self.get_digital_selector(digital_ids=digital_ids, idx_type=idx_type, is_values=is_values)
@@ -304,6 +317,11 @@ class Comtrade(Configure, DMF):
 
         # 写入CSV文件
         pd.DataFrame(data).to_csv(output_file_path, header=False, index=False)
+
+    def to_json(self) -> json:
+        """将Comtrade对象转换为JSON字符串，自动处理枚举类型转换"""
+
+        return json.dumps(self.model_dump(), cls=CustomEncoder)
 
     def _write_binary_file(self, output_file_path: str):
         """
