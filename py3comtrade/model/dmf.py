@@ -24,7 +24,7 @@ from py3comtrade.model.transformer import Transformer
 class DMF(BaseModel):
     station_name: str = Field(default="变电站", description="站点名称")
     version: float = Field(default=1.0, description="版本号")
-    reference: str = Field(default=0, description="参引类型")
+    reference: str = Field(default="0", description="参引类型")
     rec_dev_name: str = Field(default="录波装置", description="装置名称")
     rec_ref: Optional[str] = Field(default="", description="装置RDRE参引")
     analog_channels: List[AnalogChannel] = Field(default_factory=list, description="模拟通道")

@@ -1,16 +1,21 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import os
+import sys
 import unittest
 
-from tests.test_computation.test_calcius import TestCalcius
+# 将项目根目录添加到Python路径中
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from test_computation.test_calcius import TestCalcius
 # 导入各个测试模块
-from tests.test_reader.test_analog_parser import TestAnalogParser
-from tests.test_reader.test_comtrade_reader import TestComtrade
-from tests.test_reader.test_config_reader import TestConfigReader
-from tests.test_reader.test_dat_reader import TestDataReader
-from tests.test_reader.test_digital_parser import TestDigitalParser
-from tests.test_reader.test_header_parser import TestHeaderParser
-from tests.utils.test_channel_dispose import TestChannelDispose
+from test_reader.test_analog_parser import TestAnalogParser
+from test_reader.test_comtrade_reader import TestComtrade
+from test_reader.test_config_reader import TestConfigReader
+from test_reader.test_dat_reader import TestDataReader
+from test_reader.test_digital_parser import TestDigitalParser
+from test_reader.test_header_parser import TestHeaderParser
+from utils.test_channel_dispose import TestChannelDispose
 
 
 def create_test_suite():

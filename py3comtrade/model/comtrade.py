@@ -11,6 +11,7 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 import copy
+import json
 import struct
 import warnings
 from typing import Any, List, Union
@@ -25,12 +26,14 @@ from py3comtrade.model.configure import Configure
 from py3comtrade.model.digital import Digital
 from py3comtrade.model.digital import StatusRecord
 from py3comtrade.model.dmf import DMF
+from py3comtrade.model.exceptions import ComtradeException
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import ChannelType, IdxType, ValueType
 from py3comtrade.utils.comtrade_file_path import ComtradeFilePath, generate_comtrade_path
+from py3comtrade.utils.result import Result
 
 
 class Comtrade(Configure, DMF):
@@ -71,19 +74,34 @@ class Comtrade(Configure, DMF):
         # 在这里执行初始化后的逻辑
         self.fault_point = self.get_zero_point()
 
-    def get_comtrade_filter(self,
-                            idx_type: IdxType = IdxType.INDEX,
-                            analog_ids: list[int] = None,
-                            digital_ids: list[int] = None,
-                            is_values: bool = False,
-                            start_point: int = 0,
-                            end_point: int = None,
-                            output_value_type: ValueType = ValueType.INSTANT,
-                            output_primary: bool = False) -> 'Comtrade':
+    def filter(self,
+                idx_type: str = "INDEX",
+                analog_ids: list[int] = None,
+                digital_ids: list[int] = None,
+                is_values: bool = False,
+                start_point: int = 0,
+                end_point: int = None) -> 'Comtrade':
+        """
+        Comtrade过滤器，根据指定参数筛选数据通道,包含完整的通道参数和采样数值
 
+        参数：
+            idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
+            analog_ids: 模拟通道标识列表，默认值为None
+            digital_ids: 数字通道标识列表，默认值为None
+            is_values: 是否返回通道值，默认值为False
+            start_point: 起始采样点，默认值为0
+            end_point: 结束采样点，默认值为None
+        返回值：
+            Comtrade对象，包含筛选后的通道数据  
+        """
+        if idx_type.upper() == "INDEX":
+            idx_type = IdxType.INDEX
+        elif idx_type.upper() == "CFGAN":
+            idx_type = IdxType.CFGAN
+        else:
+            raise ComtradeException("索引参数错误")
         analogs = self.get_analog_selector(analog_ids=analog_ids, idx_type=idx_type, is_values=is_values)
         digitals = self.get_digital_selector(digital_ids=digital_ids, idx_type=idx_type, is_values=is_values)
-
         sample = self.cut_samples_points(start_point, end_point)
 
         return Comtrade(file_path=self.file_path,
@@ -265,24 +283,25 @@ class Comtrade(Configure, DMF):
             self.sample.nrates = nrates
             self.sample.calc_sampling()
 
-    def save_comtrade(self, file_path: str, data_file_type: DataFileType = DataFileType.BINARY):
+    def save_comtrade(self, file_path: str, data_file_type: str = "BINARY"):
         """
         将comtrade对象保存为文件
         参数:
             file_path(str) 保存路径,后缀名可选
-            data_file_type(DataFileType) 保存格式,默认保存为二进制文件
+            data_file_type(str) 保存格式,默认保存为二进制文件
         返回:
-            cfg、dat文件
+            ComtradeFilePath对象
         """
         cfp = generate_comtrade_path(file_path)
         # 更换configure参数
         self._update_configure(data_file_type=data_file_type)
         # 写入cfg文件
         super().write_cfg_file(str(cfp.cfg_path))
-        if data_file_type == DataFileType.ASCII:
+        if data_file_type.upper() == "ASCII":
             self._write_ascii_file(str(cfp.dat_path))
         else:
             self._write_binary_file(str(cfp.dat_path))
+        return cfp
 
     def _write_ascii_file(self, output_file_path: str):
         """
@@ -360,3 +379,98 @@ class Comtrade(Configure, DMF):
                     # 将16位数字量状态打包成2个字节无符号短整数
                     digital_bytes = struct.pack('<H', digital_word)
                     f.write(digital_bytes)
+
+    def to_json(self, file_path: str=None) -> dict:
+        """
+        将comtrade对象转换为JSON格式
+
+        参数：
+            file_path(str): 文件保存路径,当路径为空输出json对象
+        返回值:
+            JSON对象
+        """
+        comtrade_json =  self.model_dump_json(by_alias=True,exclude_none=True,round_trip=True)
+        if file_path:
+            try:
+                with open(file_path, 'w', encoding='utf-8') as f:
+                    json.dump(comtrade_json, f, ensure_ascii=False,indent=2)
+                return str(Result(msg=f"{file_path}文件写入成功"))
+            except Exception as e:
+                return str(Result(code=500, msg=f"{file_path}文件写入失败",data=e))
+        return comtrade_json
+
+    def to_csv(self,
+               file_path: str,
+               samp_point_num_title: bool = True,
+               sample_time_title: bool = True
+               ):
+        """
+        将comtrade对象保存为csv文件
+
+        参数：
+            file_path(str): 文件保存路径
+            samp_point_num_title(bool):是否添加采样点号行,默认添加
+            sample_time_title(bool):是否添加采样时间行,默认为添加
+        返回值:
+            ComtradeFilePath对象
+        """
+        try:
+            with open(file_path, 'w', encoding='gbk') as f:
+                if samp_point_num_title:
+                    f.write(f'采样点号,{",".join(map(str, self.sample_point))}\n')
+                if sample_time_title:
+                    f.write(f'采样时间,{",".join(map(str, self.sample_time))}\n')
+                for analog in self.analogs:
+                    if analog.values is not None:
+                        f.write(f'{analog.name},{",".join(map(str, analog.values))}\n')
+                for digital in self.digitals:
+                    if digital.values is not None:
+                        f.write(f'{digital.name},{",".join(map(str, digital.values))}\n')
+            return str(Result(code=200, msg=f"{file_path}文件写入成功"))
+        except Exception as e:
+            return str(Result(code=500, msg=f"{file_path}文件写入失败",data=e))
+    
+    def to_excel(self,
+               file_path: str,
+               samp_point_num_title: bool = True,
+               sample_time_title: bool = True
+               ):
+        """
+        将comtrade对象保存为excel文件
+
+        参数：
+            file_path(str): 文件保存路径
+            samp_point_num_title(bool):是否添加采样点号行,默认添加
+            sample_time_title(bool):是否添加采样时间行,默认为添加
+        返回值:
+            ComtradeFilePath对象
+        """
+        try:
+            # 创建DataFrame
+            data_dict = {}
+
+            # 添加采样点号
+            if samp_point_num_title:
+                data_dict['采样点号'] = self.sample_point
+
+            # 添加采样时间
+            if sample_time_title:
+                data_dict['采样时间'] = self.sample_time
+
+            # 添加模拟量通道数据
+            for analog in self.analogs:
+                if analog.values is not None:
+                    data_dict[analog.name] = analog.values
+
+            # 添加开关量通道数据
+            for digital in self.digitals:
+                if digital.values is not None:
+                    data_dict[digital.name] = digital.values
+
+            # 创建DataFrame并保存为Excel
+            df = pd.DataFrame(data_dict)
+            df.to_excel(file_path, index=False)
+
+            return str(Result(code=200, msg=f"{file_path}文件写入成功"))
+        except Exception as e:
+            return str(Result(code=500, msg=f"{file_path}文件写入失败",data=e))
