@@ -12,8 +12,10 @@
 #  See the Mulan PSL v2 for more details.
 import copy
 import json
+import os
 import struct
 import warnings
+import zipfile
 from typing import Any, List, Union
 
 import numpy as np
@@ -33,6 +35,7 @@ from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import ChannelType, IdxType, ValueType
 from py3comtrade.utils.comtrade_file_path import ComtradeFilePath, generate_comtrade_path
+from py3comtrade.utils.file_tools import zip_files
 from py3comtrade.utils.result import Result
 
 
@@ -268,13 +271,15 @@ class Comtrade(Configure, DMF):
         """
         # TODO: 增加校验功能，要验证通道数量、采样点数量和通道对象是否一致
         # 更新文件格式
-        self.sample.data_file_type = data_file_type
-        # 更新模拟量通道对象
-        self.analogs = [analog for analog in analogs if analog.values is not None and analog.selected]
-        self.channel_num.analog_num = len(self.analogs)
-        # 更新开关量通道对象
-        self.digitals = [digital for digital in diagitals if digital.values is not None and digital.selected]
-        self.channel_num.digital_num = len(self.digitals)
+        self.sample.data_file_type = DataFileType.from_string(data_file_type)
+        if  analogs is not None:
+            # 更新模拟量通道对象
+            self.analogs = [analog for analog in analogs if analog.values is not None and analog.selected]
+            self.channel_num.analog_num = len(self.analogs)
+        if diagitals is not None:
+            # 更新开关量通道对象
+            self.digitals = [digital for digital in diagitals if digital.values is not None and digital.selected]
+            self.channel_num.digital_num = len(self.digitals)
         # 更新采样信息
         self.sample.channel_num = self.channel_num
         # 更新采样频率
@@ -283,14 +288,18 @@ class Comtrade(Configure, DMF):
             self.sample.nrates = nrates
             self.sample.calc_sampling()
 
-    def save_comtrade(self, file_path: str, data_file_type: str = "BINARY"):
+    def save_comtrade(self,
+                      file_path: str,
+                      data_file_type: str = "BINARY",
+                      compress: bool = False):
         """
         将comtrade对象保存为文件
         参数:
             file_path(str) 保存路径,后缀名可选
             data_file_type(str) 保存格式,默认保存为二进制文件
+            compress(bool) 是否压缩为zip文件,默认为False
         返回:
-            ComtradeFilePath对象
+            ComtradeFilePath对象或压缩文件路径
         """
         cfp = generate_comtrade_path(file_path)
         # 更换configure参数
@@ -301,7 +310,12 @@ class Comtrade(Configure, DMF):
             self._write_ascii_file(str(cfp.dat_path))
         else:
             self._write_binary_file(str(cfp.dat_path))
-        return cfp
+
+        if compress:
+            zip_file_path = f"{cfp.cfg_path.stem}.zip"
+            zip_file = zip_files([str(cfp.cfg_path), str(cfp.dat_path)],zip_file_path)
+            return Result(msg="文件保存成功",data=zip_file)
+        return Result(msg="文件保存成功",data=cfp)
 
     def _write_ascii_file(self, output_file_path: str):
         """
@@ -394,9 +408,9 @@ class Comtrade(Configure, DMF):
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
                     json.dump(comtrade_json, f, ensure_ascii=False,indent=2)
-                return str(Result(msg=f"{file_path}文件写入成功"))
+                return Result(msg=f"文件写入成功",data=file_path)
             except Exception as e:
-                return str(Result(code=500, msg=f"{file_path}文件写入失败",data=e))
+                return Result(code=500, msg=f"{file_path}文件写入失败",data=e)
         return comtrade_json
 
     def to_csv(self,
@@ -426,9 +440,9 @@ class Comtrade(Configure, DMF):
                 for digital in self.digitals:
                     if digital.values is not None:
                         f.write(f'{digital.name},{",".join(map(str, digital.values))}\n')
-            return str(Result(code=200, msg=f"{file_path}文件写入成功"))
+            return Result(code=200, msg=f"文件写入成功",data=file_path)
         except Exception as e:
-            return str(Result(code=500, msg=f"{file_path}文件写入失败",data=e))
+            return Result(code=500, msg=f"{file_path}文件写入失败",data=e)
     
     def to_excel(self,
                file_path: str,
@@ -471,6 +485,6 @@ class Comtrade(Configure, DMF):
             df = pd.DataFrame(data_dict)
             df.to_excel(file_path, index=False)
 
-            return str(Result(code=200, msg=f"{file_path}文件写入成功"))
+            return Result(code=200, msg=f"文件写入成功",data=file_path)
         except Exception as e:
-            return str(Result(code=500, msg=f"{file_path}文件写入失败",data=e))
+            return Result(code=500, msg=f"{file_path}文件写入失败",data=e)

@@ -131,7 +131,11 @@ def zip_files(_files: list[str], output: str):
     try:
         with zipfile.ZipFile(output, 'w', zipfile.ZIP_DEFLATED) as zip:
             for file in _files:
+                if not os.path.exists(file) and os.path.exists(file):
+                    continue
                 zip.write(file)
+                os.remove(file)
+        return  output
     except Exception as e:
         raise Exception(f"创建ZIP文件时发生错误: {e}")
 
