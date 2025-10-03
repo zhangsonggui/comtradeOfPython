@@ -119,25 +119,27 @@ class Comtrade(Configure, DMF):
                         fault_time=self.fault_time)
 
     def get_channel_data_range(self, channel_idx: Union[int, list[int]] = None,
-                               idx_type: IdxType = IdxType.INDEX,
-                               channel_type: ChannelType = ChannelType.ANALOG,
+                               idx_type: str = "INDEX",
+                               channel_type: str = "ANALOG",
                                start_point: int = 0,
                                end_point: int = None,
                                cycle_num: float = None,
-                               mode: SampleMode = SampleMode.FORWARD,
-                               output_value_type: ValueType = ValueType.INSTANT,
+                               mode: str = "FORWARD",
+                               output_value_type: str = "INSTANT",
                                output_primary: bool = False) -> Union[Analog, Digital, list[Digital], list[Analog]]:
         """
         根据指定通道标识获取指定采样范围内通道数据
 
         参数:
             channel_idx(int,list[int]) 通道索引值（index）、通道标识（cfgan）、通道索引值列表或通道标识列表
-            idx_type:(IdxType)通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
-            channel_type:(ChannelType)通道类型，默认为模拟量通道ANALOG,支持模拟量和开关量
+            idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
+            channel_type:(str)通道类型，可选值：ANALOG、DIGITAL，默认值为ANALOG
             start_point(int) 开始采样点号，默认为0，标识第一个采样点
             end_point(int) 结束采样点号，默认为None，表示取所有采样点
             cycle_num(float)取周波数量，当该参数不为空时，end_point无效
-            model（SampleMode）取值方式，向前还是向后取值，默认向时间轴后方取值FORWARD
+            mode（str）取值方式，可选值：FORWARD、BACKWARD、CENTERED，默认向时间轴后方取值FORWARD
+            output_value_type（str）输出值类型，可选值：INSTANT、RAW，默认值为INSTANT
+            output_primary（bool）输出值是否为一次值，可选值：True、False，默认值为False
         返回值:
             选择的模拟量、开关量对象或列表，含采样数据
         """
@@ -155,18 +157,19 @@ class Comtrade(Configure, DMF):
             vs = channel.values[start_point:end_point + 1]
 
             # 如果是开关量通道，则直接返回原始采样值
-            if channel_type == ChannelType.DIGITAL:
+            if channel_type.upper() == "DIGITAL":
                 channel_new.values = vs
                 cns.append(channel_new)
             else:
                 # 如果是非开关量通道，需要判断输入和输出的格式是否一致，不一致则需要进行转换
                 input_primary = channel.ps == PsType.P
                 # 文件数值格式为原始采样值，输出格式为瞬时值
-                if self.sample.value_type == ValueType.RAW and output_value_type == ValueType.INSTANT:
+                # output_value_type = ValueType.INSTANT if output_value_type == "INSTANT" else ValueType.RAW
+                if self.sample.value_type == ValueType.RAW and output_value_type.upper() == "INSTANT":
                     channel_new.values = convert_raw_instant(vs, channel.a, channel.b, channel.primary,
                                                              channel.secondary, channel.ps.value, output_primary)
                 # 文件数值格式为瞬时值，输出格式为原始采样值
-                elif self.sample.value_type == ValueType.INSTANT and output_value_type == ValueType.RAW:
+                elif self.sample.value_type == ValueType.INSTANT and output_value_type.upper() == "RAW":
                     channel_new.values = convert_raw_instant(vs, channel.a, channel.b, channel.primary,
                                                              channel.secondary, input_primary, output_primary,
                                                              to_instant=False)
@@ -200,8 +203,10 @@ class Comtrade(Configure, DMF):
             DeprecationWarning,
             stacklevel=2
         )
+        channel_type = channel_type.get_code()
+        idx_type = idx_type.get_code()
         return self.get_channel_data_range(channel_idx, idx_type, channel_type, start_point, end_point,
-                                           output_value_type=ValueType.RAW)
+                                           output_value_type="RAW")
 
     def get_channel_instant_data_range(self, channel_idx: Union[int, list[int]] = None,
                                        idx_type: IdxType = IdxType.INDEX,
@@ -227,9 +232,11 @@ class Comtrade(Configure, DMF):
             DeprecationWarning,
             stacklevel=2
         )
+        channel_type = channel_type.get_code()
+        idx_type = idx_type.get_code()
         return self.get_channel_data_range(channel_idx=channel_idx, idx_type=idx_type, channel_type=channel_type,
                                            start_point=start_point, end_point=end_point,
-                                           output_value_type=ValueType.INSTANT, output_primary=output_primary)
+                                           output_value_type="INSTANT", output_primary=output_primary)
 
     def get_digital_change(self) -> list[Digital]:
         """
@@ -260,18 +267,23 @@ class Comtrade(Configure, DMF):
                                                               status=change_vs[i].item()))
                 self.digital_change.append(digital)
 
-    def _update_configure(self, analogs: List[Analog] = None, diagitals: List[Digital] = None,
+    def _update_configure(self, 
+                        analogs: List[Analog] = None, 
+                        diagitals: List[Digital] = None,
                           nrates: List[Nrate] = None,
-                          data_file_type: DataFileType = DataFileType.BINARY
+                          data_file_type: str = None
                           ):
         """更新配置文件参数
         参数:
+            analogs(List[Analog]) 模拟量通道对象数组
+            diagitals(List[Digital]) 开关量通道对象数组
             nrates(List[Nrate]) 采样段
-            data_file_type(DataFileType) 文件格式
+            data_file_type(str) 文件格式,可选值："BINARY"、"ASCII"，默认值为"BINARY"
         """
         # TODO: 增加校验功能，要验证通道数量、采样点数量和通道对象是否一致
         # 更新文件格式
-        self.sample.data_file_type = DataFileType.from_string(data_file_type)
+        if data_file_type is not None:
+            self.sample.data_file_type = DataFileType.from_string(data_file_type)
         if  analogs is not None:
             # 更新模拟量通道对象
             self.analogs = [analog for analog in analogs if analog.values is not None and analog.selected]
@@ -324,7 +336,7 @@ class Comtrade(Configure, DMF):
         参数:
             output_file_path: 输出文件路径
         """
-        analog_datas = self.get_channel_data_range(output_value_type=ValueType.INSTANT)
+        analog_datas = self.get_channel_data_range(output_value_type="INSTANT")
         analog_values = np.array([analog.values for analog in analog_datas])
         digital_values = np.array([digital.values for digital in self.digitals])
         # 组合数据
@@ -346,7 +358,7 @@ class Comtrade(Configure, DMF):
             output_file_path: 输出文件路径
         """
         # 获取数据并转置，使每行代表一个采样点
-        analog_datas = self.get_channel_data_range(output_value_type=ValueType.INSTANT)
+        analog_datas = self.get_channel_data_range(output_value_type="INSTANT")
         analog_values = np.array([analog.values for analog in analog_datas]).T
         digital_values = np.array([digital.values for digital in self.digitals]).T
         # 根据数据类型确定模拟量格式

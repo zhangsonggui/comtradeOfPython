@@ -18,23 +18,23 @@ if __name__ == "__main__":
     end_time = time.time()
     zrt = cr.get_zero_point()
     print(f"文件解析耗时{(end_time - start_time) * 1000}毫秒")
-    # json = cr.model_dump()
+    wave = cr.save_comtrade("test.cfg",compress=True)
     # cr.save_json("test.json")
     # cr.save_comtrade("test.cfg", data_file_type=DataFileType.BINARY)
     # raw_all = cr.get_channel_raw_data_range()
     # digital_change = cr.get_digital_change()
-    start_point, end_point, _ = cr.get_cursor_sample_range(0, cycle_num=1)
-    sszs = cr.get_channel_instant_data_range(start_point=start_point, end_point=end_point)
-    print(
-        f"通道名称\t\t向量值\t\t有效值\t\t角度\t\t直流分量\t\t二次谐波\t\t三次谐波\t\t五次谐波\t\t七次谐波\t\t九次谐波\t\t用时")
+    # start_point, end_point, _ = cr.get_cursor_sample_range(0, cycle_num=1)
+    # sszs = cr.get_channel_instant_data_range(start_point=start_point, end_point=end_point)
+    # print(
+    #     f"通道名称\t\t向量值\t\t有效值\t\t角度\t\t直流分量\t\t二次谐波\t\t三次谐波\t\t五次谐波\t\t七次谐波\t\t九次谐波\t\t用时")
     wave_start_time = time.time()
-    for ssz in sszs:
-        if ssz.is_enable():
-            calc_start_time = time.time()
-            cal = Calcium(instant=ssz.y)
-            cal.calc_harmonics()
-            calc_end_time = time.time()
-            print(
-                f"{ssz.name}\t\t{cal.vector}\t\t{cal.effective}\t\t{cal.angle}\t\t{cal.dc_component}\t\t{cal.harmonics.get(2).amplitude}\t\t{cal.harmonics.get(3).amplitude}\t\t{cal.harmonics.get(5).amplitude}\t\t{cal.harmonics.get(7).amplitude}\t\t{cal.harmonics.get(9).amplitude}\t\t{(calc_end_time - calc_start_time) * 1000}ms")
+    # for ssz in sszs:
+    #     if ssz.is_enable():
+    #         calc_start_time = time.time()
+    #         cal = Calcium(instant=ssz.values)
+    #         cal.calc_harmonics()
+    #         calc_end_time = time.time()
+    #         print(
+    #             f"{ssz.name}\t\t{cal.vector}\t\t{cal.effective}\t\t{cal.angle}\t\t{cal.dc_component}\t\t{cal.harmonics.get(2).amplitude}\t\t{cal.harmonics.get(3).amplitude}\t\t{cal.harmonics.get(5).amplitude}\t\t{cal.harmonics.get(7).amplitude}\t\t{cal.harmonics.get(9).amplitude}\t\t{(calc_end_time - calc_start_time) * 1000}ms")
     wave_end_time = time.time()
     print(f"数值计算用时{(wave_end_time - wave_start_time) * 1000}毫秒")

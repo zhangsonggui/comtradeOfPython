@@ -54,13 +54,13 @@ class TestConfigReader(unittest.TestCase):
     def test_get_channel_obj(self):
         analogs = self.xtz.get_channel_obj()
         self.assertEqual(48, len(analogs))
-        digitals = self.xtz.get_channel_obj(channel_type=ChannelType.DIGITAL)
+        digitals = self.xtz.get_channel_obj(channel_type="DIGITAL")
         self.assertEqual(96, len(digitals))
-        channels = self.xtz.get_channel_obj(channel_type=ChannelType.ALL)
+        channels = self.xtz.get_channel_obj(channel_type="ALL")
         self.assertEqual(144, len(channels))
-        analogs = self.xtz.get_channel_obj([], channel_type=ChannelType.ANALOG)
+        analogs = self.xtz.get_channel_obj([], channel_type="ANALOG")
         self.assertEqual(48, len(analogs))
-        ch2 = self.xtz.get_channel_obj(1, idx_type=IdxType.CFGAN)
+        ch2 = self.xtz.get_channel_obj(1, idx_type="CFGAN")
         self.assertEqual('220kV母线I_Ua', ch2.name)
 
         ch2_5 = self.xtz.get_channel_obj([1, 2, 3, 4, 5])
@@ -70,17 +70,17 @@ class TestConfigReader(unittest.TestCase):
     def test_get_channel(self):
         index_analog = self.xtz.get_channel_obj(0)
         self.assertEqual('220kV母线I_Ua', index_analog.name)
-        an_analog = self.xtz.get_channel_obj(1, ChannelType.ANALOG, IdxType.CFGAN)
+        an_analog = self.xtz.get_channel_obj(1, "ANALOG", "CFGAN")
         self.assertEqual('220kV母线I_Ua', an_analog.name)
 
-        index_digital = self.xtz.get_channel_obj(0, ChannelType.DIGITAL)
+        index_digital = self.xtz.get_channel_obj(0, "DIGITAL")
         self.assertEqual('220kV母线_保护一_Ⅰ母差动动作', index_digital.name)
-        dn_digital = self.xtz.get_channel_obj(1, ChannelType.DIGITAL, IdxType.CFGAN)
+        dn_digital = self.xtz.get_channel_obj(1, "DIGITAL", "CFGAN")
         self.assertEqual('220kV母线_保护一_Ⅰ母差动动作', dn_digital.name)
 
         index_analogs = self.xtz.get_channel_obj([0, 1, 2, 3])
         self.assertEqual("220kV母线I_Uc", index_analogs[2].name)
-        idx_cfg_analogs = self.xtz.get_channel_obj([1, 2, 3, 4], ChannelType.ANALOG, IdxType.CFGAN)
+        idx_cfg_analogs = self.xtz.get_channel_obj([1, 2, 3, 4], "ANALOG", "CFGAN")
         self.assertEqual("220kV母线I_Uc", idx_cfg_analogs[2].name)
 
     def test_get_header(self):
