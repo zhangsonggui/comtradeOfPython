@@ -20,7 +20,7 @@ def digital_fom_str(_dn_str: str) -> Digital | None:
 
     idx_cfg = int(_dn_str[0])
     name = _dn_str[1]
-    if idx_cfg == 0 or name == "":
+    if idx_cfg == 0 and name == "":
         return None
     phase = Phase.NO_PHASE
     ccbm = ""
