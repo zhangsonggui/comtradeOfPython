@@ -7,7 +7,7 @@ from py3comtrade.model.type.digital_enum import Contact
 from py3comtrade.model.type.phase_code import Phase
 
 
-def digital_fom_str(_dn_str: str) -> Digital | None:
+def digital_from_str(_dn_str: str) -> Digital | None:
     """
     从一行文本字符串中生成数字通道对象
     :param _dn_str: 配置文件中一行数字通道字符串
