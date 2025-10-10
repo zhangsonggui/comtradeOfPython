@@ -15,11 +15,11 @@ from typing import Union
 
 from pydantic import BaseModel, Field
 
-from py3comtrade.model.analog import Analog
+from py3comtrade.model.channel.analog import Analog
+from py3comtrade.model.channel.digital import Digital
 from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.config_header import ConfigHeader
 from py3comtrade.model.config_sample import ConfigSample
-from py3comtrade.model.digital import Digital
 from py3comtrade.model.exceptions import ChannelNotFoundException, InvalidIndexException, InvalidOperationException
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.precision_time import PrecisionTime
@@ -263,7 +263,7 @@ class Configure(BaseModel):
                 if not (0 <= index < len(channels)):
                     raise InvalidIndexException(index, f"[0, {len(channels)})")
                 return channels[index]
-            else: 
+            else:
                 # 使用缓存字典优化查找性能
                 channels_dict = {channel.idx_cfg: channel for channel in channels}
                 if index not in channels_dict:
@@ -277,7 +277,7 @@ class Configure(BaseModel):
                 if im := max(index) >= len(channels):
                     raise InvalidIndexException(im, f"[0, {len(channels)})")
                 return [channels[idx] for idx in index]
-            else:  
+            else:
                 channels_dict = {channel.idx_cfg: channel for channel in channels}
                 result = []
                 for cfgan in index:

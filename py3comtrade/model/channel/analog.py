@@ -6,14 +6,14 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 from pydantic import Field
 
 from py3comtrade.dispose.channel_name import analog_channel_classification
-from py3comtrade.model.channel import Channel
+from py3comtrade.model.channel.channel import Channel
 from py3comtrade.model.type.analog_enum import AnalogFlag, ElectricalUnit, PsType
 from py3comtrade.model.type.types import IdxType
 

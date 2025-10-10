@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from py3comtrade.model.digital import Digital
+from py3comtrade.model.channel.digital import Digital
 from py3comtrade.model.exceptions import ComtradeDataFormatException
 from py3comtrade.model.type.digital_enum import Contact
 from py3comtrade.model.type.phase_code import Phase

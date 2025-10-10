@@ -14,7 +14,7 @@ from typing import Optional
 
 from pydantic import Field
 
-from py3comtrade.model.channel import ChannelIdx
+from py3comtrade.model.channel.channel import ChannelIdx
 from py3comtrade.model.type.analog_enum import AnalogFlag, AnalogType, ElectricalUnit, Multiplier, PsType
 
 

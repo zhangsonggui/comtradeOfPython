@@ -12,10 +12,8 @@
 #  See the Mulan PSL v2 for more details.
 import copy
 import json
-import os
 import struct
 import warnings
-import zipfile
 from typing import Any, List, Union
 
 import numpy as np
@@ -23,12 +21,12 @@ import pandas as pd
 from pydantic import Field
 
 from py3comtrade.computation.basic_calc import convert_primary_secondary, convert_raw_instant
-from py3comtrade.model.analog import Analog
+from py3comtrade.model.channel.analog import Analog
+from py3comtrade.model.channel.digital import Digital
+from py3comtrade.model.channel.digital import StatusRecord
+from py3comtrade.model.comtrade_filter import ComtradeFilter
 from py3comtrade.model.configure import Configure
-from py3comtrade.model.digital import Digital
-from py3comtrade.model.digital import StatusRecord
-from py3comtrade.model.dmf import DMF
-from py3comtrade.model.exceptions import ComtradeException
+from py3comtrade.model.equipment.equipment import Equipment
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.data_file_type import DataFileType
@@ -39,7 +37,7 @@ from py3comtrade.utils.file_tools import zip_files
 from py3comtrade.utils.result import Result
 
 
-class Comtrade(Configure, DMF):
+class Comtrade(Configure, Equipment):
     file_path: ComtradeFilePath = Field(default=None, description="录波文件路径")
     fault_point: int = Field(default=0, description="故障时刻采样点")
     sample_point: List[int] = Field(default_factory=list, description="采样点号")
@@ -78,45 +76,116 @@ class Comtrade(Configure, DMF):
         self.fault_point = self.get_zero_point()
 
     def filter(self,
-                idx_type: str = "INDEX",
-                analog_ids: list[int] = None,
-                digital_ids: list[int] = None,
-                is_values: bool = False,
-                start_point: int = 0,
-                end_point: int = None) -> 'Comtrade':
+               analog_only: bool = False,
+               digital_only: bool = False,
+               analog_index: Union[int, list[int]] = None,
+               digital_index: Union[int, list[int]] = None,
+               analog_cfgan: Union[int, list[int]] = None,
+               digital_cfgan: Union[int, list[int]] = None,
+               is_selected: bool = None,
+               clear_channel_values: bool = None,
+               ) -> 'Comtrade':
         """
-        Comtrade过滤器，根据指定参数筛选数据通道,包含完整的通道参数和采样数值
+        链式调用筛选方法，根据条件筛选Comtrade对象中的通道
 
-        参数：
-            idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
-            analog_ids: 模拟通道标识列表，默认值为None
-            digital_ids: 数字通道标识列表，默认值为None
-            is_values: 是否返回通道值，默认值为False
-            start_point: 起始采样点，默认值为0
-            end_point: 结束采样点，默认值为None
-        返回值：
-            Comtrade对象，包含筛选后的通道数据  
+        参数:
+            analog_only: 是否只筛选模拟通道
+            digital_only: 是否只筛选开关量通道
+            analog_index: 根据模拟通道index索引筛选
+            digital_index: 根据开关量通道index索引筛选
+            analog_cfgan: 根据模拟通道cfgan筛选
+            digital_cfgan: 根据开关量通道cfgan筛选
+            is_selected: 根据通道selected状态筛选
+
+        返回值:
+            筛选后的新Comtrade对象，不影响原对象
         """
-        if idx_type.upper() == "INDEX":
-            idx_type = IdxType.INDEX
-        elif idx_type.upper() == "CFGAN":
-            idx_type = IdxType.CFGAN
-        else:
-            raise ComtradeException("索引参数错误")
-        analogs = self.get_analog_selector(analog_ids=analog_ids, idx_type=idx_type, is_values=is_values)
-        digitals = self.get_digital_selector(digital_ids=digital_ids, idx_type=idx_type, is_values=is_values)
-        sample = self.cut_samples_points(start_point, end_point)
+        # 创建原对象的深拷贝
+        filter_instance = ComtradeFilter(self)
 
-        return Comtrade(file_path=self.file_path,
-                        sample_point=self.sample_point[start_point:end_point],
-                        sample_time=self.sample_time[start_point:end_point],
-                        digital_change=self.digital_change,
-                        channel_num=self.channel_num,
-                        analogs=analogs,
-                        digitals=digitals,
-                        sample=sample,
-                        file_start_time=self.file_start_time,
-                        fault_time=self.fault_time)
+        # 应用筛选条件
+        if analog_only:
+            filter_instance = filter_instance.analog_only()
+        elif digital_only:
+            filter_instance = filter_instance.digital_only()
+
+        if analog_index is not None or digital_index is not None:
+            filter_instance = filter_instance.by_index(analog_index, digital_index)
+
+        if analog_cfgan is not None or digital_cfgan is not None:
+            filter_instance = filter_instance.by_cfgan(analog_cfgan, digital_cfgan)
+
+        if is_selected is not None:
+            filter_instance = filter_instance.by_selected(is_selected)
+
+        if clear_channel_values is not None:
+            filter_instance = filter_instance.clear_channel_values()
+
+        return filter_instance.build()
+
+    def filter_by_channel_type(self, channel_type: str) -> 'Comtrade':
+        """
+        根据通道类型筛选
+
+        参数:
+            channel_type: 通道类型，可选值：'analog', 'digital'
+
+        返回值:
+            筛选后的新Comtrade对象
+        """
+        return ComtradeFilter(self).filter_by_channel_type(channel_type).build()
+
+    def filter_by_index(self, analog_index: Union[int, list[int]] = None,
+                        digital_index: Union[int, list[int]] = None) -> 'Comtrade':
+        """
+        根据通道index索引筛选
+
+        参数:
+            analog_index: 模拟通道索引或索引列表
+            digital_index: 开关量通道索引或索引列表
+
+        返回值:
+            筛选后的新Comtrade对象
+        """
+        return ComtradeFilter(self).by_index(analog_index, digital_index).build()
+
+    def filter_by_cfgan(self, analog_cfgan: Union[int, list[int]] = None,
+                        digital_cfgan: Union[int, list[int]] = None) -> 'Comtrade':
+        """
+        根据通道cfgan筛选
+
+        参数:
+            analog_cfgan: 模拟通道cfgan或cfgan列表
+            digital_cfgan: 开关量通道cfgan或cfgan列表
+
+        返回值:
+            筛选后的新Comtrade对象
+        """
+        return ComtradeFilter(self).by_cfgan(analog_cfgan, digital_cfgan).build()
+
+    def filter_by_selected(self, is_selected: bool) -> 'Comtrade':
+        """
+        根据通道selected状态筛选
+
+        参数:
+            is_selected: 是否选中
+
+        返回值:
+            筛选后的新Comtrade对象
+        """
+        return ComtradeFilter(self).by_selected(is_selected).build()
+
+    def clear_channel_values(self) -> 'Comtrade':
+        """
+        删除对象中的采样值信息
+
+        参数:
+            无
+
+        返回值:
+            筛选后的新Comtrade对象
+        """
+        return ComtradeFilter(self).clear_channel_values().build()
 
     def get_channel_data_range(self, channel_idx: Union[int, list[int]] = None,
                                idx_type: str = "INDEX",
@@ -143,6 +212,7 @@ class Comtrade(Configure, DMF):
         返回值:
             选择的模拟量、开关量对象或列表，含采样数据
         """
+        mode = SampleMode.from_string(mode, default=SampleMode.FORWARD)
         # 根据传入的采样值范围确定开始采样值点和结束采样点
         start_point, end_point, _ = self.get_cursor_sample_range(start_point, end_point, cycle_num, mode)
         # 根据通道索引值获取模拟量通道对象
@@ -154,7 +224,7 @@ class Comtrade(Configure, DMF):
         for channel in chanels:
             # 拷贝对象避免影响原始对象采样数值
             channel_new = copy.copy(channel)
-            vs = channel.values[start_point:end_point + 1]
+            vs = channel.values[start_point:end_point]
 
             # 如果是开关量通道，则直接返回原始采样值
             if channel_type.upper() == "DIGITAL":
@@ -267,9 +337,9 @@ class Comtrade(Configure, DMF):
                                                               status=change_vs[i].item()))
                 self.digital_change.append(digital)
 
-    def _update_configure(self, 
-                        analogs: List[Analog] = None, 
-                        diagitals: List[Digital] = None,
+    def _update_configure(self,
+                          analogs: List[Analog] = None,
+                          diagitals: List[Digital] = None,
                           nrates: List[Nrate] = None,
                           data_file_type: str = None
                           ):
@@ -284,7 +354,7 @@ class Comtrade(Configure, DMF):
         # 更新文件格式
         if data_file_type is not None:
             self.sample.data_file_type = DataFileType.from_string(data_file_type)
-        if  analogs is not None:
+        if analogs is not None:
             # 更新模拟量通道对象
             self.analogs = [analog for analog in analogs if analog.values is not None and analog.selected]
             self.channel_num.analog_num = len(self.analogs)
@@ -325,9 +395,9 @@ class Comtrade(Configure, DMF):
 
         if compress:
             zip_file_path = f"{cfp.cfg_path.stem}.zip"
-            zip_file = zip_files([str(cfp.cfg_path), str(cfp.dat_path)],zip_file_path)
-            return Result(msg="文件保存成功",data=zip_file)
-        return Result(msg="文件保存成功",data=cfp)
+            zip_file = zip_files([str(cfp.cfg_path), str(cfp.dat_path)], zip_file_path)
+            return Result(msg="文件保存成功", data=zip_file)
+        return Result(msg="文件保存成功", data=cfp)
 
     def _write_ascii_file(self, output_file_path: str):
         """
@@ -406,7 +476,7 @@ class Comtrade(Configure, DMF):
                     digital_bytes = struct.pack('<H', digital_word)
                     f.write(digital_bytes)
 
-    def to_json(self, file_path: str=None) -> dict:
+    def to_json(self, file_path: str = None) -> dict:
         """
         将comtrade对象转换为JSON格式
 
@@ -415,14 +485,14 @@ class Comtrade(Configure, DMF):
         返回值:
             JSON对象
         """
-        comtrade_json =  self.model_dump_json(by_alias=True,exclude_none=True,round_trip=True)
+        comtrade_json = self.model_dump_json(by_alias=True, exclude_none=True, round_trip=True)
         if file_path:
             try:
                 with open(file_path, 'w', encoding='utf-8') as f:
-                    json.dump(comtrade_json, f, ensure_ascii=False,indent=2)
-                return Result(msg=f"文件写入成功",data=file_path)
+                    json.dump(comtrade_json, f, ensure_ascii=False, indent=2)
+                return Result(msg=f"文件写入成功", data=file_path)
             except Exception as e:
-                return Result(code=500, msg=f"{file_path}文件写入失败",data=e)
+                return Result(code=500, msg=f"{file_path}文件写入失败", data=e)
         return comtrade_json
 
     def to_csv(self,
@@ -452,15 +522,15 @@ class Comtrade(Configure, DMF):
                 for digital in self.digitals:
                     if digital.values is not None:
                         f.write(f'{digital.name},{",".join(map(str, digital.values))}\n')
-            return Result(code=200, msg=f"文件写入成功",data=file_path)
+            return Result(code=200, msg=f"文件写入成功", data=file_path)
         except Exception as e:
-            return Result(code=500, msg=f"{file_path}文件写入失败",data=e)
-    
+            return Result(code=500, msg=f"{file_path}文件写入失败", data=e)
+
     def to_excel(self,
-               file_path: str,
-               samp_point_num_title: bool = True,
-               sample_time_title: bool = True
-               ):
+                 file_path: str,
+                 samp_point_num_title: bool = True,
+                 sample_time_title: bool = True
+                 ):
         """
         将comtrade对象保存为excel文件
 
@@ -497,6 +567,6 @@ class Comtrade(Configure, DMF):
             df = pd.DataFrame(data_dict)
             df.to_excel(file_path, index=False)
 
-            return Result(code=200, msg=f"文件写入成功",data=file_path)
+            return Result(code=200, msg=f"文件写入成功", data=file_path)
         except Exception as e:
-            return Result(code=500, msg=f"{file_path}文件写入失败",data=e)
+            return Result(code=500, msg=f"{file_path}文件写入失败", data=e)

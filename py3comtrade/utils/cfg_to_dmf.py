@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from py3comtrade.model.channel import DMF
 from py3comtrade.model.configure import Configure
-from py3comtrade.model.dmf import DMF
 
 
 def CfgToDmf(cfg: Configure) -> DMF:

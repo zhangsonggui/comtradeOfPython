@@ -37,7 +37,7 @@ from py3comtrade.utils.comtrade_file_path import (
 
 
 def comtrade_reader(
-    _file_path: str, read_mode: ReadMode = ReadMode.FULL, value_type: str = "INSTANT"
+        _file_path: str, read_mode: ReadMode = ReadMode.FULL, value_type: str = "INSTANT"
 ) -> Comtrade:
     """
     读取Comtrade数据
@@ -93,8 +93,6 @@ def comtrade_reader(
             _comtrade.buses = _dmf.buses
             _comtrade.lines = _dmf.lines
             _comtrade.transformers = _dmf.transformers
-            _comtrade.analog_channels = _dmf.analog_channels
-            _comtrade.status_channels = _dmf.status_channels
         except ComtradeFileEncodingException as e:
             pass
 

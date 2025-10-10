@@ -6,15 +6,15 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 from typing import List
 
-from pydantic import Field, BaseModel
+from pydantic import BaseModel, Field
 
-from py3comtrade.model.channel import Channel
+from py3comtrade.model.channel.channel import Channel
 from py3comtrade.model.type.digital_enum import Contact
 from py3comtrade.model.type.types import IdxType
 
@@ -45,7 +45,7 @@ class Digital(Channel):
     def is_enable(self):
         return super().is_enable() or self.is_change()
 
-    def is_selected(self, target:list=None, target_type:IdxType= IdxType.INDEX):
+    def is_selected(self, target: list = None, target_type: IdxType = IdxType.INDEX):
         """判断通道是否被选中"""
         if target is None:
             self.selected = self.is_change()

@@ -13,15 +13,16 @@
 import os
 import xml.etree.ElementTree as ET
 
-from py3comtrade.model.analog_channel import AnalogChannel, ChannelIdx
-from py3comtrade.model.bus import Bus
+from py3comtrade.model.channel.analog_channel import AnalogChannel, ChannelIdx
+from py3comtrade.model.channel.status_channel import StatusChannel
 from py3comtrade.model.dmf import DMF
+from py3comtrade.model.equipment.branch import ACCBranch, ACVBranch
+from py3comtrade.model.equipment.bus import Bus
+from py3comtrade.model.equipment.line import Line
+from py3comtrade.model.equipment.line_param import CG, MR, RX
+from py3comtrade.model.equipment.transformer import Transformer, TransformerWinding, WG
 from py3comtrade.model.exceptions import ComtradeDataFormatException, ComtradeFileEncodingException, \
     ComtradeFileParseException
-from py3comtrade.model.line import Line
-from py3comtrade.model.primary_equipments import ACCBranch, ACVBranch, CG, MR, RX
-from py3comtrade.model.status_channel import StatusChannel
-from py3comtrade.model.transformer import Transformer, TransformerWinding, WG
 from py3comtrade.model.type.analog_enum import (BranNum, CtDirection, Multiplier, PsType, TransWindLocation,
                                                 TvInstallation, WGFlag)
 from py3comtrade.model.type.digital_enum import BreakerFlag, ChannelFlag, Contact, RelayFlag, SignalType, WarningFlag

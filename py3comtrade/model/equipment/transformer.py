@@ -6,7 +6,7 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
@@ -14,8 +14,9 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from py3comtrade.model.channel import ChannelIdx
-from py3comtrade.model.primary_equipments import ACCBranch, ACVBranch, PrimaryEquipments
+from py3comtrade.model.channel.channel import ChannelIdx
+from py3comtrade.model.equipment.base_param import BaseParam
+from py3comtrade.model.equipment.branch import ACCBranch, ACVBranch
 from py3comtrade.model.type.analog_enum import TransWindLocation, WGFlag
 
 
@@ -54,7 +55,7 @@ class TransformerWinding(BaseModel):
         return xml
 
 
-class Transformer(PrimaryEquipments):
+class Transformer(BaseParam):
     pwr_rtg: float = Field(default=0.0, description="变压器额定功率")
     transWinds: List[TransformerWinding] = Field(default_factory=list, description="变压器绕组")
     ana_chn: List[ChannelIdx] = Field(default_factory=list, description="模拟通道索引号")

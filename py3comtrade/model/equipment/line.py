@@ -6,7 +6,7 @@
 #  PSL v2.
 #  You may obtain a copy of Mulan PSL v2 at:
 #           http://license.coscl.org.cn/MulanPSL2
-#  THIS SOFTWARE IS PROVIDED ON CFGAN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
+#  THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
@@ -14,12 +14,14 @@ from typing import List
 
 from pydantic import Field
 
-from py3comtrade.model.channel import ChannelIdx
-from py3comtrade.model.primary_equipments import ACCBranch, CG, MR, PrimaryEquipments, RX
+from py3comtrade.model.channel.channel import ChannelIdx
+from py3comtrade.model.equipment.base_param import BaseParam
+from py3comtrade.model.equipment.branch import ACCBranch
+from py3comtrade.model.equipment.line_param import CG, MR, RX
 from py3comtrade.model.type.analog_enum import BranNum
 
 
-class Line(PrimaryEquipments):
+class Line(BaseParam):
     bus_idx: int = Field(..., description="母线索引号")
     v_rtg: float = Field(default=0.0, description="一次额定电压")
     a_rtg: float = Field(default=0.0, description="一次额定电流")

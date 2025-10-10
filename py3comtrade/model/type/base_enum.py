@@ -63,8 +63,8 @@ class BaseEnum(Enum):
                 code = str(member.get_code()).upper()
                 if string.endswith(code):
                     return member
-
-        raise ValueError(f"无法将 '{string}' 映射到 {cls.__name__} 枚举类型中")
+        return default
+        # raise ValueError(f"无法将 '{string}' 映射到 {cls.__name__} 枚举类型中")
 
 
 class CustomEncoder(json.JSONEncoder):

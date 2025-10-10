@@ -14,7 +14,7 @@ from typing import Optional, Union
 
 from pydantic import Field
 
-from py3comtrade.model.channel import ChannelIdx
+from py3comtrade.model.channel.channel import ChannelIdx
 from py3comtrade.model.type.digital_enum import BreakerFlag, ChannelFlag, Contact, RelayFlag, SignalType, WarningFlag
 
 

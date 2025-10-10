@@ -11,7 +11,7 @@
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
 
-from py3comtrade.model.analog import Analog
+from py3comtrade.model.channel.analog import Analog
 from py3comtrade.model.exceptions import ComtradeDataFormatException
 from py3comtrade.model.type.analog_enum import ElectricalUnit, PsType
 from py3comtrade.model.type.phase_code import Phase
