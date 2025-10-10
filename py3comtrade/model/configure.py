@@ -25,7 +25,7 @@ from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
 from py3comtrade.model.type.mode_enum import SampleMode
-from py3comtrade.model.type.types import ChannelType, IdxType
+from py3comtrade.model.type.types import IdxType
 
 
 class Configure(BaseModel):
@@ -230,21 +230,23 @@ class Configure(BaseModel):
         return fault_point
 
     def get_channel_obj(self, index: Union[int, list[int]] = None,
-                        channel_type: ChannelType = ChannelType.ANALOG,
-                        idx_type: IdxType = IdxType.INDEX) -> Union[Analog, Digital, list[Analog], list[Digital]]:
+                        channel_type: str = "ANALOG",
+                        idx_type: str = "INDEX") -> Union[Analog, Digital, list[Analog], list[Digital]]:
         """
         根据通道索引获取通道对象，含采样数据
 
         参数:
-            index（int,list[int]）通道索引值（index）、通道标识（cfgan）、通道索引值列表或通道标识列表
-            channel_type:(ChannelType)通道类型，默认为模拟量通道ANALOG,支持模拟量和开关量
-            idx_type:(IdxType)通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
+            index（int,list[int]）通道索引值，可选值：通道索引（index）、通道标识（cfgan）、通道索引值列表或通道标识列表
+            channel_type:(str)通道类型，可选值：ANALOG、DIGITAL、ALL，默认值为ANALOG
+            idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
         返回值:
             选择的通道对象或通道对象数组（模拟量、开关量）
         """
-        if channel_type == ChannelType.ANALOG:
+        channel_type = channel_type.upper()
+        idx_type = idx_type.upper()
+        if channel_type == "ANALOG":
             channels = self.analogs
-        elif channel_type == ChannelType.DIGITAL:
+        elif channel_type == "DIGITAL":
             channels = self.digitals
         else:
             channels = self.analogs + self.digitals
@@ -252,16 +254,16 @@ class Configure(BaseModel):
         if index is None or (isinstance(index, list) and len(index) == 0):
             return channels
 
-        if idx_type == IdxType.CFGAN and (channel_type == ChannelType.ALL):
+        if idx_type == "CFGAN" and (channel_type == "ALL"):
             raise InvalidOperationException("当通道类型为ALL时，不能使用CFGAN索引")
 
         # 处理单个索引情况
         if isinstance(index, int):
-            if idx_type == IdxType.INDEX:
+            if idx_type == "INDEX":
                 if not (0 <= index < len(channels)):
                     raise InvalidIndexException(index, f"[0, {len(channels)})")
                 return channels[index]
-            else:  # IdxType.CFGAN
+            else: 
                 # 使用缓存字典优化查找性能
                 channels_dict = {channel.idx_cfg: channel for channel in channels}
                 if index not in channels_dict:
@@ -270,12 +272,12 @@ class Configure(BaseModel):
 
         # 处理索引列表情况
         elif isinstance(index, list):
-            if idx_type == IdxType.INDEX:
+            if idx_type == "INDEX":
                 # 检查所有索引是否在范围内
                 if im := max(index) >= len(channels):
                     raise InvalidIndexException(im, f"[0, {len(channels)})")
                 return [channels[idx] for idx in index]
-            else:  # IdxType.CFGAN
+            else:  
                 channels_dict = {channel.idx_cfg: channel for channel in channels}
                 result = []
                 for cfgan in index:
@@ -288,13 +290,13 @@ class Configure(BaseModel):
 
     def get_channel_selector(self, analog_ids: Union[int, list[int]] = None,
                              digital_ids: Union[int, list[int]] = None,
-                             idx_type: IdxType = IdxType.INDEX):
+                             idx_type: str = "INDEX"):
         """
         获取通道选择器，返回全部通道对象，不含采样值，选择通道selected为True
         参数:
             analog_ids: 模拟通道ID列表
             digital_ids: 开关量ID列表
-            idx_type: 通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an两种方式
+           idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
         返回值:
             通道选择器列表
         """
@@ -305,16 +307,18 @@ class Configure(BaseModel):
         return channels
 
     def get_analog_selector(self, analog_ids: Union[int, list[int]] = None,
-                            idx_type: IdxType = IdxType.INDEX,
+                            idx_type: str = "INDEX",
                             is_values: bool = False):
         """
         获取模拟通道选择器，返回模拟通道对象，不含采样值，选择通道selected为True
         参数:
             analog_ids: 模拟通道ID列表
-            idx_type: 通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an
+            idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
         返回值:
             通道选择器列表
         """
+        idx_type = idx_type.upper()
+        idx_type = IdxType.INDEX if idx_type == "INDEX" else IdxType.CFGAN
         channels = []
         for analog in self.analogs:
             is_selected = analog.is_selected(analog_ids, idx_type)
@@ -326,16 +330,18 @@ class Configure(BaseModel):
         return channels
 
     def get_digital_selector(self, digital_ids: Union[int, list[int]] = None,
-                             idx_type: IdxType = IdxType.INDEX,
+                             idx_type: str = "INDEX",
                              is_values: bool = False):
         """
         获取开关量选择器，返回开关量对象，不含采样值，选择通道selected为True
         参数:
             digital_ids: 开关量ID列表
-            idx_type: 通道标识类型，默认使用数组索引值INDEX，支持按照通道数组索引值和cfg通道标识an
+           idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
         返回值:
             通道选择器列表
         """
+        idx_type = idx_type.upper()
+        idx_type = IdxType.INDEX if idx_type == "INDEX" else IdxType.CFGAN
         channels = []
         for digital in self.digitals:
             is_selected = digital.is_selected(digital_ids, idx_type)

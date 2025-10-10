@@ -22,7 +22,7 @@ from py3comtrade.model.timemult import TimeMult
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.reader.analog_parser import analog_from_str
 from py3comtrade.reader.channel_num_parser import channel_num_from_str, str_to_int
-from py3comtrade.reader.digital_parser import digital_fom_str
+from py3comtrade.reader.digital_parser import digital_from_str
 from py3comtrade.reader.header_parser import header_from_str
 from py3comtrade.reader.nrates_parser import create_nrate, create_nrates
 
@@ -106,7 +106,7 @@ def config_reader(cfg_file_name) -> Configure:
         for i in range(_configure.channel_num.analog_num):
             _configure.add_analog(analog_from_str(cfg_content.pop(0)))
         for i in range(_configure.channel_num.digital_num):
-            _configure.add_digital(digital_fom_str(cfg_content.pop(0)))
+            _configure.add_digital(digital_from_str(cfg_content.pop(0)))
         _configure.sample = create_nrates(cfg_content.pop(0),
                                           cfg_content.pop(0))
         for i in range(_configure.sample.nrate_num):
