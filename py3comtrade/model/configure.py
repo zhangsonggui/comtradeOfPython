@@ -133,13 +133,13 @@ class Configure(BaseModel):
                 return False
         return True
 
-    def get_cursor_cycle_point(self, cursor_site: int) -> int:
+    def get_cursor_cycle_point(self, cursor_site: int) -> float:
         """
         获取游标位置的每周波采样点数
         :param cursor_site: 游标采样点位置
         :return: 游标位置每周波采样点数,当采样点位置传入错误是返回-1
         """
-        for nrate in self.sample:
+        for nrate in self.sample.nrates:
             if nrate.start_point <= cursor_site <= nrate.end_point:
                 return nrate.cycle_point
         return -1
