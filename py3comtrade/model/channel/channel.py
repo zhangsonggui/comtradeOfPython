@@ -17,7 +17,7 @@ from pydantic import BaseModel, Field
 from py3comtrade.dispose.channel_name import analog_channel_classification, match_channel_name
 from py3comtrade.model.type.analog_enum import AnalogFlag
 from py3comtrade.model.type.phase_code import Phase
-from py3comtrade.model.type.types import IdxType
+from py3comtrade.model.type.types import IdxType, ValueType
 
 
 class ChannelIdx(BaseModel):
@@ -41,6 +41,7 @@ class Channel(ChannelIdx):
     ccbm: str = Field(default="", description="被监视的电路元件，可选，字母、数字，最小0个字符，最大长度64个字符")
     index: int = Field(default=0, description="通道索引号")
     values: Optional[List[Union[float, int]]] = Field(default_factory=list, description="通道数值")
+    values_type: ValueType = Field(default=ValueType.INSTANT, description="通道数值类型")
 
     @property
     def self(self) -> 'Channel':
@@ -82,6 +83,12 @@ class Channel(ChannelIdx):
         else:
             self.selected = True if self.idx_cfg in target else False
         return self.selected
+
+    def hasattr_values(self) -> bool:
+        """判断是否存在采样数值"""
+        if not hasattr(self, 'values') or self.values is None or len(self.values) == 0:
+            return False
+        return True
 
     def __str__(self):
         return super().__str__() + f",{self.name},{self.phase.code},{self.ccbm}"

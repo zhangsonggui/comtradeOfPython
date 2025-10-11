@@ -12,6 +12,9 @@
 import copy
 from typing import TYPE_CHECKING, Union
 
+from py3comtrade.model.type.analog_enum import PsType
+from py3comtrade.model.type.types import ValueType
+
 if TYPE_CHECKING:
     from py3comtrade.model.comtrade import Comtrade
 
@@ -28,7 +31,7 @@ class ComtradeFilter:
         参数:
             Comtrade: 要过滤的Comtrade对象
         """
-        self._filtered_config = copy.deepcopy(comtrade)
+        self._filtered_comtrade = copy.deepcopy(comtrade)
 
     def filter_by_channel_type(self, channel_type: str) -> 'ComtradeFilter':
         """
@@ -53,7 +56,7 @@ class ComtradeFilter:
         返回值:
             过滤器实例，支持链式调用
         """
-        self._filtered_config.digitals = []
+        self._filtered_comtrade.digitals = []
         return self
 
     def digital_only(self) -> 'ComtradeFilter':
@@ -63,7 +66,7 @@ class ComtradeFilter:
         返回值:
             过滤器实例，支持链式调用
         """
-        self._filtered_config.analogs = []
+        self._filtered_comtrade.analogs = []
         return self
 
     def by_index(self, analog_index: Union[int, list[int]] = None,
@@ -84,11 +87,11 @@ class ComtradeFilter:
                 analog_index = [analog_index]
 
             # 筛选模拟通道
-            self._filtered_config.analogs = [
-                a for a in self._filtered_config.analogs if a.index in analog_index
+            self._filtered_comtrade.analogs = [
+                a for a in self._filtered_comtrade.analogs if a.index in analog_index
             ]
             # 重新设置索引
-            for i, analog in enumerate(self._filtered_config.analogs):
+            for i, analog in enumerate(self._filtered_comtrade.analogs):
                 analog.index = i
 
         # 处理开关量通道索引筛选
@@ -97,16 +100,16 @@ class ComtradeFilter:
                 digital_index = [digital_index]
 
             # 筛选开关量通道
-            self._filtered_config.digitals = [
-                d for d in self._filtered_config.digitals if d.index in digital_index
+            self._filtered_comtrade.digitals = [
+                d for d in self._filtered_comtrade.digitals if d.index in digital_index
             ]
             # 重新设置索引
-            for i, digital in enumerate(self._filtered_config.digitals):
+            for i, digital in enumerate(self._filtered_comtrade.digitals):
                 digital.index = i
 
         # 更新通道数量信息
-        self._filtered_config.channel_num.analog_num = len(self._filtered_config.analogs)
-        self._filtered_config.channel_num.digital_num = len(self._filtered_config.digitals)
+        self._filtered_comtrade.channel_num.analog_num = len(self._filtered_comtrade.analogs)
+        self._filtered_comtrade.channel_num.digital_num = len(self._filtered_comtrade.digitals)
 
         return self
 
@@ -128,11 +131,11 @@ class ComtradeFilter:
                 analog_cfgan = [analog_cfgan]
 
             # 筛选模拟通道
-            self._filtered_config.analogs = [
-                a for a in self._filtered_config.analogs if a.idx_cfg in analog_cfgan
+            self._filtered_comtrade.analogs = [
+                a for a in self._filtered_comtrade.analogs if a.idx_cfg in analog_cfgan
             ]
             # 重新设置索引
-            for i, analog in enumerate(self._filtered_config.analogs):
+            for i, analog in enumerate(self._filtered_comtrade.analogs):
                 analog.index = i
 
         # 处理开关量通道cfgan筛选
@@ -141,16 +144,16 @@ class ComtradeFilter:
                 digital_cfgan = [digital_cfgan]
 
             # 筛选开关量通道
-            self._filtered_config.digitals = [
-                d for d in self._filtered_config.digitals if d.idx_cfg in digital_cfgan
+            self._filtered_comtrade.digitals = [
+                d for d in self._filtered_comtrade.digitals if d.idx_cfg in digital_cfgan
             ]
             # 重新设置索引
-            for i, digital in enumerate(self._filtered_config.digitals):
+            for i, digital in enumerate(self._filtered_comtrade.digitals):
                 digital.index = i
 
         # 更新通道数量信息
-        self._filtered_config.channel_num.analog_num = len(self._filtered_config.analogs)
-        self._filtered_config.channel_num.digital_num = len(self._filtered_config.digitals)
+        self._filtered_comtrade.channel_num.analog_num = len(self._filtered_comtrade.analogs)
+        self._filtered_comtrade.channel_num.digital_num = len(self._filtered_comtrade.digitals)
 
         return self
 
@@ -165,25 +168,94 @@ class ComtradeFilter:
             过滤器实例，支持链式调用
         """
         # 筛选模拟通道
-        self._filtered_config.analogs = [
-            a for a in self._filtered_config.analogs if a.selected == is_selected
+        self._filtered_comtrade.analogs = [
+            a for a in self._filtered_comtrade.analogs if a.selected == is_selected
         ]
         # 重新设置索引
-        for i, analog in enumerate(self._filtered_config.analogs):
+        for i, analog in enumerate(self._filtered_comtrade.analogs):
             analog.index = i
 
         # 筛选开关量通道
-        self._filtered_config.digitals = [
-            d for d in self._filtered_config.digitals if d.selected == is_selected
+        self._filtered_comtrade.digitals = [
+            d for d in self._filtered_comtrade.digitals if d.selected == is_selected
         ]
         # 重新设置索引
-        for i, digital in enumerate(self._filtered_config.digitals):
+        for i, digital in enumerate(self._filtered_comtrade.digitals):
             digital.index = i
 
         # 更新通道数量信息
-        self._filtered_config.channel_num.analog_num = len(self._filtered_config.analogs)
-        self._filtered_config.channel_num.digital_num = len(self._filtered_config.digitals)
+        self._filtered_comtrade.channel_num.analog_num = len(self._filtered_comtrade.analogs)
+        self._filtered_comtrade.channel_num.digital_num = len(self._filtered_comtrade.digitals)
 
+        return self
+
+    def values_type(self, target_value_type: str):
+        """
+        根据目标数值类型,对通道采样值进行转换
+
+        参数:
+            target_value_type: 目标数值类型,可选择是raw、instant
+
+        返回值:
+            过滤器实例，支持链式调用
+        """
+        target_value_type = ValueType.from_string(target_value_type)
+        for analog in self._filtered_comtrade.analogs:
+            analog.convert_values_type(target_value_type)
+        self._filtered_comtrade.sample.value_type = target_value_type
+        return self
+
+    def values_ps(self, target_ps: str):
+        """
+        对通道采样值进行一二次值转换
+
+        参数:
+            target_ps: 目标数值类型,可选择是p、s
+
+        返回值:
+            过滤器实例，支持链式调用
+        """
+        target_ps = PsType.from_string(target_ps)
+        for analog in self._filtered_comtrade.analogs:
+            analog.convert_values_ps(target_ps)
+        return self
+
+    def by_samp_point(self, start_point: int, end_point: int):
+        """
+        根据采样点对采样值进行切片
+        参数:
+            start_point: 开始采样点
+            end_point: 结束采样点
+        返回值:
+            过滤器实例,支持链式调用
+        """
+        start_point, end_point, _ = self._filtered_comtrade.get_cursor_sample_range(start_point, end_point)
+        # 切片模拟量采样值
+        for analog in self._filtered_comtrade.analogs:
+            analog.values = analog.values[start_point:end_point]
+        # 切片开关量采样值
+        for digital in self._filtered_comtrade.digitals:
+            digital.values = digital.values[start_point:end_point]
+        return self
+
+    def by_segment(self, segment: int):
+        """
+        根据采样段对采样值进行切片
+        参数:
+            segment: 采样段号
+        返回值:
+            过滤器实例,支持链式调用
+        """
+        if 0 <= segment <= self._filtered_comtrade.sample.nrate_num:
+            nrate = self._filtered_comtrade.sample.nrates[segment]
+            start_point = nrate.start_point
+            end_point = nrate.end_point
+            # 切片模拟量采样值
+            for analog in self._filtered_comtrade.analogs:
+                analog.values = analog.values[start_point:end_point]
+            # 切片开关量采样值
+            for digital in self._filtered_comtrade.digitals:
+                digital.values = digital.values[start_point:end_point]
         return self
 
     def clear_channel_values(self) -> 'ComtradeFilter':
@@ -197,10 +269,10 @@ class ComtradeFilter:
             过滤器实例，支持链式调用
         """
         # 移除模拟量采样值
-        for analog in self._filtered_config.analogs:
+        for analog in self._filtered_comtrade.analogs:
             analog.values = []
         # 移除开关量采样值
-        for digital in self._filtered_config.digitals:
+        for digital in self._filtered_comtrade.digitals:
             digital.values = []
         return self
 
@@ -211,4 +283,4 @@ class ComtradeFilter:
         返回值:
             过滤后的Comtrade对象
         """
-        return self._filtered_config
+        return self._filtered_comtrade

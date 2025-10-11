@@ -20,7 +20,6 @@ from py3comtrade.model.exceptions import (
 )
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
-from py3comtrade.model.type.mode_enum import ReadMode
 from py3comtrade.model.type.types import ValueType
 from py3comtrade.reader.analog_parser import analog_from_dict
 from py3comtrade.reader.channel_num_parser import channel_num_from_dict
@@ -36,15 +35,13 @@ from py3comtrade.utils.comtrade_file_path import (
 )
 
 
-def comtrade_reader(
-        _file_path: str, read_mode: ReadMode = ReadMode.FULL, value_type: str = "INSTANT"
-) -> Comtrade:
+def comtrade_reader(_file_path: str, read_mode: str = "full") -> Comtrade:
     """
     读取Comtrade数据
 
     参数:
         _file_path(str): 文件路径
-        read_mode: 读取模式
+        read_mode: 读取模式,可选择full、cfg、dat、dmf,默认为full
     返回:
         Comtrade对象
     """
@@ -66,28 +63,21 @@ def comtrade_reader(
         fault_time=cfg.fault_time,
         timemult=cfg.timemult,
     )
-    if read_mode in [ReadMode.DAT, ReadMode.FULL]:
+    if read_mode.lower() in ["dat", "full"]:
         try:
             dat = data_reader(str(files.dat_path), cfg.sample)
             _comtrade.sample_point = dat.sample_time[:, 0].tolist()
             _comtrade.sample_time = dat.sample_time[:, 1].tolist()
-            if value_type.upper() == "INSTANT":
-                _comtrade.sample.value_type = ValueType.INSTANT
-                for analog in _comtrade.analogs:
-                    if value_type == ValueType.INSTANT.name:
-                        vs = dat.analog_value.T[analog.index, :]
-                        analog.values = np.round(vs * analog.a + analog.b, 3).tolist()
-            elif value_type.upper() == "RAW":
-                _comtrade.sample.value_type = ValueType.RAW
-                for analog in _comtrade.analogs:
-                    analog.values = dat.analog_value.T[analog.index, :].tolist()
+            for analog in _comtrade.analogs:
+                vs = dat.analog_value.T[analog.index, :]
+                analog.values_type = ValueType.INSTANT
+                analog.values = np.round(vs * analog.a + analog.b, 3).tolist()
             for digital in _comtrade.digitals:
                 digital.values = dat.digital_value.T[digital.index, :].tolist()
-
         except ComtradeFileEncodingException as e:
             raise ComtradeFileEncodingException(_file_path, "文件解析失败")
         _comtrade.analyze_digital_change_status()
-    if read_mode in [ReadMode.DMF, ReadMode.FULL]:
+    if read_mode.lower() in ["dmf", "full"]:
         try:
             _dmf = dmf_parser(str(files.dmf_path))
             _comtrade.buses = _dmf.buses
@@ -135,11 +125,6 @@ def comtrade_from_dict(comtrade_dict: dict) -> Comtrade:
         timemult=TimeMult(timemult=float(timemult_dict.get("timemult", 1.0))),
     )
     _comtrade.analyze_digital_change_status()
-    _comtrade.station_name = comtrade_dict.get("station_name", "")
-    _comtrade.version = comtrade_dict.get("version", 1)
-    _comtrade.reference = comtrade_dict.get("reference", "0")
-    _comtrade.rec_dev_name = comtrade_dict.get("rec_dev_name", "")
-    _comtrade.rec_ref = comtrade_dict.get("rec_ref", "")
     return _comtrade
 
 

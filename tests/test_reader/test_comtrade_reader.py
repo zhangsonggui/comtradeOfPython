@@ -4,7 +4,7 @@ import unittest
 
 from py3comtrade.model.exceptions import InvalidIndexException
 from py3comtrade.model.type.types import ChannelType, IdxType
-from py3comtrade.reader.comtrade_reader import ReadMode, comtrade_reader
+from py3comtrade.reader.comtrade_reader import comtrade_reader
 from tests import project_root
 
 
@@ -12,7 +12,7 @@ class TestComtrade(unittest.TestCase):
 
     def setUp(self):
         file_name = f"{project_root}/tests/data/xtz.dat"
-        self.xtz = comtrade_reader(file_name, ReadMode.DAT)
+        self.xtz = comtrade_reader(file_name)
 
     def test_get_channel_data_range(self):
         ch1_ysz = self.xtz.get_channel_data_range(1)

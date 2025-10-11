@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-import numpy as np
 from typing import List, Union
+
+import numpy as np
 
 
 def convert_primary_secondary(vs: Union[float, List[float]],
@@ -36,6 +37,27 @@ def convert_primary_secondary(vs: Union[float, List[float]],
         vs = [v / ratio for v in vs] if input_primary else vs
 
     return vs
+
+
+def convert_instant_raw(vs: List[Union[float, int]], a: float, b: float, input_type: str, output_type: str) -> list[
+    Union[float, int]]:
+    """
+    原始采样值和有效值互转
+    参数:
+        vs: 输入值数组（原始采样值或瞬时值）
+        a(float): 通道增益系数
+        b(float): 通道偏移系数
+    返回值:
+        vs数组
+    """
+    if (it := input_type.upper()) == (ot := output_type.upper()):
+        return vs
+    if it == "RAW":
+        # 原始采样值转换为瞬时值
+        instants = np.asarray(vs) * a + b
+        return instants.tolist()
+    if it == "INSTANT":
+        return np.round(vs).astype(int).tolist()
 
 
 def convert_raw_instant(values: Union[List[int], List[Union[float, int]]],

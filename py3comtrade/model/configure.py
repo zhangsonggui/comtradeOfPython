@@ -81,6 +81,12 @@ class Configure(BaseModel):
                 return nrate.index
         return -1
 
+    def get_segment_range_point(self, segment: int):
+        if 0 <= segment <= self.sample.nrate_num:
+            nrate = self.sample.nrates[segment]
+            return nrate.start_point, nrate.end_point
+        return
+
     def get_two_point_between_segment(self, point1: int, point2: int) -> list[Nrate]:
         """
         获取两个点之间的采样段

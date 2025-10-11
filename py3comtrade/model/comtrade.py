@@ -84,6 +84,11 @@ class Comtrade(Configure, Equipment):
                digital_cfgan: Union[int, list[int]] = None,
                is_selected: bool = None,
                clear_channel_values: bool = None,
+               start_point: int = None,
+               end_point: int = None,
+               segment: int = None,
+               target_value_type: str = None,
+               target_ps: str = None
                ) -> 'Comtrade':
         """
         链式调用筛选方法，根据条件筛选Comtrade对象中的通道
@@ -118,8 +123,20 @@ class Comtrade(Configure, Equipment):
         if is_selected is not None:
             filter_instance = filter_instance.by_selected(is_selected)
 
+        if target_value_type is not None:
+            filter_instance = filter_instance.values_type(target_value_type)
+
+        if target_ps is not None:
+            filter_instance = filter_instance.values_ps(target_ps)
+
         if clear_channel_values is not None:
             filter_instance = filter_instance.clear_channel_values()
+
+        if start_point is not None and end_point is not None:
+            filter_instance = filter_instance.by_samp_point(start_point, end_point)
+
+        if segment is not None:
+            filter_instance = filter_instance.by_segment(segment)
 
         return filter_instance.build()
 
@@ -175,6 +192,51 @@ class Comtrade(Configure, Equipment):
         """
         return ComtradeFilter(self).by_selected(is_selected).build()
 
+    def values_type(self, target_value_type: str):
+        """
+        根据目标数值类型,对通道采样值进行转换
+
+        参数:
+            target_value_type: 目标数值类型,可选择是raw、instant
+
+        返回值:
+            过滤器实例，支持链式调用
+        """
+        return ComtradeFilter(self).values_type(target_value_type).build()
+
+    def values_ps(self, target_ps: str):
+        """
+        根据目标数值类型,对通道采样值进行转换
+
+        参数:
+            target_value_type: 目标数值类型,可选择是raw、instant
+
+        返回值:
+            过滤器实例，支持链式调用
+        """
+        return ComtradeFilter(self).values_ps(target_ps).build()
+
+    def slice_by_samp_point(self, start_point: int, end_point: int):
+        """
+        根据采样点对采样值进行切片
+        参数:
+            start_point: 开始采样点
+            end_point: 结束采样点
+        返回值:
+            过滤器实例,支持链式调用
+        """
+        return ComtradeFilter(self).by_samp_point(start_point, end_point).build()
+
+    def slice_by_segment(self, segment: int):
+        """
+        根据采样段对采样值进行切片
+        参数:
+            segment: 采样段号
+        返回值:
+            过滤器实例,支持链式调用
+        """
+        return ComtradeFilter(self).by_segment(segment).build()
+
     def clear_channel_values(self) -> 'Comtrade':
         """
         删除对象中的采样值信息
@@ -224,7 +286,7 @@ class Comtrade(Configure, Equipment):
         for channel in chanels:
             # 拷贝对象避免影响原始对象采样数值
             channel_new = copy.copy(channel)
-            vs = channel.values[start_point:end_point]
+            vs = channel.values[start_point:end_point + 1]
 
             # 如果是开关量通道，则直接返回原始采样值
             if channel_type.upper() == "DIGITAL":
