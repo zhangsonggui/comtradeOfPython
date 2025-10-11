@@ -4,6 +4,8 @@ import os
 import sys
 import unittest
 
+from tests.test_model.test_comtrade_filter import TestComtradeFilter
+
 # 将项目根目录添加到Python路径中
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -31,6 +33,7 @@ def create_test_suite():
     suite.addTest(loader.loadTestsFromTestCase(TestComtrade))
     suite.addTest(loader.loadTestsFromTestCase(TestChannelDispose))
     suite.addTest(loader.loadTestsFromTestCase(TestCalcius))
+    suite.addTest(loader.loadTestsFromTestCase(TestComtradeFilter))
 
     return suite
 

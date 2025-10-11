@@ -60,7 +60,7 @@ class Comtrade(Configure, Equipment):
             fields = [fields]
 
         for field in fields:
-            field_info = self.model_fields[field]
+            field_info = self.__class__.model_fields[field]
             if hasattr(field_info, 'default'):
                 # 设置为默认值或 None
                 setattr(self, field, field_info.default)
@@ -101,7 +101,12 @@ class Comtrade(Configure, Equipment):
             analog_cfgan: 根据模拟通道cfgan筛选
             digital_cfgan: 根据开关量通道cfgan筛选
             is_selected: 根据通道selected状态筛选
-
+            clear_channel_values: 是否清除通道值
+            start_point: 起始采样点
+            end_point: 结束采样点
+            segment: 采样段数
+            target_value_type: 目标采样值类型
+            target_ps: 目标一次二次值标识
         返回值:
             筛选后的新Comtrade对象，不影响原对象
         """

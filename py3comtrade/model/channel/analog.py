@@ -75,7 +75,7 @@ class Analog(Channel):
         return []
 
     def convert_values_ps(self, target_ps: PsType) -> list[float]:
-        """输出一次瞬时值采样"""
+        """一二次值转换"""
         self.convert_values_type(ValueType.INSTANT)
         if target_ps == self.ps:
             return self.values
