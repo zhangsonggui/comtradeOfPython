@@ -118,11 +118,12 @@ def read_file_adaptive_encoding(filename):
         return None
 
 
-def zip_files(_files: list[str], output: str):
+def zip_files(_files: list[str], output: str, flatten: bool = False):
     """压缩多个文件
     参数:
         _files:文件列表
         output:输出目录
+        flatten: 是否将文件直接放入压缩包根目录（不保留路径结构）
     返回值:
         压缩包
     """
@@ -133,9 +134,11 @@ def zip_files(_files: list[str], output: str):
             for file in _files:
                 if not os.path.exists(file) and os.path.exists(file):
                     continue
-                zip.write(file)
+                # 根据 flatten 参数决定是否保留路径结构
+                arcname = Path(file).name if flatten else file
+                zip.write(file, arcname)
                 os.remove(file)
-        return  output
+        return output
     except Exception as e:
         raise Exception(f"创建ZIP文件时发生错误: {e}")
 
