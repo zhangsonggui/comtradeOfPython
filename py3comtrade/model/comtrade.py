@@ -648,33 +648,50 @@ class Comtrade(Configure, Equipment):
     def to_csv(
         self,
         file_path: str,
-        samp_point_num_title: bool = True,
-        sample_time_title: bool = True,
     ):
         """
         将comtrade对象保存为csv文件
 
         参数：
             file_path(str): 文件保存路径
-            samp_point_num_title(bool):是否添加采样点号行,默认添加
-            sample_time_title(bool):是否添加采样时间行,默认为添加
         返回值:
-            ComtradeFilePath对象
+            文件路径
         """
         try:
-            with open(file_path, "w", encoding="gbk") as f:
-                if samp_point_num_title:
-                    f.write(f'采样点号,{",".join(map(str, self.sample_point))}\n')
-                if sample_time_title:
-                    f.write(f'采样时间,{",".join(map(str, self.sample_time))}\n')
-                for analog in self.analogs:
-                    if analog.values is not None:
-                        f.write(f'{analog.name},{",".join(map(str, analog.values))}\n')
-                for digital in self.digitals:
-                    if digital.values is not None:
-                        f.write(
-                            f'{digital.name},{",".join(map(str, digital.values))}\n'
-                        )
+            # 获取模拟量数据（使用INSTANT值类型）
+            analog_datas = self.get_channel_data_range(output_value_type="INSTANT")
+            
+            # 准备数据列
+            columns = []
+            data_arrays = []
+            
+            # 添加采样点号列
+            columns.append("采样点")
+            data_arrays.append(np.array(self.sample_point))
+            
+            # 添加采样时间列
+            columns.append("采样时间")
+            data_arrays.append(np.array(self.sample_time))
+            
+            # 添加模拟量通道数据
+            for analog in analog_datas:
+                if analog.values is not None:
+                    columns.append(analog.name)
+                    data_arrays.append(np.array(analog.values))
+            
+            # 添加开关量通道数据
+            for digital in self.digitals:
+                if digital.values is not None:
+                    columns.append(digital.name)
+                    data_arrays.append(np.array(digital.values))
+            
+            # 组合数据
+            data = np.column_stack(data_arrays)
+            
+            # 创建DataFrame并写入CSV文件
+            df = pd.DataFrame(data, columns=columns)
+            df.to_csv(file_path, index=False, encoding="gbk")
+            
             return Result(code=200, msg=f"文件写入成功", data=file_path)
         except Exception as e:
             return Result(code=500, msg=f"{file_path}文件写入失败", data=e)
