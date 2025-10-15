@@ -94,11 +94,16 @@ def status_channel_parser(channel_xml) -> StatusChannel:
 
 def acv_branch_parser(branch_xml) -> ACVBranch:
     """解析电压分支"""
-    return ACVBranch(ua_idx=branch_xml.get('ua_idx', ""),
-                     ub_idx=branch_xml.get('ub_idx', ""),
-                     uc_idx=branch_xml.get('uc_idx', ""),
-                     ul_idx=branch_xml.get('ul_idx', ""),
-                     un_idx=branch_xml.get('un_idx', ""))
+    ua_idx = branch_xml.get('ua_idx', "")
+    ub_idx = branch_xml.get('ub_idx', "")
+    uc_idx = branch_xml.get('uc_idx', "")
+    ul_idx = branch_xml.get('ul_idx', "")
+    un_idx = branch_xml.get('un_idx', "")
+    return ACVBranch(ua_idx=0 if ua_idx == "" else int(ua_idx),
+                     ub_idx=0 if ub_idx == "" else int(ub_idx),
+                     uc_idx=0 if ub_idx == "" else int(uc_idx),
+                     ul_idx=0 if ul_idx == "" else int(ul_idx),
+                     un_idx=0 if un_idx == "" else int(un_idx))
 
 
 def bus_parser(bus_xml, ns) -> Bus:
@@ -136,8 +141,10 @@ def line_parser(line_xml, ns) -> Line:
     idx = line_xml.get('idx', 1)
     line_name = line_xml.get('line_name', "")
     bus_id = line_xml.get('bus_ID', "")
+    bus_id = 0 if bus_id == "" else bus_id
     src_ref = line_xml.get('srcRef', "")
     v_rtg = line_xml.get('VRtg', "")
+    v_rtg = 0.0 if v_rtg == "" else v_rtg
     a_rtg = line_xml.get('ARtg', "")
     a_rtg_snd = line_xml.get('ARtgSnd', "")
     line_len = line_xml.get('LinLen', 0.0)
@@ -150,7 +157,8 @@ def line_parser(line_xml, ns) -> Line:
     cg = line_xml.find('scl:CG', ns)
     line.cg = CG(c0=cg.get('c0', 0.0), c1=cg.get('c1', 0.0), g0=cg.get('g0', 0.0), g1=cg.get('g1', 0.0))
     mr = line_xml.find('scl:MR', ns)
-    line.mr = MR(idx=mr.get('idx', 1), mr0=mr.get('mr0', 0.0), mx0=mr.get('mx0', 0.0))
+    if mr:
+        line.mr = MR(idx=mr.get('idx', 1), mr0=mr.get('mr0', 0.0), mx0=mr.get('mx0', 0.0))
     for acc in line_xml.findall('scl:ACC_Bran', ns):
         line.acc_bran.append(acc_branch_parser(acc))
     for chn in line_xml.findall('scl:AnaChn', ns):
