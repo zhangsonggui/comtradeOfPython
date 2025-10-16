@@ -30,7 +30,37 @@ from py3comtrade.model.type.types import IdxType
 
 class Configure(BaseModel):
     """
-    配置文件类，用于存储配置文件信息
+    配置文件类，用于存储配置文件信息。
+
+    属性:
+        header (ConfigHeader): 配置文件头信息。
+        channel_num (ChannelNum): 通道数量信息。
+        analogs (list[Analog]): 模拟通道列表。
+        digitals (list[Digital]): 开关量通道列表。
+        sample (ConfigSample): 采样信息。
+        file_start_time (PrecisionTime): 文件起始时间。
+        fault_time (PrecisionTime): 故障时间。
+        timemult (TimeMult): 时间倍数。
+
+    方法:
+        clear(): 清除模型中所有字段。
+        __str__(): 生成 cfg 文件字符串。
+        write_cfg_file(output_file_path: str): 将配置写入文件。
+        get_cursor_in_segment(cursor_site: int) -> int: 获取游标位置所在的采样段。
+        get_segment_range_point(segment: int): 获取采样段的起始和结束点。
+        get_two_point_between_segment(point1: int, point2: int) -> list[Nrate]: 获取两个点之间的采样段。
+        cut_samples_points(point1: int, point2: int) -> ConfigSample: 裁剪采样点后的采样段信息。
+        equal_two_point_samp_rate(point1: int, point2: int) -> bool: 判断两个点之间是否是相同的采样率。
+        get_cursor_cycle_point(cursor_site: int) -> float: 获取游标位置的每周波采样点数。
+        get_cursor_sample_range(point1: int, point2: int, cycle_num: float, mode: SampleMode) -> tuple: 获取游标采样点范围。
+        get_cursor_cycle_sample_range(point1: int, cycle_num: float, mode: SampleMode): 获取游标采样点所在周波的采样范围。
+        get_zero_point(): 获取零时刻采样点位置。
+        get_channel_obj(index: Union[int, list[int]], channel_type: str, idx_type: str) -> Union[Analog, Digital, list[Analog], list[Digital]]: 根据通道索引获取通道对象。
+        get_channel_selector(analog_ids: Union[int, list[int]], digital_ids: Union[int, list[int]], idx_type: str): 获取通道选择器。
+        get_analog_selector(analog_ids: Union[int, list[int]], idx_type: str, is_values: bool): 获取模拟通道选择器。
+        get_digital_selector(digital_ids: Union[int, list[int]], idx_type: str, is_values: bool): 获取开关量选择器。
+        add_analog(analog: Analog, index: int): 添加模拟通道。
+        add_digital(digital: Digital, index: int): 添加开关量通道。
     """
     header: ConfigHeader = Field(default=ConfigHeader(), description="配置文件头")
     channel_num: ChannelNum = Field(default=ChannelNum(), description="通道数量")
@@ -67,32 +97,48 @@ class Configure(BaseModel):
         return cfg_content
 
     def write_cfg_file(self, output_file_path: str):
+        """
+        将配置写入文件
+        参数:
+            output_file_path: 输出文件路径
+        """
         with open(output_file_path, 'w', encoding='gbk') as f:
             f.write(self.__str__())
 
     def get_cursor_in_segment(self, cursor_site: int) -> int:
         """
         获取游标位置所在的采样段
-        :param cursor_site: 游标采样点位置
-        :return: 游标位置所在的采样段,当采样点位置传入错误是返回-1
+        参数:
+            cursor_site: 游标采样点位置
+        返回值:
+            游标位置所在的采样段,当采样点位置传入错误是返回-1
         """
         for nrate in self.sample.nrates:
             if nrate.start_point <= cursor_site <= nrate.end_point:
                 return nrate.index
         return -1
 
-    def get_segment_range_point(self, segment: int):
+    def get_segment_range_point(self, segment: int) -> Union[tuple[int, int], None]:
+        """
+        获取采样段的起始和结束点
+        参数:
+            segment: 采样段索引
+        返回值:
+            起始和结束点
+        """
         if 0 <= segment <= self.sample.nrate_num:
             nrate = self.sample.nrates[segment]
             return nrate.start_point, nrate.end_point
-        return
+        return None
 
     def get_two_point_between_segment(self, point1: int, point2: int) -> list[Nrate]:
         """
         获取两个点之间的采样段
-        :param point1: 开始采样点
-        :param point2: 结束采样点
-        :return: 采样段列表
+        参数:
+            point1: 开始采样点
+            point2: 结束采样点
+        返回值:
+            采样段列表
         """
         point1_segment = self.get_cursor_in_segment(point1)
         point2_segment = self.get_cursor_in_segment(point2)
@@ -129,9 +175,11 @@ class Configure(BaseModel):
     def equal_two_point_samp_rate(self, point1: int, point2: int) -> bool:
         """
         判断两个点之间是否是相同的采样率
-        :param point1: 开始采样点
-        :param point2: 结束采样点
-        :return: True:采样率相同,False:采样率不同
+        参数:
+            point1: 开始采样点
+            point2: 结束采样点
+        返回值:
+            True:采样率相同,False:采样率不同
         """
         segments = self.get_two_point_between_segment(point1, point2)
         for segment in segments:
@@ -142,8 +190,10 @@ class Configure(BaseModel):
     def get_cursor_cycle_point(self, cursor_site: int) -> float:
         """
         获取游标位置的每周波采样点数
-        :param cursor_site: 游标采样点位置
-        :return: 游标位置每周波采样点数,当采样点位置传入错误是返回-1
+        参数:
+            cursor_site: 游标采样点位置
+        返回值:
+            游标位置每周波采样点数,当采样点位置传入错误是返回-1
         """
         for nrate in self.sample.nrates:
             if nrate.start_point <= cursor_site <= nrate.end_point:
@@ -153,18 +203,15 @@ class Configure(BaseModel):
     def get_cursor_sample_range(self, point1: int = 0, point2: int = None,
                                 cycle_num: float = None, mode: SampleMode = SampleMode.FORWARD) -> tuple:
         """
-        获取游标采样点位置开始、结束采样取值范围、采样点个数\n
-        当end_point不为空且大于开始采样点，以end_point采样点为准，
-        当end_point不合法且cycle_num为空时，获取全部采样点，
-        当cycle_num不为空按周波倍数默认向后取值。
-        :param point1: 采样起始点，默认为0
-        :param point2: 采样终止点，不含终止点，默认为None 代表全部采样点
-        :param cycle_num: 采样周波数量，当end_point为空时生效
-        :param mode: 取值模式，仅在按周波取值时生效，默认为FORWARD向后取值
-        :return: 返回一个元祖，分别代表开始采样点、结束采样点、采样点数量
+        获取游标采样点位置开始、结束采样取值范围、采样点个数
+        参数:
+            point1: 采样起始点，默认为0
+            point2: 采样终止点，不含终止点，默认为None 代表全部采样点
+            cycle_num: 采样周波数量，当end_point为空时生效
+            mode: 取值模式，仅在按周波取值时生效，默认为FORWARD向后取值
+        返回值:
+            返回一个元祖，分别代表开始采样点、结束采样点、采样点数量
         """
-        if not isinstance(point1, int):
-            raise InvalidOperationException(f"采样点开始位置类型错误！需要 int 类型，但收到 {type(point1).__name__}。")
         if not (0 <= point1 < self.sample.count):
             raise InvalidIndexException(point1, f"[0, {self.sample.count})")
         start_point = point1
@@ -173,12 +220,8 @@ class Configure(BaseModel):
         elif point2 is None:  # 当采样点结束位置为空时，默认采样点结束位置为采样点总数减1
             end_point = self.sample.count - 1
         else:
-            if not isinstance(point2, int):
-                raise InvalidOperationException(f"采样点结束位置类型错误！需要 int 类型，但收到 {type(point2).__name__}。")
-            if not (0 <= point2 < self.sample.count):
-                raise InvalidIndexException(point2, f"[0, {self.sample.count})")
-            if point2 < point1:
-                raise InvalidOperationException("采样点结束位置小于采样点开始位置！")
+            if not (start_point <= point2 < self.sample.count):
+                raise InvalidIndexException(point2, f"[{start_point}, {self.sample.count})")
             end_point = point2
         samp_num = end_point - start_point
         return start_point, end_point, samp_num + 1
@@ -186,10 +229,12 @@ class Configure(BaseModel):
     def get_cursor_cycle_sample_range(self, point1: int, cycle_num: float = 1, mode: SampleMode = SampleMode.FORWARD):
         """
         获取游标采样点所在周波获取采样取值范围
-        :param point1:游标位置
-        :param cycle_num:周波数量
-        :param mode:取值模式，仅在按周波取值时生效，默认为1：代表向采样点后方取值，-1：代表向采样点前方取值，0：代表向采样点两边取值
-        :return 返回起始点和终止点
+        参数:
+            point1: 采样起始点，默认为0
+            cycle_num: 采样周波数量，默认为1
+            mode: 取值模式，仅在按周波取值时生效，默认为FORWARD向后取值
+        返回值:
+            返回一个元祖，分别代表开始采样点、结束采样点
         """
         point1_segment = self.get_cursor_in_segment(point1)
         point1_cycle_samp = self.get_cursor_cycle_point(point1)
@@ -222,10 +267,14 @@ class Configure(BaseModel):
 
     def get_zero_point(self):
         """
-        获取零时刻采样值采样点位置。
-        使用零时刻相对时间除以每周波的时间，在乘以零时刻所在采样段每个周波的采样点
-        @return: 零时刻采样点位置
+        获取零时刻采样值采样点位置。使用零时刻相对时间除以每周波的时间，在乘以零时刻所在采样段每个周波的采样点。
+        参数:
+            无
+        返回值:
+            零时刻采样点位置
         """
+        if self.fault_time is None or self.file_start_time is None:
+            return 0
         time_diff = (self.fault_time.time - self.file_start_time.time).total_seconds() * 1000
         fault_point = 0
         for nrate in self.sample.nrates:
@@ -270,7 +319,6 @@ class Configure(BaseModel):
                     raise InvalidIndexException(index, f"[0, {len(channels)})")
                 return channels[index]
             else:
-                # 使用缓存字典优化查找性能
                 channels_dict = {channel.idx_cfg: channel for channel in channels}
                 if index not in channels_dict:
                     raise ChannelNotFoundException(index, "CFGAN")
@@ -312,51 +360,65 @@ class Configure(BaseModel):
             channel.index = index
         return channels
 
+    def _get_selector(self, channels: list, ids: Union[int, list[int]] = None,
+                      idx_type: str = "INDEX", is_values: bool = False):
+        """
+        私有方法：获取通道选择器的公共逻辑。
+
+        参数:
+            channels (list): 通道列表（模拟或开关量）。
+            ids (Union[int, list[int]]): 通道ID列表。
+            idx_type (str): 索引类型，可选值：INDEX、CFGAN，默认值为INDEX。
+            is_values (bool): 是否包含采样值。
+
+        返回值:
+            list: 通道选择器列表。
+        """
+        idx_type = idx_type.upper()
+        idx_type = IdxType.INDEX if idx_type == "INDEX" else IdxType.CFGAN
+        result = []
+        for channel in channels:
+            is_selected = channel.is_selected(ids, idx_type)
+            if is_values:
+                channel_new = copy.copy(channel)
+            else:
+                channel_new = copy.copy(channel) if is_selected else copy.copy(channel).remove_fields("values")
+            result.append(channel_new)
+        return result
+
     def get_analog_selector(self, analog_ids: Union[int, list[int]] = None,
                             idx_type: str = "INDEX",
                             is_values: bool = False):
         """
         获取模拟通道选择器，返回模拟通道对象，不含采样值，选择通道selected为True
+
         参数:
-            analog_ids: 模拟通道ID列表
-            idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
+            analog_ids (Union[int, list[int]]): 模拟通道ID列表。
+            idx_type (str): 索引类型，可选值：INDEX、CFGAN，默认值为INDEX。
+            is_values (bool): 是否包含采样值。
+
         返回值:
-            通道选择器列表
+            list: 通道选择器列表。
         """
-        idx_type = idx_type.upper()
-        idx_type = IdxType.INDEX if idx_type == "INDEX" else IdxType.CFGAN
-        channels = []
-        for analog in self.analogs:
-            is_selected = analog.is_selected(analog_ids, idx_type)
-            if is_values:
-                analog_new = copy.copy(analog)
-            else:
-                analog_new = copy.copy(analog) if is_selected else copy.copy(analog).remove_fields("values")
-            channels.append(analog_new)
-        return channels
+        return self._get_selector(self.analogs, analog_ids, idx_type, is_values)
 
     def get_digital_selector(self, digital_ids: Union[int, list[int]] = None,
                              idx_type: str = "INDEX",
                              is_values: bool = False):
         """
         获取开关量选择器，返回开关量对象，不含采样值，选择通道selected为True
+
         参数:
-            digital_ids: 开关量ID列表
-           idx_type: 索引类型，可选值：INDEX、CFGAN，默认值为INDEX
+            digital_ids (Union[int, list[int]]): 开关量ID列表。
+            idx_type (str): 索引类型，可选值：INDEX、CFGAN，默认值为INDEX。
+            is_values (bool): 是否包含采样值。
+
         返回值:
-            通道选择器列表
+            list: 通道选择器列表。
         """
-        idx_type = idx_type.upper()
-        idx_type = IdxType.INDEX if idx_type == "INDEX" else IdxType.CFGAN
-        channels = []
-        for digital in self.digitals:
-            is_selected = digital.is_selected(digital_ids, idx_type)
-            if is_values:
-                digital_new = copy.copy(digital)
-            else:
-                digital_new = copy.copy(digital) if is_selected else copy.copy(digital).remove_fields("values")
-            digital_new.index = len(channels)
-            channels.append(digital_new)
+        channels = self._get_selector(self.digitals, digital_ids, idx_type, is_values)
+        for index, channel in enumerate(channels):
+            channel.index = index
         return channels
 
     def add_analog(self, analog: Analog, index: int = None):
