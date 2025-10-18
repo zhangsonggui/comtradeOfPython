@@ -57,6 +57,7 @@ def analog_from_dict(_an_dict: dict) -> Analog | None:
     primary = float(_an_dict.get("primary", 1.0))
     secondary = float(_an_dict.get("secondary", 1.0))
     analog = Analog(
+        index=_an_dict.get("index", 0),
         idx_cfg=idx_cfg,
         name=name,
         phase=Phase.from_string(_an_dict.get("phase", ''), default=Phase.NO_PHASE),

@@ -45,6 +45,7 @@ def digital_from_dict(_dn_dict: dict) -> Digital | None:
         return None
 
     digital = Digital(
+        index=_dn_dict.get("index", 0),
         idx_cfg=idx_cfg,
         name=name,
         phase=Phase.from_string(_dn_dict.get("phase", ''), default=Phase.NO_PHASE),

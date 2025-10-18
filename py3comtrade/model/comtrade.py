@@ -25,6 +25,7 @@ from py3comtrade.computation.basic_calc import (
     convert_raw_instant,
 )
 from py3comtrade.model.channel.analog import Analog
+from py3comtrade.model.channel.channel import Channel
 from py3comtrade.model.channel.digital import Digital
 from py3comtrade.model.channel.digital import StatusRecord
 from py3comtrade.model.comtrade_filter import ComtradeFilter
@@ -84,20 +85,20 @@ class Comtrade(Configure, Equipment):
         self.fault_point = self.get_zero_point()
 
     def filter(
-        self,
-        analog_only: bool = False,
-        digital_only: bool = False,
-        analog_index: Union[int, list[int]] = None,
-        digital_index: Union[int, list[int]] = None,
-        analog_cfgan: Union[int, list[int]] = None,
-        digital_cfgan: Union[int, list[int]] = None,
-        is_selected: bool = None,
-        clear_channel_values: bool = None,
-        start_point: int = None,
-        end_point: int = None,
-        segment: int = None,
-        target_value_type: str = None,
-        target_ps: str = None,
+            self,
+            analog_only: bool = False,
+            digital_only: bool = False,
+            analog_index: Union[int, list[int]] = None,
+            digital_index: Union[int, list[int]] = None,
+            analog_cfgan: Union[int, list[int]] = None,
+            digital_cfgan: Union[int, list[int]] = None,
+            is_selected: bool = None,
+            clear_channel_values: bool = None,
+            start_point: int = None,
+            end_point: int = None,
+            segment: int = None,
+            target_value_type: str = None,
+            target_ps: str = None,
     ) -> "Comtrade":
         """
         链式调用筛选方法，根据条件筛选Comtrade对象中的通道
@@ -166,10 +167,53 @@ class Comtrade(Configure, Equipment):
         """
         return ComtradeFilter(self).filter_by_channel_type(channel_type).build()
 
+    def get_channels(
+            self,
+            channel_type: str = None,
+            index: Union[int, str, list[int]] = None,
+            is_selected: bool = None,
+            idx_type: str = "index"
+    ) -> List[Channel]:
+        """
+        多态查询通道，返回Channel对象列表
+        利用Analog和Digital继承自Channel的多态特性
+
+        参数:
+            channel_type: 通道类型，可选值：'analog', 'digital'，None表示全部
+            index: 通道索引筛选，根据index_type决定,可是整数或整数列表
+            is_selected: 是否选中
+            idx_type: 索引类型，可选值：'index','cfgan',默认为'index'
+        返回值:
+            Channel对象列表，包含Analog或Digital子类型
+        """
+        result_channels = []
+
+        # 确定要查询的通道类型
+        channels_to_check = []
+        if channel_type is None or channel_type.lower() == 'analog':
+            channels_to_check.extend(self.analogs)
+        if channel_type is None or channel_type.lower() == 'digital':
+            channels_to_check.extend(self.digitals)
+
+        # 如果index参数不为None，则将其转换为列表
+        if index is not None:
+            ids = index if isinstance(index, list) else [index]
+            # 根据条件筛选通道
+            for channel in channels_to_check:
+                # 检查索引条件
+                if idx_type.lower() == "index":
+                    is_selected = channel.is_selected(ids, IdxType.INDEX)
+                else:
+                    is_selected = channel.is_selected(ids, IdxType.CFGAN)
+                if is_selected:
+                    result_channels.append(channel)
+            return result_channels
+        return channels_to_check
+
     def filter_by_index(
-        self,
-        analog_index: Union[int, list[int]] = None,
-        digital_index: Union[int, list[int]] = None,
+            self,
+            analog_index: Union[int, list[int]] = None,
+            digital_index: Union[int, list[int]] = None,
     ) -> "Comtrade":
         """
         根据通道index索引筛选
@@ -184,9 +228,9 @@ class Comtrade(Configure, Equipment):
         return ComtradeFilter(self).by_index(analog_index, digital_index).build()
 
     def filter_by_cfgan(
-        self,
-        analog_cfgan: Union[int, list[int]] = None,
-        digital_cfgan: Union[int, list[int]] = None,
+            self,
+            analog_cfgan: Union[int, list[int]] = None,
+            digital_cfgan: Union[int, list[int]] = None,
     ) -> "Comtrade":
         """
         根据通道cfgan筛选
@@ -270,16 +314,16 @@ class Comtrade(Configure, Equipment):
         return ComtradeFilter(self).clear_channel_values().build()
 
     def get_channel_data_range(
-        self,
-        channel_idx: Union[int, list[int]] = None,
-        idx_type: str = "INDEX",
-        channel_type: str = "ANALOG",
-        start_point: int = 0,
-        end_point: int = None,
-        cycle_num: float = None,
-        mode: str = "FORWARD",
-        output_value_type: str = "INSTANT",
-        output_primary: bool = False,
+            self,
+            channel_idx: Union[int, list[int]] = None,
+            idx_type: str = "INDEX",
+            channel_type: str = "ANALOG",
+            start_point: int = 0,
+            end_point: int = None,
+            cycle_num: float = None,
+            mode: str = "FORWARD",
+            output_value_type: str = "INSTANT",
+            output_primary: bool = False,
     ) -> Union[Analog, Digital, list[Digital], list[Analog]]:
         """
         根据指定通道标识获取指定采样范围内通道数据
@@ -311,7 +355,7 @@ class Comtrade(Configure, Equipment):
         for channel in chanels:
             # 拷贝对象避免影响原始对象采样数值
             channel_new = copy.copy(channel)
-            vs = channel.values[start_point : end_point + 1]
+            vs = channel.values[start_point: end_point + 1]
 
             # 如果是开关量通道，则直接返回原始采样值
             if channel_type.upper() == "DIGITAL":
@@ -323,8 +367,8 @@ class Comtrade(Configure, Equipment):
                 # 文件数值格式为原始采样值，输出格式为瞬时值
                 # output_value_type = ValueType.INSTANT if output_value_type == "INSTANT" else ValueType.RAW
                 if (
-                    self.sample.value_type == ValueType.RAW
-                    and output_value_type.upper() == "INSTANT"
+                        self.sample.value_type == ValueType.RAW
+                        and output_value_type.upper() == "INSTANT"
                 ):
                     channel_new.values = convert_raw_instant(
                         vs,
@@ -337,8 +381,8 @@ class Comtrade(Configure, Equipment):
                     )
                 # 文件数值格式为瞬时值，输出格式为原始采样值
                 elif (
-                    self.sample.value_type == ValueType.INSTANT
-                    and output_value_type.upper() == "RAW"
+                        self.sample.value_type == ValueType.INSTANT
+                        and output_value_type.upper() == "RAW"
                 ):
                     channel_new.values = convert_raw_instant(
                         vs,
@@ -364,12 +408,12 @@ class Comtrade(Configure, Equipment):
         return cns
 
     def get_channel_raw_data_range(
-        self,
-        channel_idx: Union[int, list[int]] = None,
-        idx_type: IdxType = IdxType.INDEX,
-        channel_type: ChannelType = ChannelType.ANALOG,
-        start_point: int = 0,
-        end_point: int = None,
+            self,
+            channel_idx: Union[int, list[int]] = None,
+            idx_type: IdxType = IdxType.INDEX,
+            channel_type: ChannelType = ChannelType.ANALOG,
+            start_point: int = 0,
+            end_point: int = None,
     ) -> Union[list[Digital], list[Analog]]:
         """
         【不推荐使用】根据指定通道标识获取指定采样范围内通道原始采样值
@@ -400,13 +444,13 @@ class Comtrade(Configure, Equipment):
         )
 
     def get_channel_instant_data_range(
-        self,
-        channel_idx: Union[int, list[int]] = None,
-        idx_type: IdxType = IdxType.INDEX,
-        channel_type: ChannelType = ChannelType.ANALOG,
-        start_point: int = 0,
-        end_point: int = None,
-        output_primary: bool = False,
+            self,
+            channel_idx: Union[int, list[int]] = None,
+            idx_type: IdxType = IdxType.INDEX,
+            channel_type: ChannelType = ChannelType.ANALOG,
+            start_point: int = 0,
+            end_point: int = None,
+            output_primary: bool = False,
     ) -> Union[list[Analog], list[Digital]]:
         """
         【不推荐使用】根据指定通道标识获取指定采样范围内模拟量瞬时采样值
@@ -476,11 +520,11 @@ class Comtrade(Configure, Equipment):
                 self.digital_change.append(digital)
 
     def _update_configure(
-        self,
-        analogs: List[Analog] = None,
-        diagitals: List[Digital] = None,
-        nrates: List[Nrate] = None,
-        data_file_type: str = None,
+            self,
+            analogs: List[Analog] = None,
+            diagitals: List[Digital] = None,
+            nrates: List[Nrate] = None,
+            data_file_type: str = None,
     ):
         """更新配置文件参数
         参数:
@@ -518,7 +562,7 @@ class Comtrade(Configure, Equipment):
             self.sample.calc_sampling()
 
     def save_comtrade(
-        self, file_path: str, data_file_type: str = "BINARY", compress: bool = False
+            self, file_path: str, data_file_type: str = "BINARY", compress: bool = False
     ):
         """
         将comtrade对象保存为文件
@@ -613,8 +657,8 @@ class Comtrade(Configure, Equipment):
                         # 检查是否还有数字量通道需要处理
                         if channel_idx < len(self.digitals):
                             if (
-                                i < digital_values.shape[0]
-                                and channel_idx < digital_values.shape[1]
+                                    i < digital_values.shape[0]
+                                    and channel_idx < digital_values.shape[1]
                             ):
                                 digital_status = int(digital_values[i, channel_idx])
                                 if digital_status != 0:
@@ -646,8 +690,8 @@ class Comtrade(Configure, Equipment):
         return Result(data=comtrade_json)
 
     def to_csv(
-        self,
-        file_path: str,
+            self,
+            file_path: str,
     ):
         """
         将comtrade对象保存为csv文件
@@ -660,48 +704,48 @@ class Comtrade(Configure, Equipment):
         try:
             # 获取模拟量数据（使用INSTANT值类型）
             analog_datas = self.get_channel_data_range(output_value_type="INSTANT")
-            
+
             # 准备数据列
             columns = []
             data_arrays = []
-            
+
             # 添加采样点号列
             columns.append("采样点")
             data_arrays.append(np.array(self.sample_point))
-            
+
             # 添加采样时间列
             columns.append("采样时间")
             data_arrays.append(np.array(self.sample_time))
-            
+
             # 添加模拟量通道数据
             for analog in analog_datas:
                 if analog.values is not None:
                     columns.append(analog.name)
                     data_arrays.append(np.array(analog.values))
-            
+
             # 添加开关量通道数据
             for digital in self.digitals:
                 if digital.values is not None:
                     columns.append(digital.name)
                     data_arrays.append(np.array(digital.values))
-            
+
             # 组合数据
             data = np.column_stack(data_arrays)
-            
+
             # 创建DataFrame并写入CSV文件
             df = pd.DataFrame(data, columns=columns)
             df.to_csv(file_path, index=False, encoding="gbk")
-            
+
             return Result(code=200, msg=f"文件写入成功", data=file_path)
         except Exception as e:
             return Result(code=500, msg=f"{file_path}文件写入失败", data=e)
 
     def to_excel(
-        self,
-        file_path: str,
-        samp_point_num_title: bool = True,
-        sample_time_title: bool = True,
-        chunk_size: int = 10000,  # 分块处理的大小
+            self,
+            file_path: str,
+            samp_point_num_title: bool = True,
+            sample_time_title: bool = True,
+            chunk_size: int = 10000,  # 分块处理的大小
     ):
         """
         将comtrade对象保存为excel文件
@@ -772,7 +816,7 @@ class Comtrade(Configure, Equipment):
                         # 添加模拟量数据
                         for analog in self.analogs:
                             if analog.values is not None and row_idx < len(
-                                analog.values
+                                    analog.values
                             ):
                                 row.append(analog.values[row_idx])
                             else:
@@ -781,7 +825,7 @@ class Comtrade(Configure, Equipment):
                         # 添加开关量数据
                         for digital in self.digitals:
                             if digital.values is not None and row_idx < len(
-                                digital.values
+                                    digital.values
                             ):
                                 row.append(digital.values[row_idx])
                             else:
