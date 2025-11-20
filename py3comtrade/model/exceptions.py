@@ -27,6 +27,36 @@ class ComtradeFileNotFoundException(ComtradeException):
         super().__init__(message or default_message, self.ERROR_CODE, original_error)
 
 
+class ComtradeFileSuffixException(ComtradeException):
+    """文件后缀错误异常"""
+    ERROR_CODE = "FILE_SUFFIX_ERROR"
+
+    def __init__(self, file_path, message=None, original_error=None):
+        self.file_path = file_path
+        default_message = f"文件后缀错误: {file_path}"
+        super().__init__(message or default_message, self.ERROR_CODE, original_error)
+
+
+class ComtradeFileSizeException(ComtradeException):
+    """文件大小错误异常"""
+    ERROR_CODE = "FILE_SIZE_ERROR"
+
+    def __init__(self, file_path, message=None, original_error=None):
+        self.file_path = file_path
+        default_message = f"文件大小错误: {file_path}"
+        super().__init__(message or default_message, self.ERROR_CODE, original_error)
+
+
+class ComtradeFileNumException(ComtradeException):
+    """文件数量错误异常"""
+    ERROR_CODE = "FILE_NUM_ERROR"
+
+    def __init__(self, file_path, message=None, original_error=None):
+        self.file_path = file_path
+        default_message = f"文件数量错误: {file_path}"
+        super().__init__(message or default_message, self.ERROR_CODE, original_error)
+
+
 class ComtradeFileEncodingException(ComtradeException):
     """文件编码错误异常"""
     ERROR_CODE = "FILE_ENCODING_ERROR"
