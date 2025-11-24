@@ -20,7 +20,7 @@ from py3comtrade.model.type.phase_code import Phase
 from py3comtrade.model.type.types import IdxType, ValueType
 
 
-class ChannelIdx(BaseModel):
+class CfgIdx(BaseModel):
     """
     通道索引类
     """
@@ -31,7 +31,7 @@ class ChannelIdx(BaseModel):
         return f"{self.idx_cfg}"
 
 
-class Channel(ChannelIdx):
+class ChannelBase(CfgIdx):
     """
     通道类
     """
@@ -44,11 +44,11 @@ class Channel(ChannelIdx):
     values_type: ValueType = Field(default=ValueType.INSTANT, description="通道数值类型")
 
     @property
-    def self(self) -> 'Channel':
+    def self(self) -> 'ChannelBase':
         """返回类本身实例，支持链式调用"""
         return self
 
-    def remove_fields(self, fields: Union[str, List[str]]) -> 'Channel':
+    def remove_fields(self, fields: Union[str, List[str]]) -> 'ChannelBase':
         """
         移除指定的属性字段
 

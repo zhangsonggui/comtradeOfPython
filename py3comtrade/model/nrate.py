@@ -13,6 +13,8 @@
 
 from pydantic import BaseModel, Field, field_validator
 
+from py3comtrade.model.exceptions import ComtradeDataFormatException
+
 
 class Nrate(BaseModel):
     """
@@ -41,6 +43,13 @@ class Nrate(BaseModel):
         self.samp = 0
         self.end_point = 0
         self.start_point = 0
+
+    @classmethod
+    def from_string(cls, data_str: str) -> 'Nrate':
+        if not data_str or not isinstance(data_str, str):
+            raise ComtradeDataFormatException(f"输入字符串不能为空或不是字符串类型")
+        samp, end_point = data_str.strip().split(",")
+        return cls(samp=int(samp), end_point=int(end_point))
 
     def __str__(self):
         return f"{self.samp},{self.end_point}"

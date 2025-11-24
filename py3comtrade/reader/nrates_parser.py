@@ -10,11 +10,11 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
+from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.config_sample import ConfigSample
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.types import ValueType
-from py3comtrade.reader.channel_num_parser import channel_num_from_dict
 
 
 def create_nrates(freg, nrate_num):
@@ -79,5 +79,5 @@ def sample_from_dict(_sample_dict: dict) -> ConfigSample:
             continue
         sample.nrates.append(nrate)
 
-    sample.channel_num = channel_num_from_dict(_sample_dict.get("channel_num"))
+    sample.channel_num = ChannelNum.from_dict(_sample_dict.get("channel_num"))
     return sample

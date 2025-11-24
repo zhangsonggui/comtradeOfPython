@@ -3,8 +3,7 @@
 import unittest
 
 from py3comtrade.model.type.mode_enum import SampleMode
-from py3comtrade.model.type.types import ChannelType, IdxType
-from py3comtrade.reader.config_reader import config_reader
+from py3comtrade.reader.comtrade_reader import ComtradeFileReader
 from tests import project_root
 
 
@@ -12,7 +11,8 @@ class TestConfigReader(unittest.TestCase):
 
     def setUp(self):
         file_name = f"{project_root}/tests/data/xtz.cfg"
-        self.xtz = config_reader(file_name)
+        cfr = ComtradeFileReader(_file_path=file_name)
+        self.xtz = cfr.read_cfg_file()
 
     def test_get_cursor_in_segment(self):
         segment_index = self.xtz.get_cursor_in_segment(1)

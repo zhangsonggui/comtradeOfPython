@@ -25,7 +25,7 @@ from py3comtrade.computation.basic_calc import (
     convert_raw_instant,
 )
 from py3comtrade.model.channel.analog import Analog
-from py3comtrade.model.channel.channel import Channel
+from py3comtrade.model.channel.channel import ChannelBase
 from py3comtrade.model.channel.digital import Digital
 from py3comtrade.model.channel.digital import StatusRecord
 from py3comtrade.model.comtrade_filter import ComtradeFilter
@@ -36,16 +36,13 @@ from py3comtrade.model.type.analog_enum import PsType
 from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import ChannelType, IdxType, ValueType
-from py3comtrade.utils.comtrade_file_path import (
-    ComtradeFilePath,
-    generate_comtrade_path,
-)
+from py3comtrade.utils.comtrade_file import ComtradeFile
 from py3comtrade.utils.file_tools import zip_files
 from py3comtrade.utils.result import Result
 
 
 class Comtrade(Configure, Equipment):
-    file_path: ComtradeFilePath = Field(default=None, description="录波文件路径")
+    file_path: ComtradeFile = Field(default=None, description="录波文件路径")
     fault_point: int = Field(default=0, description="故障时刻采样点")
     sample_point: List[int] = Field(default_factory=list, description="采样点号")
     sample_time: List[int] = Field(default_factory=list, description="采样时间")
@@ -173,7 +170,7 @@ class Comtrade(Configure, Equipment):
             index: Union[int, str, list[int]] = None,
             is_selected: bool = None,
             idx_type: str = "index"
-    ) -> List[Channel]:
+    ) -> List[ChannelBase]:
         """
         多态查询通道，返回Channel对象列表
         利用Analog和Digital继承自Channel的多态特性
@@ -312,6 +309,9 @@ class Comtrade(Configure, Equipment):
             筛选后的新Comtrade对象
         """
         return ComtradeFilter(self).clear_channel_values().build()
+
+    def get_channel_by_equipment(self):
+        pass
 
     def get_channel_data_range(
             self,
@@ -567,13 +567,14 @@ class Comtrade(Configure, Equipment):
         """
         将comtrade对象保存为文件
         参数:
-            file_path(str) 保存路径,后缀名可选
+            _file_path(str) 保存路径,后缀名可选
             data_file_type(str) 保存格式,默认保存为二进制文件
             compress(bool) 是否压缩为zip文件,默认为False
         返回:
             ComtradeFilePath对象或压缩文件路径
         """
-        cfp = generate_comtrade_path(file_path)
+        cfp = ComtradeFile(file_path=file_path)
+
         # 更换configure参数
         self._update_configure(data_file_type=data_file_type)
         # 写入cfg文件
@@ -673,7 +674,7 @@ class Comtrade(Configure, Equipment):
         将comtrade对象转换为JSON格式
 
         参数：
-            file_path(str): 文件保存路径,当路径为空输出json对象
+            _file_path(str): 文件保存路径,当路径为空输出json对象
         返回值:
             JSON对象
         """
@@ -697,7 +698,7 @@ class Comtrade(Configure, Equipment):
         将comtrade对象保存为csv文件
 
         参数：
-            file_path(str): 文件保存路径
+            _file_path(str): 文件保存路径
         返回值:
             文件路径
         """
@@ -751,7 +752,7 @@ class Comtrade(Configure, Equipment):
         将comtrade对象保存为excel文件
 
         参数：
-            file_path(str): 文件保存路径
+            _file_path(str): 文件保存路径
             samp_point_num_title(bool):是否添加采样点号行,默认添加
             sample_time_title(bool):是否添加采样时间行,默认为添加
             chunk_size(int): 分块处理的大小，默认为10000行

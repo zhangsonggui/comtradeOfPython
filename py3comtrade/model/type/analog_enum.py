@@ -13,7 +13,7 @@
 from py3comtrade.model.type.base_enum import BaseEnum
 
 
-class ElectricalUnit(BaseEnum):
+class Unit(BaseEnum):
     KV = ('kV', '千伏')
     V = ('V', '伏特')
     KA = ('kA', '千安')

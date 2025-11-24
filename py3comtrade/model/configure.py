@@ -18,14 +18,18 @@ from pydantic import BaseModel, Field
 from py3comtrade.model.channel.analog import Analog
 from py3comtrade.model.channel.digital import Digital
 from py3comtrade.model.channel_num import ChannelNum
-from py3comtrade.model.config_header import ConfigHeader
 from py3comtrade.model.config_sample import ConfigSample
-from py3comtrade.model.exceptions import ChannelNotFoundException, InvalidIndexException, InvalidOperationException
+from py3comtrade.model.exceptions import ChannelNotFoundException, ComtradeDataFormatException, \
+    InvalidIndexException, \
+    InvalidOperationException
+from py3comtrade.model.header import Header
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
+from py3comtrade.model.type.data_file_type import DataFileType
 from py3comtrade.model.type.mode_enum import SampleMode
 from py3comtrade.model.type.types import IdxType
+from py3comtrade.utils.log import logger
 
 
 class Configure(BaseModel):
@@ -33,7 +37,7 @@ class Configure(BaseModel):
     配置文件类，用于存储配置文件信息。
 
     属性:
-        header (ConfigHeader): 配置文件头信息。
+        header (Header): 配置文件头信息。
         channel_num (ChannelNum): 通道数量信息。
         analogs (list[Analog]): 模拟通道列表。
         digitals (list[Digital]): 开关量通道列表。
@@ -62,7 +66,7 @@ class Configure(BaseModel):
         add_analog(analog: Analog, index: int): 添加模拟通道。
         add_digital(digital: Digital, index: int): 添加开关量通道。
     """
-    header: ConfigHeader = Field(default=ConfigHeader(), description="配置文件头")
+    header: Header = Field(default=Header(), description="配置文件头")
     channel_num: ChannelNum = Field(default=ChannelNum(), description="通道数量")
     analogs: list[Analog] = Field(default_factory=list, description="模拟通道列表")
     digitals: list[Digital] = Field(default_factory=list, description="开关量通道列表")
@@ -422,6 +426,9 @@ class Configure(BaseModel):
         return channels
 
     def add_analog(self, analog: Analog, index: int = None):
+        if analog is None:
+            logger.error(f"传入通道对象为空")
+            raise f"传入通道对象为空"
         if index is not None:
             self.analogs.insert(index, analog)
         else:
@@ -439,3 +446,52 @@ class Configure(BaseModel):
         else:
             digital.index = len(self.digitals)
             self.digitals.append(digital)
+
+    @classmethod
+    def from_string(cls, data_str: str) -> 'Configure':
+        if not data_str or not isinstance(data_str, str):
+            raise ComtradeDataFormatException(f"输入必须是非空字符串，当前类型: {type(data_str).__name__}")
+        try:
+            # 将字符串分隔为数组
+            cfg_content = data_str.split("\n")
+            _header = Header.from_string(cfg_content[0])
+            _channel_num = ChannelNum.from_string(cfg_content[1])
+            # 循环读取模拟量配置
+            _analogs = []
+            for i in range(2, 2 + _channel_num.analog_num):
+                _analog = Analog.from_string(cfg_content[i])
+                _analog.index = i - 2
+                _analogs.append(_analog)
+            # 循环读取开关量配置
+            _digitals = []
+            for i in range(2 + _channel_num.analog_num, 2 + _channel_num.total_num):
+                _digital = Digital.from_string(cfg_content[i])
+                _digital.index = i - 2 - _channel_num.analog_num
+                _digitals.append(_digital)
+            # 读取采样配置, 采样频率、采样段数、采样段
+            freq = int(cfg_content[2 + _channel_num.total_num])
+            nrate_num = int(cfg_content[3 + _channel_num.total_num])
+            sample = ConfigSample(freg=freq, nrate_num=nrate_num)
+            for i in range(4 + _channel_num.total_num, 4 + _channel_num.total_num + nrate_num):
+                _nrate = Nrate.from_string(cfg_content[i])
+                sample.add_nrate(_nrate)
+            # 读取文件起始时间、故障时间、数据文件类型
+            _file_start_time = PrecisionTime(cfg_content[4 + _channel_num.total_num + nrate_num])
+            _fault_time = PrecisionTime(cfg_content[5 + _channel_num.total_num + nrate_num])
+            sample.data_file_type = DataFileType.from_string(cfg_content[6 + _channel_num.total_num + nrate_num])
+            sample.channel_num = _channel_num
+            sample.calc_sampling()
+            # 读取时间倍率,如果没有则默认1.0
+            if len(cfg_content) >= 7 + _channel_num.total_num + nrate_num:
+                _timemult = cfg_content[7 + _channel_num.total_num + nrate_num]
+            else:
+                _timemult = 1.0
+            return cls(header=_header, channel_num=_channel_num, analogs=_analogs, digitals=_digitals, sample=sample,
+                       file_start_time=_file_start_time, fault_time=_fault_time, timemult=TimeMult(timemult=_timemult))
+        except IndexError as e:
+            error_str = f"配置文件行数不对应，{e}"
+            logger.error(error_str)
+            raise ComtradeDataFormatException(error_str)
+        except Exception as e:
+            logger.error(f"输入字符串格式错误，{e}")
+            raise ComtradeDataFormatException(f"输入字符串格式错误，{e}")

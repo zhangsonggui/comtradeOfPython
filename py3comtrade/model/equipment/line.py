@@ -14,7 +14,7 @@ from typing import List
 
 from pydantic import Field
 
-from py3comtrade.model.channel.channel import ChannelIdx
+from py3comtrade.model.channel.channel import CfgIdx
 from py3comtrade.model.equipment.base_param import BaseParam
 from py3comtrade.model.equipment.branch import ACCBranch
 from py3comtrade.model.equipment.line_param import CG, MR, RX
@@ -33,8 +33,8 @@ class Line(BaseParam):
     cg: CG = Field(default=CG(), description="线路电容")
     mr: MR = Field(default=MR(), description="线路互感")
     acc_bran: List[ACCBranch] = Field(default_factory=list, description="交流电流通道")
-    ana_chn: List[ChannelIdx] = Field(default_factory=list, description="模拟通道索引号")
-    sta_chn: List[ChannelIdx] = Field(default_factory=list, description="开关量通道索引号")
+    ana_chn: List[CfgIdx] = Field(default_factory=list, description="模拟通道索引号")
+    sta_chn: List[CfgIdx] = Field(default_factory=list, description="开关量通道索引号")
 
     def __str__(self):
         xml = f"<scl:Line idx={self.idx} line_name={self.name} bus_ID={self.bus_idx} srcRef={self.reference} " \

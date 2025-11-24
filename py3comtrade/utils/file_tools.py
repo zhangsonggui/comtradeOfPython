@@ -11,6 +11,8 @@ import os
 import zipfile
 from pathlib import Path
 
+from py3comtrade.utils.log import logger
+
 # 定义读取字节数的常量
 READ_BYTES_FOR_ENCODING = 10 * 1024  # 10KB
 
@@ -169,6 +171,20 @@ def extract_files_with_suffixes(zip_file, output=None, suffixes=None):
         for entry in zip_ref.namelist():
             if any(entry.endswith(suffix) for suffix in suffixes):
                 zip_ref.extract(entry, output)
+
+
+def try_decode(file_path: Path):
+    encodings = ('gbk', 'utf-8', 'latin-1', 'ascii')
+    raw = file_path.read_bytes()
+    for enc in encodings:
+        try:
+            raw.decode(enc)
+            return enc
+        except UnicodeDecodeError:
+            continue
+    # 如果没有找到合适的编码，返回None
+    logger.error(f"无法确定文件编码格式: {file_path}")
+    return None
 
 
 if __name__ == '__main__':

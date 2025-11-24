@@ -14,11 +14,11 @@ from typing import Optional, Union
 
 from pydantic import Field
 
-from py3comtrade.model.channel.channel import ChannelIdx
+from py3comtrade.model.channel.channel import CfgIdx
 from py3comtrade.model.type.digital_enum import BreakerFlag, ChannelFlag, Contact, RelayFlag, SignalType, WarningFlag
 
 
-class StatusChannel(ChannelIdx):
+class StatusBase(CfgIdx):
     idx_org: Optional[int] = Field(description="装置端子号")
     type: SignalType = Field(default=SignalType.RELAY, description="通道类型")
     flag: Union[ChannelFlag, RelayFlag, BreakerFlag, WarningFlag] = Field(default=ChannelFlag.GENERAL,

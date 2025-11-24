@@ -5,7 +5,7 @@ from typing import List
 
 import pandas as pd
 
-from py3comtrade.model.type.analog_enum import AnalogFlag, ElectricalUnit
+from py3comtrade.model.type.analog_enum import AnalogFlag, Unit
 from py3comtrade.model.type.phase_code import Phase
 
 # 预编译名称启用规则正则表达式，提升性能
@@ -117,13 +117,13 @@ def match_channel_name(_name_str: str) -> bool:
     return any(re.match(pattern, _name_str) for pattern in _NAME_ENABLE_COMPILED_PATTERNS)
 
 
-def analog_channel_classification(_name_str: str, unit: ElectricalUnit = None) -> AnalogFlag | None:
+def analog_channel_classification(_name_str: str, unit: Unit = None) -> AnalogFlag | None:
     analog_flag = None
     is_voaltage = any(re.match(pattern, _name_str) for pattern in _NAME_VOLTAGE_COMPILED_PATTERNS)
     is_current = any(re.match(pattern, _name_str) for pattern in _NAME_CURRENT_COMPILED_PATTERNS)
-    if unit == ElectricalUnit.V or unit == ElectricalUnit.KV or is_voaltage:
+    if unit == Unit.V or unit == Unit.KV or is_voaltage:
         analog_flag = AnalogFlag.ACV
-    elif unit == ElectricalUnit.A or unit == ElectricalUnit.KA or is_current:
+    elif unit == Unit.A or unit == Unit.KA or is_current:
         analog_flag = AnalogFlag.ACC
 
     if any(re.match(pattern, _name_str) for pattern in _HF_COMPILED_PATTERN) and is_voaltage:

@@ -14,7 +14,7 @@ from typing import List
 
 from pydantic import Field
 
-from py3comtrade.model.channel.channel import ChannelIdx
+from py3comtrade.model.channel.channel import CfgIdx
 from py3comtrade.model.equipment.base_param import BaseParam
 from py3comtrade.model.equipment.branch import ACVBranch
 from py3comtrade.model.type.analog_enum import TvInstallation
@@ -29,8 +29,8 @@ class Bus(BaseParam):
     v_rtg_snd_pos: TvInstallation = Field(default=TvInstallation.BUS, description="TV安装位置")
     bus_uuid: str = Field(default="", description="母线标识")
     acv_chn: ACVBranch = Field(default=ACVBranch(), description="交流电压通道")
-    analog_chn: List[ChannelIdx] = Field(default_factory=list, description="模拟量通道")
-    digital_chn: List[ChannelIdx] = Field(default_factory=list, description="开关量通道")
+    analog_chn: List[CfgIdx] = Field(default_factory=list, description="模拟量通道")
+    digital_chn: List[CfgIdx] = Field(default_factory=list, description="开关量通道")
 
     def __str__(self):
         xml = f"<scl:Bus idx={self.idx} bus_name={self.name} srcRef={self.reference} VRtg={self.v_rtg} VRtgSnd={self.v_rtg_snd} VRtgSnd_Pos={self.v_rtg_snd_pos.get_code()} bus_uuid="">"

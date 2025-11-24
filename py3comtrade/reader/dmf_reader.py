@@ -13,8 +13,8 @@
 import os
 import xml.etree.ElementTree as ET
 
-from py3comtrade.model.channel.analog_channel import AnalogChannel, ChannelIdx
-from py3comtrade.model.channel.status_channel import StatusChannel
+from py3comtrade.model.channel.analog_channel import AnalogBase, CfgIdx
+from py3comtrade.model.channel.status_channel import StatusBase
 from py3comtrade.model.dmf import DMF
 from py3comtrade.model.equipment.branch import ACCBranch, ACVBranch
 from py3comtrade.model.equipment.bus import Bus
@@ -28,7 +28,7 @@ from py3comtrade.model.type.analog_enum import (BranNum, CtDirection, Multiplier
 from py3comtrade.model.type.digital_enum import BreakerFlag, ChannelFlag, Contact, RelayFlag, SignalType, WarningFlag
 
 
-def analog_channel_parser(channel_xml) -> AnalogChannel:
+def analog_channel_parser(channel_xml) -> AnalogBase:
     """
     解析模拟量通道
     :param channel_xml: 模拟量通道字符串
@@ -51,26 +51,26 @@ def analog_channel_parser(channel_xml) -> AnalogChannel:
     p_max = channel_xml.get('p_max', None)
     s_min = channel_xml.get('s_min', None)
     s_max = channel_xml.get('s_max', None)
-    return AnalogChannel(idx_cfg=idx_cfg,
-                         idx_org=idx_org,
-                         type=type,
-                         flag=flag,
-                         freq=freq,
-                         au=au,
-                         bu=bu,
-                         s_i_unit=sIUnit,
-                         multiplier=Multiplier.from_string(multiplier, default=Multiplier.N),
-                         primary=primary,
-                         secondary=secondary,
-                         ps=PsType.from_string(ps, default=PsType.S),
-                         phase=ph,
-                         p_max=p_max,
-                         p_min=p_min,
-                         s_max=s_max,
-                         s_min=s_min)
+    return AnalogBase(idx_cfg=idx_cfg,
+                      idx_org=idx_org,
+                      type=type,
+                      flag=flag,
+                      freq=freq,
+                      au=au,
+                      bu=bu,
+                      s_i_unit=sIUnit,
+                      multiplier=Multiplier.from_string(multiplier, default=Multiplier.N),
+                      primary=primary,
+                      secondary=secondary,
+                      ps=PsType.from_string(ps, default=PsType.S),
+                      phase=ph,
+                      p_max=p_max,
+                      p_min=p_min,
+                      s_max=s_max,
+                      s_min=s_min)
 
 
-def status_channel_parser(channel_xml) -> StatusChannel:
+def status_channel_parser(channel_xml) -> StatusBase:
     """解析开关量通道"""
     idx_cfg = channel_xml.get('idx_cfg', None)
     idx_org = channel_xml.get('idx_org', "")
@@ -88,8 +88,8 @@ def status_channel_parser(channel_xml) -> StatusChannel:
     contact = channel_xml.get('contact', None)
     srcRef = channel_xml.get('srcRef', "")
 
-    return StatusChannel(idx_cfg=idx_cfg, idx_org=idx_org, type=signal_type, flag=flag, reference=srcRef,
-                         contact=Contact.from_string(contact, default=Contact.NORMALLY_OPEN))
+    return StatusBase(idx_cfg=idx_cfg, idx_org=idx_org, type=signal_type, flag=flag, reference=srcRef,
+                      contact=Contact.from_string(contact, default=Contact.NORMALLY_OPEN))
 
 
 def acv_branch_parser(branch_xml) -> ACVBranch:
@@ -120,9 +120,9 @@ def bus_parser(bus_xml, ns) -> Bus:
               v_rtg_snd_pos=v_rtg_snd_pos, bus_uuid=bus_uuid)
     bus.acv_chn = acv_branch_parser(bus_xml.find('scl:ACVChn', ns))
     for chn in bus_xml.findall('scl:AnaChn', ns):
-        bus.analog_chn.append(ChannelIdx(idx_cfg=chn.get('idx_cfg', "")))
+        bus.analog_chn.append(CfgIdx(idx_cfg=chn.get('idx_cfg', "")))
     for chn in bus_xml.findall('scl:StaChn', ns):
-        bus.digital_chn.append(ChannelIdx(idx_cfg=chn.get('idx_cfg', "")))
+        bus.digital_chn.append(CfgIdx(idx_cfg=chn.get('idx_cfg', "")))
     return bus
 
 
@@ -162,9 +162,9 @@ def line_parser(line_xml, ns) -> Line:
     for acc in line_xml.findall('scl:ACC_Bran', ns):
         line.acc_bran.append(acc_branch_parser(acc))
     for chn in line_xml.findall('scl:AnaChn', ns):
-        line.ana_chn.append(ChannelIdx(idx_cfg=chn.get('idx_cfg', "")))
+        line.ana_chn.append(CfgIdx(idx_cfg=chn.get('idx_cfg', "")))
     for chn in line_xml.findall('scl:StaChn', ns):
-        line.sta_chn.append(ChannelIdx(idx_cfg=chn.get('idx_cfg', "")))
+        line.sta_chn.append(CfgIdx(idx_cfg=chn.get('idx_cfg', "")))
     return line
 
 
@@ -215,10 +215,10 @@ def dmf_parser(_file_path: str) -> DMF:
             _dmf.reference = root.get('reference', 0)
             _dmf.rec_dev_name = root.get('rec_dev_name', "录波器")
 
-            for channel in root.findall('scl:AnalogChannel', ns):
+            for channel in root.findall('scl:AnalogBase', ns):
                 _dmf.analog_channels.append(analog_channel_parser(channel))
 
-            for channel in root.findall('scl:StatusChannel', ns):
+            for channel in root.findall('scl:StatusBase', ns):
                 _dmf.status_channels.append(status_channel_parser(channel))
 
             for bus in root.findall('scl:Bus', ns):

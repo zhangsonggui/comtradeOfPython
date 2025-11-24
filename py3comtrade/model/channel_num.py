@@ -13,6 +13,8 @@
 from pydantic import BaseModel, Field, model_validator
 from typing_extensions import Self
 
+from py3comtrade.model.exceptions import ComtradeDataFormatException
+
 
 class ChannelNum(BaseModel):
     """
@@ -41,6 +43,36 @@ class ChannelNum(BaseModel):
 
     def validate_num(self, cfg_line_num: int) -> Self:
         pass
+
+    @staticmethod
+    def str_to_int(string: str) -> int:
+        digits = "".join([char for char in string if char.isdigit()])
+        return int(digits) if digits else 0
+
+    @classmethod
+    def from_string(cls, data_str: str) -> 'ChannelNum':
+        if not data_str or not isinstance(data_str, str):
+            raise ComtradeDataFormatException(f"输入字符串不能为空或不是字符串类型")
+        total_num, analog_num, digital_num = data_str.strip().split(",")
+        total_num = int(total_num)
+        analog_num = cls.str_to_int(analog_num)
+        digital_num = cls.str_to_int(digital_num)
+        if total_num != analog_num + digital_num:
+            raise ComtradeDataFormatException(
+                F"通道数量校验错误,通道总数{total_num}不等于模拟量数量:{analog_num},开关量数量:{digital_num}之和")
+        return cls(total_num=total_num, analog_num=int(analog_num), digital_num=int(digital_num))
+
+    @classmethod
+    def from_dict(cls, data_dict: dict) -> 'ChannelNum':
+        if not data_dict or not isinstance(data_dict, dict):
+            raise ComtradeDataFormatException(f"输入字典不能为空或不是字典类型")
+        total_num = data_dict.get("total_num", 0)
+        analog_num = data_dict.get("analog_num", 0)
+        digital_num = data_dict.get("digital_num", 0)
+        if total_num != analog_num + digital_num:
+            raise ComtradeDataFormatException(
+                F"通道数量校验错误,通道总数{total_num}不等于模拟量数量:{analog_num},开关量数量:{digital_num}之和")
+        return cls(total_num=total_num, analog_num=analog_num, digital_num=digital_num)
 
     def __str__(self):
         return f"{self.total_num},{self.analog_num}A,{self.digital_num}D"

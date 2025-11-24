@@ -10,7 +10,7 @@
 #  KIND, EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
 #  NON-INFRINGEMENT, MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
 #  See the Mulan PSL v2 for more details.
-from typing import List, Optional
+from typing import List
 
 from pydantic import BaseModel, Field
 
@@ -19,67 +19,34 @@ from py3comtrade.model.equipment.line import Line
 from py3comtrade.model.equipment.transformer import Transformer
 
 
+def create_finder(element_attr: str, return_tuple: bool = True):
+    """
+    创建查找器的工厂函数
+    :param element_attr: 元素属性名 ('buses', 'lines', 'transformers')
+    :param return_tuple: 是否返回(index, element)元组，False则只返回索引
+    """
+
+    def finder(self, name: str):
+        elements = getattr(self, element_attr)
+        for index, element in enumerate(elements):
+            if hasattr(element, 'name') and element.name == name:
+                return (index, element) if return_tuple else index
+        return None if return_tuple else -1
+
+    return finder
+
+
 class Equipment(BaseModel):
     buses: List[Bus] = Field(default_factory=list, description="母线")
     lines: List[Line] = Field(default_factory=list, description="线路")
     transformers: List[Transformer] = Field(default_factory=list, description="变压器")
 
-    def is_bus_exist(self, bus_name: str) -> bool:
-        """
-        判断母线是否存在
-        :param bus_name:母线标识
-        :return: 存在返回True，不存在返回False
-        """
-        return any(bus.name == bus_name for bus in self.buses)
+    # 查找并返回索引
+    get_bus_index = create_finder('buses', return_tuple=False)
+    get_line_index = create_finder('lines', return_tuple=False)
+    get_transformer_index = create_finder('transformers', return_tuple=False)
 
-    def is_line_exist(self, line_name: str) -> bool:
-        """
-        判断线路是否存在
-        :param line_name:线路标识
-        :return: 存在返回True，不存在返回False
-        """
-        return any(line.name == line_name for line in self.lines)
-
-    def is_transformer_exist(self, transformer_name: str) -> bool:
-        """
-        判断变压器是否存在
-        :param transformer_name:变压器标识
-        :return: 存在返回True，不存在返回False
-        """
-        return any(transformer.name == transformer_name for transformer in self.transformers)
-
-    def find_bus_by_name(self, bus_name: str) -> Optional[tuple[int, Bus]]:
-        """
-        根据母线名称查找母线
-        :param bus_name:母线标识
-        :return: 存在返回母线，不存在返回None
-        """
-        for index, bus in enumerate(self.buses):
-            if bus.name == bus_name:
-                return index, bus
-        return None
-
-    def find_line_by_name(self, line_name: str) -> Optional[tuple[int, Line]]:
-        """
-        根据线路名称查找线路
-        :param line_name:线路标识
-        :return: 存在返回线路，不存在返回None
-        """
-        for index, line in enumerate(self.lines):
-            if line.name == line_name:
-                return index, line
-        return None
-
-    def find_transformer_by_name(self, transformer_name: str) -> Optional[tuple[int, Transformer]]:
-        """
-        根据变压器名称查找变压器
-        :param transformer_name:变压器标识
-        :return: 存在返回变压器，不存在返回None
-        """
-        for index, transformer in enumerate(self.transformers):
-            if transformer.name == transformer_name:
-                return index, transformer
-        return None
-
-    def bus_edit(self, bus_name: str, **kwargs) -> None:
-        idx = kwargs.get('idx', 1)
+    # 查找并返回(index, element)元组
+    find_bus_by_name = create_finder('buses', return_tuple=True)
+    find_line_by_name = create_finder('lines', return_tuple=True)
+    find_transformer_by_name = create_finder('transformers', return_tuple=True)

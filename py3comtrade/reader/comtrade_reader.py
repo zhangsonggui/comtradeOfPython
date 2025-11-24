@@ -12,27 +12,28 @@
 #  See the Mulan PSL v2 for more details.
 
 import numpy as np
+from pydantic import BaseModel, Field
 
+from py3comtrade.model.channel.analog import Analog
+from py3comtrade.model.channel.digital import Digital
+from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.comtrade import Comtrade
+from py3comtrade.model.configure import Configure
 from py3comtrade.model.exceptions import (
     ComtradeFileEncodingException,
-    ComtradeFileNotFoundException,
+    ComtradeFileNotFoundException, ComtradeFileNumException, ComtradeFileSizeException, ComtradeFileSuffixException,
+    ComtradeParamException,
 )
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
 from py3comtrade.model.type.types import ValueType
-from py3comtrade.reader.analog_parser import analog_from_dict
-from py3comtrade.reader.channel_num_parser import channel_num_from_dict
-from py3comtrade.reader.config_reader import config_reader
 from py3comtrade.reader.data_reader import data_reader
-from py3comtrade.reader.digital_parser import digital_from_dict
 from py3comtrade.reader.dmf_reader import dmf_parser
 from py3comtrade.reader.header_parser import header_from_dict
 from py3comtrade.reader.nrates_parser import sample_from_dict
-from py3comtrade.utils.comtrade_file_path import (
-    generate_comtrade_path,
-    get_comtrade_path,
-)
+from py3comtrade.utils.comtrade_file import ComtradeFile
+from py3comtrade.utils.file_tools import try_decode
+from py3comtrade.utils.log import logger
 
 
 def comtrade_reader(_file_path: str, read_mode: str = "full") -> Comtrade:
@@ -45,15 +46,11 @@ def comtrade_reader(_file_path: str, read_mode: str = "full") -> Comtrade:
     返回:
         Comtrade对象
     """
-    files = get_comtrade_path(_file_path)
-    if not files:
-        raise ComtradeFileNotFoundException(_file_path, "文件不存在")
-    try:
-        cfg = config_reader(files.cfg_path)
-    except ComtradeFileEncodingException:
-        raise ComtradeFileEncodingException(f"文件格式错误:{_file_path}")
+    cfr = ComtradeFileReader(_file_path=_file_path)
+    cfg = cfr.read_cfg_file()
+
     _comtrade: Comtrade = Comtrade(
-        file_path=files,
+        file_path=cfr.comtrade_file,
         header=cfg.header,
         channel_num=cfg.channel_num,
         analogs=cfg.analogs,
@@ -65,7 +62,7 @@ def comtrade_reader(_file_path: str, read_mode: str = "full") -> Comtrade:
     )
     if read_mode.lower() in ["dat", "full"]:
         try:
-            dat = data_reader(str(files.dat_path), cfg.sample)
+            dat = data_reader(str(cfr.comtrade_file.dat_path), cfg.sample)
             _comtrade.sample_point = dat.sample_time[:, 0].tolist()
             _comtrade.sample_time = dat.sample_time[:, 1].tolist()
             for analog in _comtrade.analogs:
@@ -79,7 +76,7 @@ def comtrade_reader(_file_path: str, read_mode: str = "full") -> Comtrade:
         _comtrade.analyze_digital_change_status()
     if read_mode.lower() in ["dmf", "full"]:
         try:
-            _dmf = dmf_parser(str(files.dmf_path))
+            _dmf = dmf_parser(str(cfr.comtrade_file.dmf_path))
             _comtrade.buses = _dmf.buses
             _comtrade.lines = _dmf.lines
             _comtrade.transformers = _dmf.transformers
@@ -90,19 +87,19 @@ def comtrade_reader(_file_path: str, read_mode: str = "full") -> Comtrade:
 
 
 def comtrade_from_dict(comtrade_dict: dict) -> Comtrade:
-    _file_path = generate_comtrade_path(
-        comtrade_dict.get("file_path", {}).get("cfg_path")
+    _file_path = ComtradeFile(
+        file_path=comtrade_dict.get("_file_path", {}).get("cfg_path")
     )
     header = header_from_dict(comtrade_dict.get("header"))
-    channel_num = channel_num_from_dict(comtrade_dict.get("channel_num"))
+    channel_num = ChannelNum.from_dict(comtrade_dict.get("channel_num"))
     analogs_dict = comtrade_dict.get("analogs")
     analogs = []
     for analog_dict in analogs_dict:
-        analogs.append(analog_from_dict(analog_dict))
+        analogs.append(Analog.from_dict(analog_dict))
     digitals_dict = comtrade_dict.get("digitals")
     digitals = []
     for digital_dict in digitals_dict:
-        digitals.append(digital_from_dict(digital_dict))
+        digitals.append(Digital.from_dict(digital_dict))
     sample = sample_from_dict(comtrade_dict.get("sample"))
     fault_point = comtrade_dict.get("fault_point", 0)
     # 安全获取嵌套字典的值
@@ -126,6 +123,46 @@ def comtrade_from_dict(comtrade_dict: dict) -> Comtrade:
     )
     _comtrade.analyze_digital_change_status()
     return _comtrade
+
+
+class ComtradeFileReader(BaseModel):
+    comtrade_file: ComtradeFile = Field(default=None, description="comtrade文件组")
+
+    def __init__(self, _file_path: str, **data):
+        super().__init__(**data)
+        self.get_comtrade_file(_file_path)
+
+    def get_comtrade_file(self, _file_path: str):
+        if not _file_path:
+            message = f"{_file_path}不能为空"
+            logger.error(message)
+            return ComtradeParamException(param_name="_file_path", message=message)
+        try:
+            # 将Path对象转换为字符串传递给ComtradeFile
+            self.comtrade_file = ComtradeFile(file_path=str(_file_path))
+        except ComtradeFileNotFoundException as e:
+            return e.message
+        except ComtradeFileNumException as e:
+            return e.message
+        except ComtradeFileSizeException as e:
+            return e.message
+        except ComtradeFileSuffixException as e:
+            return e.message
+        except Exception as e:
+            raise e
+
+    def read_cfg_file(self) -> Configure | None:
+        if not self.comtrade_file or not self.comtrade_file.cfg_path:
+            return None
+        cfg_path = self.comtrade_file.cfg_path
+        enc = try_decode(cfg_path)
+        if not enc:
+            return None
+        with open(cfg_path, encoding=enc) as cfg:
+            return Configure.from_string(cfg.read())
+
+    def read_data_file(self) -> Comtrade | None:
+        pass
 
 
 if __name__ == "__main__":

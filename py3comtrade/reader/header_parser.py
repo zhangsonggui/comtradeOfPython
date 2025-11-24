@@ -12,12 +12,12 @@
 #  See the Mulan PSL v2 for more details.
 import re
 
-from py3comtrade.model.config_header import ConfigHeader
+from py3comtrade.model.header import Header
 
 YEAR_RE = r'\b([2-9]\d{3,}|199[1-9]|19[0-9]{3,}|[2-9][0-9]{4,})\b'
 
 
-def header_from_str(_header_str: str) -> ConfigHeader:
+def header_from_str(_header_str: str) -> Header:
     """解析配置头信息"""
     if not _header_str:
         raise ValueError("配置头信息为空")
@@ -33,7 +33,7 @@ def header_from_str(_header_str: str) -> ConfigHeader:
         p3 = re.search(YEAR_RE, parts[2])
         version = 1991 if p3 is None else p3.string
 
-    return ConfigHeader(station_name=station_name, recorder_name=recorder_name, version=version)
+    return Header(station_name=station_name, recorder_name=recorder_name, version=version)
 
 
 def header_from_dict(_header_dict: dict):
@@ -41,4 +41,4 @@ def header_from_dict(_header_dict: dict):
     station_name = _header_dict.get("station_name", "变电站")
     recorder_name = _header_dict.get("recorder_name", "录波设备")
     version = _header_dict.get("version", 1991)
-    return ConfigHeader(station_name=station_name, recorder_name=recorder_name, version=version)
+    return Header(station_name=station_name, recorder_name=recorder_name, version=version)

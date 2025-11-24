@@ -17,6 +17,16 @@ class ComtradeException(Exception):
         return self.message
 
 
+class ComtradeParamException(ComtradeException):
+    """参数错误异常"""
+    ERROR_CODE = "PARAM_ERROR"
+
+    def __init__(self, param_name: str = None, message=None, original_error=None):
+        self.param_name = param_name
+        default_message = f"参数错误: {param_name}"
+        super().__init__(message or default_message, self.ERROR_CODE, original_error)
+
+
 class ComtradeFileNotFoundException(ComtradeException):
     """文件不存在异常"""
     ERROR_CODE = "FILE_NOT_FOUND"
@@ -54,6 +64,16 @@ class ComtradeFileNumException(ComtradeException):
     def __init__(self, file_path, message=None, original_error=None):
         self.file_path = file_path
         default_message = f"文件数量错误: {file_path}"
+        super().__init__(message or default_message, self.ERROR_CODE, original_error)
+
+
+class ComtradeFileReadException(ComtradeException):
+    """文件读取失败异常"""
+    ERROR_CODE = "FILE_READ_ERROR"
+
+    def __init__(self, file_path, message=None, original_error=None):
+        self.file_path = file_path
+        default_message = f"文件读取失败: {file_path}"
         super().__init__(message or default_message, self.ERROR_CODE, original_error)
 
 

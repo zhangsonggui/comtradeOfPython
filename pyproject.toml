@@ -1,15 +1,17 @@
 [project]
 name = "py3comtrade"
-version = "4.2.1"
+version = "4.2.2"
 description = "解析comtrade中的cfg、dat、dmf等文件，提供配置文件中通道数量，的解析、数值计算和文件合并功能。"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
     "chardet>=5.2.0",
+    "loguru>=0.7.3",
     "numpy>=2.0.0",
     "openpyxl>=3.1.5",
     "pandas==2.3.3",
     "pydantic>=2.11.10",
+    "pydantic-settings>=2.12.0",
     "pylint>=3.3.8",
     "xmltodict>=1.0.2",
 ]

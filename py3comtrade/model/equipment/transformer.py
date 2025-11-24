@@ -14,7 +14,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from py3comtrade.model.channel.channel import ChannelIdx
+from py3comtrade.model.channel.channel import CfgIdx
 from py3comtrade.model.equipment.base_param import BaseParam
 from py3comtrade.model.equipment.branch import ACCBranch, ACVBranch
 from py3comtrade.model.type.analog_enum import TransWindLocation, WGFlag
@@ -58,8 +58,8 @@ class TransformerWinding(BaseModel):
 class Transformer(BaseParam):
     pwr_rtg: float = Field(default=0.0, description="变压器额定功率")
     transWinds: List[TransformerWinding] = Field(default_factory=list, description="变压器绕组")
-    ana_chn: List[ChannelIdx] = Field(default_factory=list, description="模拟通道索引号")
-    sta_chn: List[ChannelIdx] = Field(default_factory=list, description="开关量通道索引号")
+    ana_chn: List[CfgIdx] = Field(default_factory=list, description="模拟通道索引号")
+    sta_chn: List[CfgIdx] = Field(default_factory=list, description="开关量通道索引号")
     transformer_uuid: str = Field(default="", description="变压器标识")
 
     def __str__(self):

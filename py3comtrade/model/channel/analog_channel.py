@@ -14,11 +14,11 @@ from typing import Optional
 
 from pydantic import Field
 
-from py3comtrade.model.channel.channel import ChannelIdx
-from py3comtrade.model.type.analog_enum import AnalogFlag, AnalogType, ElectricalUnit, Multiplier, PsType
+from py3comtrade.model.channel.channel import CfgIdx
+from py3comtrade.model.type.analog_enum import AnalogFlag, AnalogType, Multiplier, PsType, Unit
 
 
-class AnalogChannel(ChannelIdx):
+class AnalogBase(CfgIdx):
     idx_org: Optional[int] = Field(description="装置端子号")
     type: AnalogType = Field(default=AnalogType.AC, description="通道类型")
     flag: AnalogFlag = Field(default=AnalogFlag.ACV, description="通道标志")
@@ -29,7 +29,7 @@ class AnalogChannel(ChannelIdx):
     freq: float = Field(default=50.0, description="通道频率")
     au: float = Field(default=1.0, description="直流通道实际物理值的斜率")
     bu: float = Field(default=0.0, description="直流通道实际物理值的截距")
-    s_i_unit: ElectricalUnit = Field(default=ElectricalUnit.NONE, description="基本单位")
+    s_i_unit: Unit = Field(default=Unit.NONE, description="基本单位")
     multiplier: Multiplier = Field(default=Multiplier.N, description="单位量级")
     primary: float = Field(default=1.0, description="一次系数")
     secondary: float = Field(default=1.0, description="二次系数")

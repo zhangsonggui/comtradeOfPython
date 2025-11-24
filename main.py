@@ -2,13 +2,19 @@
 # -*- coding: utf-8 -*-
 import time
 
-from py3comtrade.computation.calcium import Calcium
 from py3comtrade.reader.comtrade_reader import comtrade_reader
 
 if __name__ == "__main__":
-    file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\xtz.cfg'
+    file_path = r'D:\codeArea\gitee\comtradeOfPython\tests\data\hjz.cfg'
+
+    cfr = comtrade_reader(file_path)
+    cfg = cfr.read_cfg_file()
+
+    # _file_path = r"C:\Users\sddl\Desktop\故障\蠡太变-220kV故障录波器B-2025年09月17日16时07分37秒861毫秒\3_3147_3380_20250917160737861_comtrade.cfg"
     start_time = time.time()
     cr = comtrade_reader(file_path)
+    # channels = cr.get_channels(channel_type="analog", index=[1, 2, 3, 4], idx_type="cfgan")
+    channels = cr.get_channel_data_range(channel_idx=[1, 2, 3, 4], idx_type="cfgan", channel_type="analog")
     # for analog in cr.analogs:
     #     if analog.is_enable():
     #         print(f"{analog.name}:\t是否启用:{analog.is_enable()},是否电流:{analog.channel_flag()}")
@@ -18,9 +24,12 @@ if __name__ == "__main__":
     end_time = time.time()
     zrt = cr.get_zero_point()
     print(f"文件解析耗时{(end_time - start_time) * 1000}毫秒")
-    wave = cr.save_comtrade("test.cfg",compress=True)
-    # cr.save_json("test.json")
-    # cr.save_comtrade("test.cfg", data_file_type=DataFileType.BINARY)
+    # wave = cr.save_comtrade("test.cfg",compress=True)
+    cr.to_csv("text.csv")
+    # cr.to_excel(r"D:\codeArea\gitee\comtradeOfPython\test.xlsx")
+    # cr.to_json("test.json")
+    # cr.save_comtrade(r"D:\codeArea\gitee\comtradeOfPython\test.cfg", data_file_type="BINARY", compress=True)
+    # cr.save_comtrade(r"D:\codeArea\gitee\comtradeOfPython\test.cfg", data_file_type="ascii", compress=False)
     # raw_all = cr.get_channel_raw_data_range()
     # digital_change = cr.get_digital_change()
     # start_point, end_point, _ = cr.get_cursor_sample_range(0, cycle_num=1)

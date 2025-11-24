@@ -14,8 +14,8 @@ from typing import List, Optional
 
 from pydantic import Field
 
-from py3comtrade.model.channel.analog_channel import AnalogChannel
-from py3comtrade.model.channel.status_channel import StatusChannel
+from py3comtrade.model.channel.analog_channel import AnalogBase
+from py3comtrade.model.channel.status_channel import StatusBase
 from py3comtrade.model.equipment.equipment import Equipment
 
 
@@ -25,5 +25,5 @@ class DMF(Equipment):
     reference: str = Field(default="0", description="参引类型")
     rec_dev_name: str = Field(default="录波装置", description="装置名称")
     rec_ref: Optional[str] = Field(default="", description="装置RDRE参引")
-    analog_channels: List[AnalogChannel] = Field(default_factory=list, description="模拟通道")
-    status_channels: List[StatusChannel] = Field(default_factory=list, description="开关量通道")
+    analog_channels: List[AnalogBase] = Field(default_factory=list, description="模拟通道")
+    status_channels: List[StatusBase] = Field(default_factory=list, description="开关量通道")
