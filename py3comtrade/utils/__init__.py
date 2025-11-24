@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-from .data_parsers import parse_float, safe_float_convert
+from .numeric_conversion import parse_float, safe_float_convert
 from .settings import settings as settings
 
 __all__ = [
