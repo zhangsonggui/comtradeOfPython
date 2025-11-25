@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+from py3comtrade.reader.comtrade_reader import ComtradeFileReader, comtrade_from_dict, comtrade_reader
 
-name = "py3comtrade"
-__version__ = "4.1.6"
+__all__ = [
+    "comtrade_reader",
+    "comtrade_from_dict",
+    "ComtradeFileReader"
+]

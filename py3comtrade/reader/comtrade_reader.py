@@ -18,19 +18,19 @@ from py3comtrade.model.channel.analog import Analog
 from py3comtrade.model.channel.digital import Digital
 from py3comtrade.model.channel_num import ChannelNum
 from py3comtrade.model.comtrade import Comtrade
+from py3comtrade.model.config_sample import ConfigSample
 from py3comtrade.model.configure import Configure
 from py3comtrade.model.exceptions import (
     ComtradeFileEncodingException,
     ComtradeFileNotFoundException, ComtradeFileNumException, ComtradeFileSizeException, ComtradeFileSuffixException,
     ComtradeParamException,
 )
+from py3comtrade.model.header import Header
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
 from py3comtrade.model.type.types import ValueType
 from py3comtrade.reader.data_reader import data_reader
 from py3comtrade.reader.dmf_reader import dmf_parser
-from py3comtrade.reader.header_parser import header_from_dict
-from py3comtrade.reader.nrates_parser import sample_from_dict
 from py3comtrade.utils.comtrade_file import ComtradeFile
 from py3comtrade.utils.file_tools import try_decode
 from py3comtrade.utils.log import logger
@@ -90,7 +90,7 @@ def comtrade_from_dict(comtrade_dict: dict) -> Comtrade:
     _file_path = ComtradeFile(
         file_path=comtrade_dict.get("_file_path", {}).get("cfg_path")
     )
-    header = header_from_dict(comtrade_dict.get("header"))
+    header = Header.from_dict(comtrade_dict.get("header"))
     channel_num = ChannelNum.from_dict(comtrade_dict.get("channel_num"))
     analogs_dict = comtrade_dict.get("analogs")
     analogs = []
@@ -100,7 +100,7 @@ def comtrade_from_dict(comtrade_dict: dict) -> Comtrade:
     digitals = []
     for digital_dict in digitals_dict:
         digitals.append(Digital.from_dict(digital_dict))
-    sample = sample_from_dict(comtrade_dict.get("sample"))
+    sample = ConfigSample.from_dict(comtrade_dict.get("sample"))
     fault_point = comtrade_dict.get("fault_point", 0)
     # 安全获取嵌套字典的值
     file_start_time_dict = comtrade_dict.get("file_start_time", {})

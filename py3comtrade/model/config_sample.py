@@ -122,6 +122,39 @@ class ConfigSample(BaseModel):
         else:
             self.nrates.insert(index, value)
 
+    @classmethod
+    def from_dict(cls, data_dict: dict):
+        if not data_dict or not isinstance(data_dict, dict):
+            raise TypeError(f"期望字典类型输入，实际得到: {type(data_dict).__name__}")
+        freq = data_dict.get("freq", 50.0)
+        nrate_num = data_dict.get("nrate_num", 0)
+        count = data_dict.get("count", 0)
+        data_file_type = DataFileType.from_string(data_dict.get("data_file_type", "BINARY"),
+                                                  default=DataFileType.BINARY)
+        value_type = ValueType.from_string(data_dict.get("value_type", "INSTANT"), default=ValueType.INSTANT)
+        analog_word = data_dict.get("analog_word", 2)
+        digital_word = data_dict.get("digital_word", 2)
+        analog_sampe_word = data_dict.get("analog_sampe_word", 2)
+        digital_sampe_word = data_dict.get("digital_sampe_word", 2)
+        total_sampe_word = data_dict.get("total_sampe_word", 2)
+        sample = cls(
+            freg=freq,
+            nrate_num=nrate_num,
+            count=count,
+            data_file_type=data_file_type,
+            value_type=value_type,
+            analog_word=analog_word,
+            digital_word=digital_word,
+            analog_sampe_word=analog_sampe_word,
+            digital_sampe_word=digital_sampe_word,
+            total_sampe_word=total_sampe_word
+        )
+        for nrate in data_dict.get("nrates", []):
+            nrate = Nrate.from_dict(nrate)
+            if nrate is None:
+                continue
+            sample.nrates.append(nrate)
+
     def delete_sampling_nrate(self, index: int):
         """删除采样段信息"""
         self.nrates.pop(index)

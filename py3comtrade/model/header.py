@@ -64,5 +64,15 @@ class Header(BaseModel):
         except ValueError as e:
             raise ValueError(f"创建Header对象时发生错误: {str(e)}") from e
 
+    @classmethod
+    def header_from_dict(cls, data_dict: dict) -> 'Header':
+        """从字典解析配置头信息"""
+        if not data_dict or not isinstance(data_dict, dict):
+            raise TypeError(f"期望字典类型输入，实际得到: {type(data_dict).__name__}")
+        station_name = data_dict.get("station_name", "变电站")
+        recorder_name = data_dict.get("recorder_name", "录波设备")
+        version = data_dict.get("version", 1991)
+        return cls(station_name=station_name, recorder_name=recorder_name, version=version)
+
     def __str__(self):
         return f"{self.station_name},{self.recorder_name},{self.version}"
