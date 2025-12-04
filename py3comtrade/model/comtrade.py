@@ -33,9 +33,7 @@ from py3comtrade.model.configure import Configure
 from py3comtrade.model.equipment.equipment import Equipment
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.type.analog_enum import PsType
-from py3comtrade.model.type.data_file_type import DataFileType
-from py3comtrade.model.type.mode_enum import SampleMode
-from py3comtrade.model.type.types import ChannelType, IdxType, ValueType
+from py3comtrade.model.type import DataFileType,SampleMode,ChannelType, IdxType, ValueType
 from py3comtrade.utils.comtrade_file import ComtradeFile
 from py3comtrade.utils.file_tools import zip_files
 from py3comtrade.utils.result import Result
@@ -567,7 +565,7 @@ class Comtrade(Configure, Equipment):
         """
         将comtrade对象保存为文件
         参数:
-            _file_path(str) 保存路径,后缀名可选
+            file_path(str) 保存路径,后缀名可选
             data_file_type(str) 保存格式,默认保存为二进制文件
             compress(bool) 是否压缩为zip文件,默认为False
         返回:
@@ -674,7 +672,7 @@ class Comtrade(Configure, Equipment):
         将comtrade对象转换为JSON格式
 
         参数：
-            _file_path(str): 文件保存路径,当路径为空输出json对象
+            file_path(str): 文件保存路径,当路径为空输出json对象
         返回值:
             JSON对象
         """
@@ -698,7 +696,7 @@ class Comtrade(Configure, Equipment):
         将comtrade对象保存为csv文件
 
         参数：
-            _file_path(str): 文件保存路径
+            file_path(str): 文件保存路径
         返回值:
             文件路径
         """
@@ -752,7 +750,7 @@ class Comtrade(Configure, Equipment):
         将comtrade对象保存为excel文件
 
         参数：
-            _file_path(str): 文件保存路径
+            file_path(str): 文件保存路径
             samp_point_num_title(bool):是否添加采样点号行,默认添加
             sample_time_title(bool):是否添加采样时间行,默认为添加
             chunk_size(int): 分块处理的大小，默认为10000行

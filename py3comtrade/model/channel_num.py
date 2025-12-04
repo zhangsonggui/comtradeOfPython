@@ -25,10 +25,6 @@ class ChannelNum(BaseModel):
     analog_num: int = Field(default=0, description="模拟量通道数")
     digital_num: int = Field(default=0, description="开关量通道数")
 
-    def clear(self):
-        """清除模型中所有字段"""
-        for field in self.model_fields.keys():
-            setattr(self, field, 0)
 
     def __setattr__(self, name, value):
         super().__setattr__(name, value)
@@ -51,6 +47,11 @@ class ChannelNum(BaseModel):
 
     @classmethod
     def from_string(cls, data_str: str) -> 'ChannelNum':
+        """
+        从字符串中解析通道数量
+        :param data_str: 输入的字符串
+        :return: ChannelNum对象
+        """
         if not data_str or not isinstance(data_str, str):
             raise ComtradeDataFormatException(f"输入字符串不能为空或不是字符串类型")
         total_num, analog_num, digital_num = data_str.strip().split(",")
@@ -64,6 +65,11 @@ class ChannelNum(BaseModel):
 
     @classmethod
     def from_dict(cls, data_dict: dict) -> 'ChannelNum':
+        """
+        从字典中解析通道数量
+        :param data_dict: 输入的字典
+        :return: ChannelNum对象
+        """
         if not data_dict or not isinstance(data_dict, dict):
             raise ComtradeDataFormatException(f"输入字典不能为空或不是字典类型")
         total_num = data_dict.get("total_num", 0)

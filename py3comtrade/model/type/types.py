@@ -13,13 +13,10 @@ IntArray64 = NDArray[np.int64]
 IntArray32 = NDArray[np.int32]
 
 
-class FilePath(TypedDict):
-    # 配置文件路径
-    cfg_path: Path
-    # 数据文件路径
-    dat_path: Path
-    # 模型文件路径
-    dmf_path: Path
+class SampleMode(BaseEnum):
+    CENTERED = ("CENTERED", "以当前点为中心，前后各取数据。")  # 表示以当前点为中心，前后各取数据。
+    FORWARD = ("FORWARD", "表示从起点向后取数据。")
+    BACKWARD = ("BACKWARD", "表示从终点向前取数据。")
 
 
 class IdxType(BaseEnum):

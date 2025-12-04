@@ -14,7 +14,7 @@ class TestDataReader(unittest.TestCase):
     def setUp(self):
         cfg_name = f"{project_root}/tests/data/xtz.cfg"
         dat_name = f"{project_root}/tests/data/xtz.dat"
-        cfr = ComtradeFileReader(_file_path=cfg_name)
+        cfr = ComtradeFileReader(file_path=cfg_name)
         self.cfg = cfr.read_cfg_file()
         self.dat = data_reader(dat_name, self.cfg.sample)
 

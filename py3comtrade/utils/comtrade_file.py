@@ -18,7 +18,7 @@ class ComtradeFile(BaseModel):
     读取comtrade文件
 
     属性:
-        _file_path(str): 原始文件路径
+        file_path(str): 原始文件路径
     返回:
         ComtradeFile对象,包含file_path同名的所有comtrade后缀文件
     异常:
@@ -152,7 +152,7 @@ class ComtradeFile(BaseModel):
         return self
 
     def __repr__(self) -> str:
-        return f"ComtradeFile(_file_path='{self.file_path}', cfg={self.cfg_path is not None}, dat={self.dat_path is not None})"
+        return f"ComtradeFile(file_path='{self.file_path}', cfg={self.cfg_path is not None}, dat={self.dat_path is not None})"
 
 
 # 示例用法

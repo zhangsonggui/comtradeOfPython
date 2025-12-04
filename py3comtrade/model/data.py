@@ -21,3 +21,9 @@ class Data(BaseModel):
     digital_value: np.ndarray = Field(default=None, description="开关量值")
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
+class DataFile(BaseModel):
+    sample_points:list[int] = Field(description="采样点")
+    sample_times:list[int] = Field(description="采样时间")
+    analog_values:list[list[float]] = Field(description="模拟量值")
+    digital_values:list[list[int]] = Field(description="开关量值")

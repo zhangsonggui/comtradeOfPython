@@ -39,12 +39,12 @@ def read_ascii_file(file_path: str, _sample: ConfigSample):
     读取ASCII格式的数据文件并解析为样本数据
 
     参数:
-        _file_path (str): 要读取的ASCII格式的comtrade文件路径
+        file_path (str): 要读取的ASCII格式的comtrade文件路径
         _sample (ConfigSample): 采样信息对象，包含采样频率、采样段信息
 
     返回:
         Data: 包含解析后数据的Data对象，包含以下属性：
-            - _file_path: 文件路径
+            - file_path: 文件路径
             - sample_time: 采样时间数据（前2列）
             - analog_value: 模拟量数据（第3列到模拟量通道数+2列）
             - digital_value: 数字量数据（模拟量通道数+2列之后的所有列）
@@ -85,7 +85,7 @@ def read_binary_file(file_path: str, _sample: ConfigSample):
     读取二进制文件并解析为结构化数据
 
     参数:
-        _file_path (str): 二进制文件的路径
+        file_path (str): 二进制文件的路径
         _sample (ConfigSample): 配置样本对象，包含通道数量等配置信息
 
     返回:

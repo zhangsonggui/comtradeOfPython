@@ -33,6 +33,7 @@ class ConfigSample(BaseModel):
     nrate_num: int = Field(default=0, description="采样段个数")
     nrates: List[Nrate] = Field(default_factory=list, description="采样段列表")
     count: int = Field(default=0, description="总采样点数")
+    size:int = Field(default=0, description="DAT文件大小")
     data_file_type: DataFileType = Field(default=DataFileType.BINARY, description="数据文件类型")
     value_type: ValueType = Field(default=ValueType.INSTANT, description="采样值类型")
     analog_word: int = Field(default=2, description="模拟量字数")
@@ -101,6 +102,7 @@ class ConfigSample(BaseModel):
         self.count = self.nrates[-1].end_point
         self.nrate_num = len(self.nrates)
         self.__calc_sample_words()
+        self.size = self.count * self.total_sampe_word
 
     def __calc_sample_words(self):
         """

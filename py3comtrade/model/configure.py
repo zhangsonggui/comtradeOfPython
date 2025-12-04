@@ -26,9 +26,7 @@ from py3comtrade.model.header import Header
 from py3comtrade.model.nrate import Nrate
 from py3comtrade.model.precision_time import PrecisionTime
 from py3comtrade.model.timemult import TimeMult
-from py3comtrade.model.type.data_file_type import DataFileType
-from py3comtrade.model.type.mode_enum import SampleMode
-from py3comtrade.model.type.types import IdxType
+from py3comtrade.model.type import DataFileType,SampleMode,IdxType
 from py3comtrade.utils.log import logger
 
 
@@ -484,6 +482,7 @@ class Configure(BaseModel):
             # 读取时间倍率,如果没有则默认1.0
             if len(cfg_content) >= 7 + _channel_num.total_num + nrate_num:
                 _timemult = cfg_content[7 + _channel_num.total_num + nrate_num]
+                _timemult = _timemult if _timemult is not '' else 1.0
             else:
                 _timemult = 1.0
             return cls(header=_header, channel_num=_channel_num, analogs=_analogs, digitals=_digitals, sample=sample,
